@@ -34,6 +34,7 @@ export interface GradeDistribution {
 export interface StudentAssignmentPreview {
   assignment_id: number;
   title: string;
+  period_name: string;
   max_score: number;
   score: number | null;
   created_at: string;

@@ -14,7 +14,7 @@ export function useVisitations(studentId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<Visitation[]>(
-        `SELECT v.id, v.student_id, v.contact_id, c.name AS contact_name, v.notes, v.visited_at, v.created_at
+        `SELECT v.id, v.student_id, v.contact_id, c.name AS contact_name, c.relationship AS contact_relationship, v.notes, v.visited_at, v.created_at
          FROM visitations v
          JOIN contacts c ON c.id = v.contact_id
          WHERE v.student_id = ? AND v.is_deleted = 0

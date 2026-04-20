@@ -3,6 +3,7 @@ export interface Visitation {
   student_id: number;
   contact_id: number;
   contact_name: string;
+  contact_relationship: string | null;
   notes: string | null;
   visited_at: string;
   created_at: string;

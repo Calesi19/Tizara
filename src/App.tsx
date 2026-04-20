@@ -160,7 +160,6 @@ function App() {
             onGoToGroups={goToGroups}
             onGoToStudents={() => goToStudents(route.group)}
             onGoToContacts={() => goToContacts(route.group, route.student)}
-            onGoToAssignments={() => goToAssignments(route.group)}
           />
         );
       case "notes":
