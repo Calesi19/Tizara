@@ -14,7 +14,13 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const STUDENTS_PAGES = new Set(["students", "student-profile", "contacts", "visitations", "notes"]);
+const STUDENTS_PAGES = new Set([
+  "students",
+  "student-profile",
+  "contacts",
+  "visitations",
+  "notes",
+]);
 
 export function Sidebar({
   currentPage,
@@ -61,7 +67,7 @@ export function Sidebar({
     <aside className="bg-surface-secondary h-screen w-64 flex flex-col">
       <div className="p-5 pb-4">
         <h1 className="text-xl font-bold text-accent">Tizara</h1>
-        <p className="text-xs text-muted mt-0.5">Group Manager</p>
+        <p className="text-xs text-muted mt-0.5">Teacher's Helper</p>
       </div>
 
       <div className="px-3 pb-3">
@@ -86,7 +92,9 @@ export function Sidebar({
                   isPlaceholder ? (
                     <span className="text-foreground/40">Select group…</span>
                   ) : (
-                    <span className="font-medium truncate">{currentGroup?.name}</span>
+                    <span className="font-medium truncate">
+                      {currentGroup?.name}
+                    </span>
                   )
                 }
               </Select.Value>
