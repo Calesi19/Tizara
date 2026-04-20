@@ -19,13 +19,18 @@ import {
   DatePicker,
   DateField,
   Calendar,
+  Checkbox,
 } from "@heroui/react";
+import type { Selection } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
+import Database from "@tauri-apps/plugin-sql";
 import { useStudents } from "../hooks/useStudents";
 import { Breadcrumb } from "../components/Breadcrumb";
 import type { Classroom } from "../types/classroom";
 import type { Student } from "../types/student";
+
+const DB_URL = "sqlite:tizara.db";
 
 interface StudentsPageProps {
   classroom: Classroom;
@@ -36,16 +41,27 @@ interface StudentsPageProps {
 export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: StudentsPageProps) {
   const { students, loading, error, addStudent } = useStudents(classroom.id);
   const modalState = useOverlayState();
+  const noteModalState = useOverlayState();
   const emptyForm = { name: "", gender: "", birthdate: "", student_number: "", enrollment_date: "" };
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+  const [noteContent, setNoteContent] = useState("");
+  const [noteSubmitting, setNoteSubmitting] = useState(false);
+  const [noteError, setNoteError] = useState<string | null>(null);
 
   const closeModal = () => {
     setForm(emptyForm);
     setAddError(null);
     modalState.close();
+  };
+
+  const closeNoteModal = () => {
+    setNoteContent("");
+    setNoteError(null);
+    noteModalState.close();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,6 +77,41 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
       setAddError(String(err));
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const filtered = students.filter((s) =>
+    s.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const selectedStudents =
+    selectedKeys === "all"
+      ? filtered
+      : filtered.filter((s) => (selectedKeys as Set<number>).has(s.id));
+
+  const hasSelection = selectedStudents.length > 0;
+
+  const handleBulkAddNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!noteContent.trim()) return;
+    setNoteSubmitting(true);
+    setNoteError(null);
+    try {
+      const db = await Database.load(DB_URL);
+      await Promise.all(
+        selectedStudents.map((s) =>
+          db.execute(
+            "INSERT INTO student_notes (student_id, content) VALUES (?, ?)",
+            [s.id, noteContent.trim()]
+          )
+        )
+      );
+      setSelectedKeys(new Set());
+      closeNoteModal();
+    } catch (err) {
+      setNoteError(String(err));
+    } finally {
+      setNoteSubmitting(false);
     }
   };
 
@@ -81,7 +132,6 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
         </p>
       </div>
 
-
       <div className="flex items-center justify-between mt-6 mb-4">
         {!loading && students.length > 0 && (
           <Input
@@ -91,9 +141,25 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
             className="max-w-xs"
           />
         )}
-        <Button variant="primary" size="sm" onPress={modalState.open}>
-          + Add Student
-        </Button>
+        <div className="flex items-center gap-2 ml-auto">
+          {hasSelection ? (
+            <>
+              <span className="text-sm text-muted">
+                {selectedStudents.length} selected
+              </span>
+              <Button variant="secondary" size="sm" onPress={noteModalState.open}>
+                + Add Note
+              </Button>
+              <Button variant="ghost" size="sm" onPress={() => setSelectedKeys(new Set())}>
+                Clear
+              </Button>
+            </>
+          ) : (
+            <Button variant="primary" size="sm" onPress={modalState.open}>
+              + Add Student
+            </Button>
+          )}
+        </div>
       </div>
 
       {loading && (
@@ -118,62 +184,78 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
           </div>
         )}
 
-        {!loading && students.length > 0 && (() => {
-          const filtered = students.filter((s) =>
-            s.name.toLowerCase().includes(search.toLowerCase())
-          );
-          return (
-            <>
-              {filtered.length === 0 ? (
-                <div className="flex flex-col items-center justify-center flex-1 text-center">
-                  <p className="text-lg font-semibold text-muted">No results</p>
-                  <p className="text-sm text-foreground/40 mt-1">No students match "{search}".</p>
-                </div>
-              ) : (
-                <TableRoot variant="primary" className="flex-1 h-full">
-                  <TableScrollContainer className="h-full">
-                    <TableContent
-                      aria-label="Students"
-                      selectionMode="none"
-                      onRowAction={(key) => {
-                        const student = students.find((s) => s.id === key);
-                        if (student) onSelectStudent(student);
-                      }}
-                    >
-                      <TableHeader>
-                        <TableColumn isRowHeader>Name</TableColumn>
-                        <TableColumn>Gender</TableColumn>
-                        <TableColumn>Birthdate</TableColumn>
-                        <TableColumn>Student ID</TableColumn>
-                      </TableHeader>
-                      <TableBody>
-                        {filtered.map((s) => (
-                          <TableRow key={s.id} id={s.id} className="cursor-pointer">
-                            <TableCell className="font-medium">{s.name}</TableCell>
-                            <TableCell className="text-sm text-foreground/50">{s.gender || "—"}</TableCell>
-                            <TableCell className="text-sm text-foreground/50">
-                              {s.birthdate ? (() => {
-                                const birth = new Date(s.birthdate);
-                                const today = new Date();
-                                let age = today.getFullYear() - birth.getFullYear();
-                                const m = today.getMonth() - birth.getMonth();
-                                if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-                                return `${birth.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} (${age})`;
-                              })() : "—"}
-                            </TableCell>
-                            <TableCell className="text-sm text-foreground/40">{s.student_number || "—"}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </TableContent>
-                  </TableScrollContainer>
-                </TableRoot>
-              )}
-            </>
-          );
-        })()}
+        {!loading && students.length > 0 && (
+          <>
+            {filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center flex-1 text-center">
+                <p className="text-lg font-semibold text-muted">No results</p>
+                <p className="text-sm text-foreground/40 mt-1">No students match "{search}".</p>
+              </div>
+            ) : (
+              <TableRoot variant="primary" className="flex-1 h-full">
+                <TableScrollContainer className="h-full">
+                  <TableContent
+                    aria-label="Students"
+                    selectionMode="multiple"
+                    selectedKeys={selectedKeys}
+                    onSelectionChange={setSelectedKeys}
+                    onRowAction={(key) => {
+                      const student = students.find((s) => s.id === key);
+                      if (student) onSelectStudent(student);
+                    }}
+                  >
+                    <TableHeader>
+                      <TableColumn className="pr-0 w-10">
+                        <Checkbox aria-label="Select all" slot="selection">
+                          <Checkbox.Control>
+                            <Checkbox.Indicator />
+                          </Checkbox.Control>
+                        </Checkbox>
+                      </TableColumn>
+                      <TableColumn isRowHeader>Name</TableColumn>
+                      <TableColumn>Gender</TableColumn>
+                      <TableColumn>Birthdate</TableColumn>
+                      <TableColumn>Student ID</TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((s) => (
+                        <TableRow key={s.id} id={s.id} className="cursor-pointer">
+                          <TableCell className="pr-0">
+                            <Checkbox
+                              aria-label={`Select ${s.name}`}
+                              slot="selection"
+                              variant="secondary"
+                            >
+                              <Checkbox.Control>
+                                <Checkbox.Indicator />
+                              </Checkbox.Control>
+                            </Checkbox>
+                          </TableCell>
+                          <TableCell className="font-medium">{s.name}</TableCell>
+                          <TableCell className="text-sm text-foreground/50">{s.gender || "—"}</TableCell>
+                          <TableCell className="text-sm text-foreground/50">
+                            {s.birthdate ? (() => {
+                              const birth = new Date(s.birthdate);
+                              const today = new Date();
+                              let age = today.getFullYear() - birth.getFullYear();
+                              const m = today.getMonth() - birth.getMonth();
+                              if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+                              return `${birth.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} (${age})`;
+                            })() : "—"}
+                          </TableCell>
+                          <TableCell className="text-sm text-foreground/40">{s.student_number || "—"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </TableContent>
+                </TableScrollContainer>
+              </TableRoot>
+            )}
+          </>
+        )}
       </div>
 
+      {/* Add Student modal */}
       <Modal state={modalState}>
         <Modal.Backdrop isDismissable={!submitting}>
           <Modal.Container>
@@ -333,6 +415,44 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
                   </Button>
                   <Button type="submit" variant="primary" isDisabled={submitting}>
                     {submitting ? <Spinner size="sm" /> : "Add"}
+                  </Button>
+                </Modal.Footer>
+              </form>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
+
+      {/* Bulk Add Note modal */}
+      <Modal state={noteModalState}>
+        <Modal.Backdrop isDismissable={!noteSubmitting}>
+          <Modal.Container>
+            <Modal.Dialog>
+              <form onSubmit={handleBulkAddNote}>
+                <Modal.Header>
+                  Add Note to {selectedStudents.length} student{selectedStudents.length !== 1 ? "s" : ""}
+                </Modal.Header>
+                <Modal.Body className="flex flex-col gap-4 pb-px overflow-visible">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="bulk-note-content">Note *</Label>
+                    <textarea
+                      id="bulk-note-content"
+                      value={noteContent}
+                      onChange={(e) => setNoteContent(e.target.value)}
+                      placeholder="Write your note here..."
+                      rows={4}
+                      required
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+                    />
+                  </div>
+                  {noteError && <p className="text-danger text-sm">{noteError}</p>}
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button type="button" variant="ghost" onPress={closeNoteModal}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" variant="primary" isDisabled={noteSubmitting || !noteContent.trim()}>
+                    {noteSubmitting ? <Spinner size="sm" /> : "Add"}
                   </Button>
                 </Modal.Footer>
               </form>
