@@ -39,10 +39,10 @@ function App() {
   const goToAttendance = (classroom: Classroom) => setRoute({ page: "attendance", classroom });
   const goToSettings = () => setRoute({ page: "settings" });
 
-  const currentClassroom: Classroom | null =
-    route.page !== "classrooms" && route.page !== "settings" ? route.classroom : null;
+  const [currentClassroom, setCurrentClassroom] = useState<Classroom | null>(null);
 
   const handleSelectClassroom = (classroom: Classroom) => {
+    setCurrentClassroom(classroom);
     switch (route.page) {
       case "schedule": return goToSchedule(classroom);
       case "attendance": return goToAttendance(classroom);
@@ -63,7 +63,7 @@ function App() {
   function renderPage() {
     switch (route.page) {
       case "classrooms":
-        return <ClassroomsPage onSelectClassroom={(c) => goToStudents(c)} />;
+        return <ClassroomsPage currentClassroom={currentClassroom} onSelectClassroom={(c) => { setCurrentClassroom(c); goToStudents(c); }} />;
       case "students":
         return (
           <StudentsPage

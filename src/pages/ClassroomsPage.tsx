@@ -7,9 +7,10 @@ import type { Classroom } from "../types/classroom";
 
 interface ClassroomsPageProps {
   onSelectClassroom: (classroom: Classroom) => void;
+  currentClassroom: Classroom | null;
 }
 
-export function ClassroomsPage({ onSelectClassroom }: ClassroomsPageProps) {
+export function ClassroomsPage({ onSelectClassroom, currentClassroom }: ClassroomsPageProps) {
   const { classrooms, loading, error, addClassroom } = useClassrooms();
 
   return (
@@ -45,7 +46,7 @@ export function ClassroomsPage({ onSelectClassroom }: ClassroomsPageProps) {
       {!loading && classrooms.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {classrooms.map((c) => (
-            <ClassroomCard key={c.id} classroom={c} onClick={() => onSelectClassroom(c)} />
+            <ClassroomCard key={c.id} classroom={c} isSelected={currentClassroom?.id === c.id} onClick={() => onSelectClassroom(c)} />
           ))}
         </div>
       )}

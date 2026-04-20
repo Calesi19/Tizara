@@ -14,7 +14,12 @@ export function useClassrooms() {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<Classroom[]>(
-        "SELECT id, name, subject, grade, created_at FROM classrooms ORDER BY created_at DESC"
+        `SELECT c.id, c.name, c.subject, c.grade, c.created_at,
+                COUNT(s.id) AS student_count
+         FROM classrooms c
+         LEFT JOIN students s ON s.classroom_id = c.id
+         GROUP BY c.id
+         ORDER BY c.created_at DESC`
       );
       setClassrooms(rows);
       setError(null);
