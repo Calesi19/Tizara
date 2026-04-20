@@ -77,9 +77,12 @@ import { VisitationsPage } from "./pages/VisitationsPage";
 import { NotesPage } from "./pages/NotesPage";
 import { SchedulePage } from "./pages/SchedulePage";
 import { AttendancePage } from "./pages/AttendancePage";
+import { AssignmentsPage } from "./pages/AssignmentsPage";
+import { AssignmentDetailPage } from "./pages/AssignmentDetailPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import type { Group } from "./types/group";
 import type { Student } from "./types/student";
+import type { Assignment } from "./types/assignment";
 
 type Route =
   | { page: "groups" }
@@ -90,6 +93,8 @@ type Route =
   | { page: "notes"; group: Group; student: Student }
   | { page: "schedule"; group: Group }
   | { page: "attendance"; group: Group }
+  | { page: "assignments"; group: Group }
+  | { page: "assignment-detail"; group: Group; assignment: Assignment }
   | { page: "settings" };
 
 function App() {
@@ -110,6 +115,9 @@ function App() {
     setRoute({ page: "notes", group, student });
   const goToSchedule = (group: Group) => setRoute({ page: "schedule", group });
   const goToAttendance = (group: Group) => setRoute({ page: "attendance", group });
+  const goToAssignments = (group: Group) => setRoute({ page: "assignments", group });
+  const goToAssignmentDetail = (group: Group, assignment: Assignment) =>
+    setRoute({ page: "assignment-detail", group, assignment });
   const goToSettings = () => setRoute({ page: "settings" });
 
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
@@ -119,6 +127,8 @@ function App() {
     switch (route.page) {
       case "schedule": return goToSchedule(group);
       case "attendance": return goToAttendance(group);
+      case "assignments":
+      case "assignment-detail": return goToAssignments(group);
       default: return goToStudents(group);
     }
   };
@@ -130,6 +140,7 @@ function App() {
     onGoToStudents: () => currentGroup && goToStudents(currentGroup),
     onGoToSchedule: () => currentGroup && goToSchedule(currentGroup),
     onGoToAttendance: () => currentGroup && goToAttendance(currentGroup),
+    onGoToAssignments: () => currentGroup && goToAssignments(currentGroup),
     onGoToSettings: goToSettings,
   };
 
@@ -155,6 +166,7 @@ function App() {
             onGoToContacts={() => goToContacts(route.group, route.student)}
             onGoToVisitations={() => goToVisitations(route.group, route.student)}
             onGoToNotes={() => goToNotes(route.group, route.student)}
+            onGoToAssignments={() => goToAssignments(route.group)}
           />
         );
       case "notes":
@@ -203,6 +215,25 @@ function App() {
             onGoToGroups={goToGroups}
             onGoToStudents={() => goToStudents(route.group)}
             onGoToSchedule={() => goToSchedule(route.group)}
+          />
+        );
+      case "assignments":
+        return (
+          <AssignmentsPage
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onSelectAssignment={(a) => goToAssignmentDetail(route.group, a)}
+          />
+        );
+      case "assignment-detail":
+        return (
+          <AssignmentDetailPage
+            assignment={route.assignment}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToAssignments={() => goToAssignments(route.group)}
           />
         );
       case "settings":

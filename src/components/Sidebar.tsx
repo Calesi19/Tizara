@@ -1,5 +1,5 @@
 import { Button, Select, ListBox, Spinner } from "@heroui/react";
-import { Users, CalendarDays, ClipboardCheck, Settings } from "lucide-react";
+import { Users, CalendarDays, ClipboardCheck, BookOpen, Settings } from "lucide-react";
 import { useGroups } from "../hooks/useGroups";
 import type { Group } from "../types/group";
 
@@ -10,6 +10,7 @@ interface SidebarProps {
   onGoToStudents: () => void;
   onGoToSchedule: () => void;
   onGoToAttendance: () => void;
+  onGoToAssignments: () => void;
   onGoToSettings: () => void;
   onClose?: () => void;
 }
@@ -29,6 +30,7 @@ export function Sidebar({
   onGoToStudents,
   onGoToSchedule,
   onGoToAttendance,
+  onGoToAssignments,
   onGoToSettings,
   onClose,
 }: SidebarProps) {
@@ -60,6 +62,13 @@ export function Sidebar({
       icon: <ClipboardCheck size={16} />,
       active: currentPage === "attendance",
       onPress: nav(onGoToAttendance),
+    },
+    {
+      id: "assignments",
+      label: "Assignments",
+      icon: <BookOpen size={16} />,
+      active: currentPage === "assignments" || currentPage === "assignment-detail",
+      onPress: nav(onGoToAssignments),
     },
   ];
 

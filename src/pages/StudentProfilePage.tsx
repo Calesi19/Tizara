@@ -3,6 +3,7 @@ import { Breadcrumb } from "../components/Breadcrumb";
 import { useContacts } from "../hooks/useContacts";
 import { useNotes } from "../hooks/useNotes";
 import { useVisitations } from "../hooks/useVisitations";
+import { useStudentAssignmentPreviews } from "../hooks/useStudentAssignmentPreviews";
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 
@@ -14,6 +15,7 @@ interface StudentProfilePageProps {
   onGoToContacts: () => void;
   onGoToVisitations: () => void;
   onGoToNotes: () => void;
+  onGoToAssignments: () => void;
 }
 
 function InfoField({ label, value }: { label: string; value: React.ReactNode }) {
@@ -62,10 +64,12 @@ export function StudentProfilePage({
   onGoToContacts,
   onGoToVisitations,
   onGoToNotes,
+  onGoToAssignments,
 }: StudentProfilePageProps) {
   const { contacts, loading: loadingContacts } = useContacts(student.id);
   const { notes, loading: loadingNotes } = useNotes(student.id);
   const { visitations, loading: loadingVisitations } = useVisitations(student.id);
+  const { previews: assignmentPreviews, loading: loadingAssignments } = useStudentAssignmentPreviews(student.id, group.id);
 
   return (
     <div className="p-6">
@@ -236,6 +240,54 @@ export function StudentProfilePage({
               <div key={note.id} className="flex flex-col gap-0.5">
                 <p className="text-sm text-foreground">{note.content}</p>
                 <p className="text-xs text-muted">{formatNoteTimestamp(note.created_at)}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </Surface>
+
+      <Surface variant="secondary" className="rounded-2xl p-5 mt-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">Recent Assignments</h3>
+          <button
+            type="button"
+            onClick={onGoToAssignments}
+            className="text-xs text-accent hover:underline"
+          >
+            View all →
+          </button>
+        </div>
+
+        {loadingAssignments ? (
+          <div className="flex justify-center py-4">
+            <Spinner size="sm" color="accent" />
+          </div>
+        ) : assignmentPreviews.length === 0 ? (
+          <p className="text-sm text-foreground/40">No assignments yet.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {assignmentPreviews.map((p) => (
+              <div key={p.assignment_id} className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-sm font-medium text-foreground truncate">{p.title}</span>
+                  <span className="text-xs text-muted">
+                    {new Date(p.created_at).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <div className="text-sm font-medium text-right shrink-0">
+                  {p.score !== null ? (
+                    <span className={p.score > p.max_score ? "text-warning" : "text-foreground"}>
+                      {p.score}
+                    </span>
+                  ) : (
+                    <span className="text-foreground/30">—</span>
+                  )}
+                  <span className="text-xs text-muted ml-0.5">/ {p.max_score}</span>
+                </div>
               </div>
             ))}
           </div>

@@ -112,6 +112,55 @@ pub fn run() {
             );",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 9,
+            description: "create_assignments_table",
+            sql: "CREATE TABLE IF NOT EXISTS assignments (
+                id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+                group_id           INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+                schedule_period_id INTEGER NOT NULL REFERENCES schedule_periods(id) ON DELETE CASCADE,
+                title              TEXT    NOT NULL,
+                description        TEXT,
+                max_score          REAL    NOT NULL,
+                is_deleted         INTEGER NOT NULL DEFAULT 0,
+                created_at         DATETIME DEFAULT CURRENT_TIMESTAMP
+            );",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 10,
+            description: "create_assignment_scores_table",
+            sql: "CREATE TABLE IF NOT EXISTS assignment_scores (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                assignment_id INTEGER NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,
+                student_id    INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+                score         REAL,
+                is_deleted    INTEGER NOT NULL DEFAULT 0,
+                created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT uq_assignment_score UNIQUE (assignment_id, student_id)
+            );",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 11,
+            description: "assignments_use_period_name",
+            sql: "CREATE TABLE IF NOT EXISTS assignments_v2 (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                group_id    INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+                period_name TEXT    NOT NULL,
+                title       TEXT    NOT NULL,
+                description TEXT,
+                max_score   REAL    NOT NULL,
+                is_deleted  INTEGER NOT NULL DEFAULT 0,
+                created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+            INSERT OR IGNORE INTO assignments_v2 (id, group_id, period_name, title, description, max_score, is_deleted, created_at)
+                SELECT a.id, a.group_id, COALESCE(sp.name, ''), a.title, a.description, a.max_score, a.is_deleted, a.created_at
+                FROM assignments a LEFT JOIN schedule_periods sp ON sp.id = a.schedule_period_id;
+            DROP TABLE assignments;
+            ALTER TABLE assignments_v2 RENAME TO assignments;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
