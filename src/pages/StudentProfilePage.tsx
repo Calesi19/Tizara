@@ -1,6 +1,7 @@
 import { Avatar, Card, Chip, Surface, ListBox, Spinner } from "@heroui/react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useFamilyMembers } from "../hooks/useFamilyMembers";
+import { useNotes } from "../hooks/useNotes";
 import type { Classroom } from "../types/classroom";
 import type { Student } from "../types/student";
 
@@ -10,6 +11,7 @@ interface StudentProfilePageProps {
   onGoToClassrooms: () => void;
   onGoToStudents: () => void;
   onGoToFamilyMembers: () => void;
+  onGoToNotes: () => void;
 }
 
 function InfoField({ label, value }: { label: string; value: React.ReactNode }) {
@@ -30,14 +32,27 @@ function getAge(birthdate: string): number {
   return age;
 }
 
+function formatNoteTimestamp(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 export function StudentProfilePage({
   student,
   classroom,
   onGoToClassrooms,
   onGoToStudents,
   onGoToFamilyMembers,
+  onGoToNotes,
 }: StudentProfilePageProps) {
   const { familyMembers, loading: loadingFamily } = useFamilyMembers(student.id);
+  const { notes, loading: loadingNotes } = useNotes(student.id);
 
   return (
     <div className="p-6">
@@ -144,6 +159,36 @@ export function StudentProfilePage({
           )}
         </Surface>
       </div>
+
+      <Surface variant="secondary" className="rounded-2xl p-5 mt-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">Recent Notes</h3>
+          <button
+            type="button"
+            onClick={onGoToNotes}
+            className="text-xs text-accent hover:underline"
+          >
+            View all →
+          </button>
+        </div>
+
+        {loadingNotes ? (
+          <div className="flex justify-center py-4">
+            <Spinner size="sm" color="accent" />
+          </div>
+        ) : notes.length === 0 ? (
+          <p className="text-sm text-foreground/40">No notes added yet.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {notes.slice(0, 3).map((note) => (
+              <div key={note.id} className="flex flex-col gap-0.5">
+                <p className="text-sm text-foreground">{note.content}</p>
+                <p className="text-xs text-muted">{formatNoteTimestamp(note.created_at)}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </Surface>
     </div>
   );
 }

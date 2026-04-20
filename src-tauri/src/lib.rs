@@ -55,6 +55,17 @@ pub fn run() {
             sql: "ALTER TABLE family_members ADD COLUMN is_emergency_contact INTEGER NOT NULL DEFAULT 0;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 6,
+            description: "create_student_notes_table",
+            sql: "CREATE TABLE IF NOT EXISTS student_notes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+                content TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

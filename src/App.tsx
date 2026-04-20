@@ -6,6 +6,7 @@ import { ClassroomsPage } from "./pages/ClassroomsPage";
 import { StudentsPage } from "./pages/StudentsPage";
 import { StudentProfilePage } from "./pages/StudentProfilePage";
 import { FamilyMembersPage } from "./pages/FamilyMembersPage";
+import { NotesPage } from "./pages/NotesPage";
 import type { Classroom } from "./types/classroom";
 import type { Student } from "./types/student";
 
@@ -13,7 +14,8 @@ type Route =
   | { page: "classrooms" }
   | { page: "students"; classroom: Classroom }
   | { page: "student-profile"; classroom: Classroom; student: Student }
-  | { page: "family-members"; classroom: Classroom; student: Student };
+  | { page: "family-members"; classroom: Classroom; student: Student }
+  | { page: "notes"; classroom: Classroom; student: Student };
 
 function App() {
   const drawerState = useOverlayState();
@@ -25,6 +27,8 @@ function App() {
     setRoute({ page: "student-profile", classroom, student });
   const goToFamilyMembers = (classroom: Classroom, student: Student) =>
     setRoute({ page: "family-members", classroom, student });
+  const goToNotes = (classroom: Classroom, student: Student) =>
+    setRoute({ page: "notes", classroom, student });
 
   function renderPage() {
     switch (route.page) {
@@ -46,6 +50,17 @@ function App() {
             onGoToClassrooms={goToClassrooms}
             onGoToStudents={() => goToStudents(route.classroom)}
             onGoToFamilyMembers={() => goToFamilyMembers(route.classroom, route.student)}
+            onGoToNotes={() => goToNotes(route.classroom, route.student)}
+          />
+        );
+      case "notes":
+        return (
+          <NotesPage
+            student={route.student}
+            classroom={route.classroom}
+            onGoToClassrooms={goToClassrooms}
+            onGoToStudents={() => goToStudents(route.classroom)}
+            onGoToStudentProfile={() => goToStudentProfile(route.classroom, route.student)}
           />
         );
       case "family-members":
