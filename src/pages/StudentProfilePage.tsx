@@ -107,7 +107,7 @@ export function StudentProfilePage({
 
         <Surface variant="secondary" className="rounded-2xl p-5 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold">Family Members</h3>
+            <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">Family Members</h3>
             <button
               type="button"
               onClick={onGoToFamilyMembers}
