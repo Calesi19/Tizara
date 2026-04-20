@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Button, Spinner } from "@heroui/react";
 import { CalendarCheck } from "lucide-react";
 import { useSchedule } from "../hooks/useSchedule";
@@ -5,7 +6,7 @@ import { Breadcrumb } from "../components/Breadcrumb";
 import { AddPeriodModal } from "../components/AddPeriodModal";
 import { PeriodCard } from "../components/PeriodCard";
 import { DAY_LABELS } from "../types/schedule";
-import type { DayOfWeek } from "../types/schedule";
+import type { SchedulePeriod, DayOfWeek } from "../types/schedule";
 import type { Group } from "../types/group";
 
 interface SchedulePageProps {
@@ -20,6 +21,83 @@ const DAY_SHORT: Record<DayOfWeek, string> = {
   1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat", 0: "Sun",
 };
 
+const SLOT_HEIGHT = 16; // px per 15 minutes
+const HOUR_HEIGHT = SLOT_HEIGHT * 4; // 64px per hour
+
+function timeToMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function formatHourLabel(hour: number): string {
+  if (hour === 0 || hour === 24) return "12 AM";
+  if (hour === 12) return "12 PM";
+  return hour < 12 ? `${hour} AM` : `${hour - 12} PM`;
+}
+
+// Returns layout info (lane index + total lanes in the overlap cluster) for each period id.
+function computeDayLayout(periods: SchedulePeriod[]): Map<number, { lane: number; totalLanes: number }> {
+  const result = new Map<number, { lane: number; totalLanes: number }>();
+  if (periods.length === 0) return result;
+
+  const sorted = [...periods].sort(
+    (a, b) => timeToMinutes(a.start_time) - timeToMinutes(b.start_time)
+  );
+
+  function overlaps(a: SchedulePeriod, b: SchedulePeriod): boolean {
+    return (
+      timeToMinutes(a.start_time) < timeToMinutes(b.end_time) &&
+      timeToMinutes(b.start_time) < timeToMinutes(a.end_time)
+    );
+  }
+
+  // BFS to find connected overlap clusters
+  const visited = new Set<number>();
+
+  for (const seed of sorted) {
+    if (visited.has(seed.id)) continue;
+
+    // Collect all periods reachable via overlaps (transitively)
+    const cluster: SchedulePeriod[] = [];
+    const queue = [seed];
+    while (queue.length > 0) {
+      const cur = queue.pop()!;
+      if (visited.has(cur.id)) continue;
+      visited.add(cur.id);
+      cluster.push(cur);
+      for (const other of sorted) {
+        if (!visited.has(other.id) && overlaps(cur, other)) {
+          queue.push(other);
+        }
+      }
+    }
+
+    // Greedy lane assignment within cluster
+    const laneEnds: number[] = []; // laneEnds[i] = end-minute of last period in lane i
+    const laneOf = new Map<number, number>();
+
+    for (const p of cluster.sort(
+      (a, b) => timeToMinutes(a.start_time) - timeToMinutes(b.start_time)
+    )) {
+      const start = timeToMinutes(p.start_time);
+      let lane = laneEnds.findIndex((end) => end <= start);
+      if (lane === -1) {
+        lane = laneEnds.length;
+        laneEnds.push(0);
+      }
+      laneEnds[lane] = timeToMinutes(p.end_time);
+      laneOf.set(p.id, lane);
+    }
+
+    const totalLanes = laneEnds.length;
+    for (const p of cluster) {
+      result.set(p.id, { lane: laneOf.get(p.id)!, totalLanes });
+    }
+  }
+
+  return result;
+}
+
 export function SchedulePage({
   group,
   onGoToGroups,
@@ -28,6 +106,28 @@ export function SchedulePage({
 }: SchedulePageProps) {
   const { periods, loading, error, addPeriod, updatePeriod, deletePeriod, periodsByDay } =
     useSchedule(group.id);
+
+  const { gridStartHour, gridStartMin, totalHeight, hours } = useMemo(() => {
+    const startMins = periods.map((p) => timeToMinutes(p.start_time));
+    const endMins = periods.map((p) => timeToMinutes(p.end_time));
+    const start = periods.length > 0 ? Math.max(0, Math.floor(Math.min(...startMins) / 60) - 1) : 7;
+    const end = periods.length > 0 ? Math.min(24, Math.ceil(Math.max(...endMins) / 60) + 1) : 18;
+    return {
+      gridStartHour: start,
+      gridStartMin: start * 60,
+      totalHeight: (end - start) * HOUR_HEIGHT,
+      hours: Array.from({ length: end - start + 1 }, (_, i) => start + i),
+    };
+  }, [periods]);
+
+  // Lane layout per day
+  const dayLayouts = useMemo(() => {
+    const map = new Map<DayOfWeek, Map<number, { lane: number; totalLanes: number }>>();
+    for (const day of ORDERED_DAYS) {
+      map.set(day, computeDayLayout(periodsByDay.get(day) ?? []));
+    }
+    return map;
+  }, [periodsByDay]);
 
   return (
     <div className="p-6 flex flex-col h-full">
@@ -80,42 +180,108 @@ export function SchedulePage({
 
       {!loading && !error && periods.length > 0 && (
         <>
-          {/* Week view — large screens */}
-          <div className="hidden lg:grid grid-cols-7 gap-2 flex-1 min-h-0">
-            {ORDERED_DAYS.map((day) => {
-              const dayPeriods = periodsByDay.get(day) ?? [];
-              return (
-                <div key={day} className="flex flex-col min-h-0">
-                  <div className="text-center py-2 mb-2 border-b border-border/40">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
-                      {DAY_SHORT[day]}
+          {/* ── Week view (lg+) ── */}
+          <div className="hidden lg:flex flex-col flex-1 min-h-0 rounded-xl border border-border/40 overflow-hidden">
+
+            {/* Day header row */}
+            <div
+              className="grid shrink-0 border-b border-border/40 bg-background-secondary"
+              style={{ gridTemplateColumns: "3.5rem repeat(7, 1fr)" }}
+            >
+              <div />
+              {ORDERED_DAYS.map((day) => (
+                <div key={day} className="text-center py-2 border-l border-border/30">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
+                    {DAY_SHORT[day]}
+                  </span>
+                  {(periodsByDay.get(day)?.length ?? 0) > 0 && (
+                    <span className="block text-foreground/30 text-xs leading-tight">
+                      {periodsByDay.get(day)!.length} period{periodsByDay.get(day)!.length !== 1 ? "s" : ""}
                     </span>
-                    {dayPeriods.length > 0 && (
-                      <span className="block text-foreground/30 text-xs mt-0.5">
-                        {dayPeriods.length}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1.5 overflow-y-auto">
-                    {dayPeriods.map((period) => (
-                      <PeriodCard
-                        key={period.id}
-                        period={period}
-                        onDelete={deletePeriod}
-                        onEdit={updatePeriod}
-                        compact
-                      />
-                    ))}
-                    {dayPeriods.length === 0 && (
-                      <p className="text-center text-foreground/20 text-xs pt-3">—</p>
-                    )}
-                  </div>
+                  )}
                 </div>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Scrollable time grid */}
+            <div className="flex-1 overflow-y-auto">
+              <div
+                className="relative grid"
+                style={{ gridTemplateColumns: "3.5rem repeat(7, 1fr)", height: totalHeight }}
+              >
+                {/* Time gutter */}
+                <div className="relative border-r border-border/30">
+                  {hours.map((hour) => (
+                    <div
+                      key={hour}
+                      className="absolute right-2 text-xs text-foreground/40 leading-none -translate-y-1/2"
+                      style={{ top: (hour - gridStartHour) * HOUR_HEIGHT }}
+                    >
+                      {formatHourLabel(hour)}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Day columns */}
+                {ORDERED_DAYS.map((day) => {
+                  const dayPeriods = periodsByDay.get(day) ?? [];
+                  const layout = dayLayouts.get(day)!;
+                  return (
+                    <div key={day} className="relative border-l border-border/20">
+                      {/* Hour lines */}
+                      {hours.map((hour) => (
+                        <div
+                          key={hour}
+                          className="absolute left-0 right-0 border-t border-border/25"
+                          style={{ top: (hour - gridStartHour) * HOUR_HEIGHT }}
+                        />
+                      ))}
+                      {/* Half-hour lines */}
+                      {hours.slice(0, -1).map((hour) => (
+                        <div
+                          key={`hh-${hour}`}
+                          className="absolute left-0 right-0 border-t border-border/10"
+                          style={{ top: (hour - gridStartHour) * HOUR_HEIGHT + HOUR_HEIGHT / 2 }}
+                        />
+                      ))}
+                      {/* Period blocks */}
+                      {dayPeriods.map((period) => {
+                        const top =
+                          ((timeToMinutes(period.start_time) - gridStartMin) / 15) * SLOT_HEIGHT;
+                        const height = Math.max(
+                          ((timeToMinutes(period.end_time) - timeToMinutes(period.start_time)) / 15) *
+                            SLOT_HEIGHT,
+                          SLOT_HEIGHT * 2
+                        );
+                        const { lane, totalLanes } = layout.get(period.id) ?? { lane: 0, totalLanes: 1 };
+                        return (
+                          <div
+                            key={period.id}
+                            className="absolute z-10"
+                            style={{
+                              top,
+                              height,
+                              left: `calc(3px + ${lane} * ((100% - 6px) / ${totalLanes}))`,
+                              width: `calc((100% - 6px) / ${totalLanes} - 2px)`,
+                            }}
+                          >
+                            <PeriodCard
+                              period={period}
+                              onDelete={deletePeriod}
+                              onEdit={updatePeriod}
+                              compact
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          {/* List view — small screens */}
+          {/* ── List view (< lg) ── */}
           <div className="lg:hidden flex flex-col gap-6">
             {ORDERED_DAYS.filter((day) => periodsByDay.has(day)).map((day) => (
               <div key={day}>
@@ -124,7 +290,8 @@ export function SchedulePage({
                     {DAY_LABELS[day]}
                   </h3>
                   <span className="text-xs text-foreground/40">
-                    ({periodsByDay.get(day)!.length} period{periodsByDay.get(day)!.length !== 1 ? "s" : ""})
+                    ({periodsByDay.get(day)!.length} period
+                    {periodsByDay.get(day)!.length !== 1 ? "s" : ""})
                   </span>
                 </div>
                 <div className="flex flex-col gap-2">

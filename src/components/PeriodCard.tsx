@@ -117,12 +117,12 @@ export function PeriodCard({ period, onDelete, onEdit, compact = false }: Period
   if (compact) {
     return (
       <>
-        <div className="group relative rounded-lg bg-background border border-border/60 px-2.5 py-2 text-xs hover:border-accent/40 transition-colors">
-          <div className="font-medium text-foreground truncate pr-8">{period.name}</div>
-          <div className="text-foreground/50 mt-0.5 font-mono">
+        <div className="group relative h-full rounded-lg bg-accent/10 border border-accent/25 px-2 py-1.5 text-xs overflow-hidden hover:bg-accent/15 hover:border-accent/40 transition-colors">
+          <div className="font-semibold text-foreground truncate pr-7 leading-tight">{period.name}</div>
+          <div className="text-foreground/50 mt-0.5 font-mono leading-tight truncate">
             {formatTime(period.start_time)} – {formatTime(period.end_time)}
           </div>
-          <div className="absolute top-1.5 right-1.5 hidden group-hover:flex gap-0.5">
+          <div className="absolute top-1 right-1 hidden group-hover:flex gap-0.5">
             <button
               type="button"
               onClick={openEdit}
