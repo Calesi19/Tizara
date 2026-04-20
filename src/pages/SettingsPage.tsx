@@ -1,4 +1,5 @@
 import { Select, ListBox, Surface } from "@heroui/react";
+import { Sun, Moon, Monitor } from "lucide-react";
 
 type ThemePreference = "light" | "dark" | "system";
 
@@ -33,9 +34,9 @@ export function SettingsPage({ theme, onThemeChange }: SettingsPageProps) {
             </Select.Trigger>
             <Select.Popover>
               <ListBox>
-                <ListBox.Item id="light">Light</ListBox.Item>
-                <ListBox.Item id="dark">Dark</ListBox.Item>
-                <ListBox.Item id="system">System</ListBox.Item>
+                <ListBox.Item id="light" textValue="Light"><span className="flex items-center gap-2"><Sun size={14} />Light</span></ListBox.Item>
+                <ListBox.Item id="dark" textValue="Dark"><span className="flex items-center gap-2"><Moon size={14} />Dark</span></ListBox.Item>
+                <ListBox.Item id="system" textValue="System"><span className="flex items-center gap-2"><Monitor size={14} />System</span></ListBox.Item>
               </ListBox>
             </Select.Popover>
           </Select>
