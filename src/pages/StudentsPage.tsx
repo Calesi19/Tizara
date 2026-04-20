@@ -190,14 +190,18 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
                       onSelectionChange={(key) => setForm({ ...form, gender: String(key ?? "") })}
                     >
                       <Select.Trigger>
-                        <Select.Value>{({ selectedItem }) => (selectedItem as { id?: string } | null)?.id ?? "Select gender..."}</Select.Value>
+                        <Select.Value>
+                          {({ selectedText, isPlaceholder }) =>
+                            isPlaceholder ? "Select gender..." : selectedText
+                          }
+                        </Select.Value>
                         <Select.Indicator />
                       </Select.Trigger>
                       <Select.Popover>
                         <ListBox>
-                          <ListBox.Item id="Male">Male</ListBox.Item>
-                          <ListBox.Item id="Female">Female</ListBox.Item>
-                          <ListBox.Item id="Other">Other</ListBox.Item>
+                          <ListBox.Item id="Male" textValue="Male">Male</ListBox.Item>
+                          <ListBox.Item id="Female" textValue="Female">Female</ListBox.Item>
+                          <ListBox.Item id="Other" textValue="Other">Other</ListBox.Item>
                         </ListBox>
                       </Select.Popover>
                     </Select>
