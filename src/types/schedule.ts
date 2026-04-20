@@ -1,6 +1,6 @@
 export interface SchedulePeriod {
   id: number;
-  classroom_id: number;
+  group_id: number;
   day_of_week: number;
   name: string;
   start_time: string;

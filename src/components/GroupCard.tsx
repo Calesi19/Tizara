@@ -1,14 +1,14 @@
 import { Card, Chip } from "@heroui/react";
 import { Users } from "lucide-react";
-import type { Classroom } from "../types/classroom";
+import type { Group } from "../types/group";
 
-interface ClassroomCardProps {
-  classroom: Classroom;
+interface GroupCardProps {
+  group: Group;
   isSelected: boolean;
   onClick: () => void;
 }
 
-export function ClassroomCard({ classroom, isSelected, onClick }: ClassroomCardProps) {
+export function GroupCard({ group, isSelected, onClick }: GroupCardProps) {
   return (
     <Card
       className={`cursor-pointer shadow-sm transition-all border-2 ${
@@ -19,24 +19,24 @@ export function ClassroomCard({ classroom, isSelected, onClick }: ClassroomCardP
       onClick={onClick}
     >
       <Card.Header>
-        <Card.Title>{classroom.name}</Card.Title>
+        <Card.Title>{group.name}</Card.Title>
       </Card.Header>
       <Card.Content>
         <div className="flex flex-wrap gap-2">
-          {classroom.subject && (
-            <Chip variant="secondary" color="accent">{classroom.subject}</Chip>
+          {group.subject && (
+            <Chip variant="secondary" color="accent">{group.subject}</Chip>
           )}
-          {classroom.grade && (
-            <Chip variant="tertiary">{classroom.grade}</Chip>
+          {group.grade && (
+            <Chip variant="tertiary">{group.grade}</Chip>
           )}
         </div>
         <div className="flex items-center justify-between mt-3">
           <span className="flex items-center gap-1.5 text-xs text-foreground/50">
             <Users size={12} />
-            {classroom.student_count} student{classroom.student_count !== 1 ? "s" : ""}
+            {group.student_count} student{group.student_count !== 1 ? "s" : ""}
           </span>
           <p className="text-xs text-foreground/40">
-            Added {new Date(classroom.created_at).toLocaleDateString()}
+            Added {new Date(group.created_at).toLocaleDateString()}
           </p>
         </div>
       </Card.Content>

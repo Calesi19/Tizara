@@ -1,12 +1,12 @@
 import { Button, Select, ListBox, Spinner } from "@heroui/react";
 import { Users, CalendarDays, ClipboardCheck, Settings } from "lucide-react";
-import { useClassrooms } from "../hooks/useClassrooms";
-import type { Classroom } from "../types/classroom";
+import { useGroups } from "../hooks/useGroups";
+import type { Group } from "../types/group";
 
 interface SidebarProps {
   currentPage: string;
-  currentClassroom: Classroom | null;
-  onSelectClassroom: (classroom: Classroom) => void;
+  currentGroup: Group | null;
+  onSelectGroup: (group: Group) => void;
   onGoToStudents: () => void;
   onGoToSchedule: () => void;
   onGoToAttendance: () => void;
@@ -18,15 +18,15 @@ const STUDENTS_PAGES = new Set(["students", "student-profile", "family-members",
 
 export function Sidebar({
   currentPage,
-  currentClassroom,
-  onSelectClassroom,
+  currentGroup,
+  onSelectGroup,
   onGoToStudents,
   onGoToSchedule,
   onGoToAttendance,
   onGoToSettings,
   onClose,
 }: SidebarProps) {
-  const { classrooms, loading } = useClassrooms();
+  const { groups, loading } = useGroups();
 
   const nav = (action: () => void) => () => {
     action();
@@ -61,7 +61,7 @@ export function Sidebar({
     <aside className="bg-surface-secondary h-screen w-64 flex flex-col">
       <div className="p-5 pb-4">
         <h1 className="text-xl font-bold text-accent">Tizara</h1>
-        <p className="text-xs text-muted mt-0.5">Classroom Manager</p>
+        <p className="text-xs text-muted mt-0.5">Group Manager</p>
       </div>
 
       <div className="px-3 pb-3">
@@ -69,24 +69,24 @@ export function Sidebar({
           <div className="flex items-center justify-center h-9">
             <Spinner size="sm" />
           </div>
-        ) : classrooms.length === 0 ? (
-          <p className="text-xs text-foreground/40 px-2 py-2">No classrooms yet.</p>
+        ) : groups.length === 0 ? (
+          <p className="text-xs text-foreground/40 px-2 py-2">No groups yet.</p>
         ) : (
           <Select
-            aria-label="Select classroom"
-            selectedKey={currentClassroom ? String(currentClassroom.id) : null}
+            aria-label="Select group"
+            selectedKey={currentGroup ? String(currentGroup.id) : null}
             onSelectionChange={(key) => {
-              const classroom = classrooms.find((c) => String(c.id) === String(key));
-              if (classroom) onSelectClassroom(classroom);
+              const group = groups.find((c) => String(c.id) === String(key));
+              if (group) onSelectGroup(group);
             }}
           >
             <Select.Trigger className="w-full">
               <Select.Value>
                 {({ isPlaceholder }) =>
                   isPlaceholder ? (
-                    <span className="text-foreground/40">Select classroom…</span>
+                    <span className="text-foreground/40">Select group…</span>
                   ) : (
-                    <span className="font-medium truncate">{currentClassroom?.name}</span>
+                    <span className="font-medium truncate">{currentGroup?.name}</span>
                   )
                 }
               </Select.Value>
@@ -94,7 +94,7 @@ export function Sidebar({
             </Select.Trigger>
             <Select.Popover>
               <ListBox>
-                {classrooms.map((c) => (
+                {groups.map((c) => (
                   <ListBox.Item key={c.id} id={String(c.id)} textValue={c.name}>
                     <div className="flex flex-col">
                       <span className="font-medium text-sm">{c.name}</span>
@@ -120,7 +120,7 @@ export function Sidebar({
                 variant={item.active ? "secondary" : "ghost"}
                 fullWidth
                 className="justify-start gap-2"
-                isDisabled={!currentClassroom}
+                isDisabled={!currentGroup}
                 onPress={item.onPress}
               >
                 {item.icon}

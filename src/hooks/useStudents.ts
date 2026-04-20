@@ -4,7 +4,7 @@ import type { Student, NewStudentInput } from "../types/student";
 
 const DB_URL = "sqlite:tizara.db";
 
-export function useStudents(classroomId: number) {
+export function useStudents(groupId: number) {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,8 +14,8 @@ export function useStudents(classroomId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<Student[]>(
-        "SELECT id, classroom_id, name, gender, birthdate, student_number, enrollment_date, created_at FROM students WHERE classroom_id = ? AND is_deleted = 0 ORDER BY name ASC",
-        [classroomId]
+        "SELECT id, group_id, name, gender, birthdate, student_number, enrollment_date, created_at FROM students WHERE group_id = ? AND is_deleted = 0 ORDER BY name ASC",
+        [groupId]
       );
       setStudents(rows);
       setError(null);
@@ -24,15 +24,15 @@ export function useStudents(classroomId: number) {
     } finally {
       setLoading(false);
     }
-  }, [classroomId]);
+  }, [groupId]);
 
   const addStudent = useCallback(
     async (input: NewStudentInput) => {
       const db = await Database.load(DB_URL);
       await db.execute(
-        "INSERT INTO students (classroom_id, name, gender, birthdate, student_number, enrollment_date) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO students (group_id, name, gender, birthdate, student_number, enrollment_date) VALUES (?, ?, ?, ?, ?, ?)",
         [
-          classroomId,
+          groupId,
           input.name,
           input.gender || null,
           input.birthdate || null,
@@ -42,7 +42,7 @@ export function useStudents(classroomId: number) {
       );
       await fetchStudents();
     },
-    [classroomId, fetchStudents]
+    [groupId, fetchStudents]
   );
 
   useEffect(() => {

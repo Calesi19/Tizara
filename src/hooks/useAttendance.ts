@@ -12,7 +12,7 @@ interface RawAttendanceRow {
   status: AttendanceStatus;
 }
 
-export function useAttendance(classroomId: number, date: string) {
+export function useAttendance(groupId: number, date: string) {
   const [periodsForDay, setPeriodsForDay] = useState<SchedulePeriod[]>([]);
   const [rawRecords, setRawRecords] = useState<RawAttendanceRow[]>([]);
   const [allStudents, setAllStudents] = useState<{ id: number; name: string }[]>([]);
@@ -27,14 +27,14 @@ export function useAttendance(classroomId: number, date: string) {
       const dayOfWeek = new Date(date + "T12:00:00").getDay();
 
       const periods = await db.select<SchedulePeriod[]>(
-        "SELECT id, classroom_id, day_of_week, name, start_time, end_time, sort_order, created_at FROM schedule_periods WHERE classroom_id = ? AND day_of_week = ? AND is_deleted = 0 ORDER BY sort_order ASC, start_time ASC",
-        [classroomId, dayOfWeek]
+        "SELECT id, group_id, day_of_week, name, start_time, end_time, sort_order, created_at FROM schedule_periods WHERE group_id = ? AND day_of_week = ? AND is_deleted = 0 ORDER BY sort_order ASC, start_time ASC",
+        [groupId, dayOfWeek]
       );
       setPeriodsForDay(periods);
 
       const students = await db.select<{ id: number; name: string }[]>(
-        "SELECT id, name FROM students WHERE classroom_id = ? AND is_deleted = 0 ORDER BY name ASC",
-        [classroomId]
+        "SELECT id, name FROM students WHERE group_id = ? AND is_deleted = 0 ORDER BY name ASC",
+        [groupId]
       );
       setAllStudents(students);
 
@@ -56,7 +56,7 @@ export function useAttendance(classroomId: number, date: string) {
     } finally {
       setLoading(false);
     }
-  }, [classroomId, date]);
+  }, [groupId, date]);
 
   const attendanceByPeriod = useMemo(() => {
     const map = new Map<number, StudentAttendanceRow[]>();

@@ -4,7 +4,7 @@ import type { SchedulePeriod, NewSchedulePeriodInput } from "../types/schedule";
 
 const DB_URL = "sqlite:tizara.db";
 
-export function useSchedule(classroomId: number) {
+export function useSchedule(groupId: number) {
   const [periods, setPeriods] = useState<SchedulePeriod[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,8 +14,8 @@ export function useSchedule(classroomId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<SchedulePeriod[]>(
-        "SELECT id, classroom_id, day_of_week, name, start_time, end_time, sort_order, created_at FROM schedule_periods WHERE classroom_id = ? AND is_deleted = 0 ORDER BY day_of_week ASC, sort_order ASC, start_time ASC",
-        [classroomId]
+        "SELECT id, group_id, day_of_week, name, start_time, end_time, sort_order, created_at FROM schedule_periods WHERE group_id = ? AND is_deleted = 0 ORDER BY day_of_week ASC, sort_order ASC, start_time ASC",
+        [groupId]
       );
       setPeriods(rows);
       setError(null);
@@ -24,7 +24,7 @@ export function useSchedule(classroomId: number) {
     } finally {
       setLoading(false);
     }
-  }, [classroomId]);
+  }, [groupId]);
 
   const addPeriod = useCallback(
     async (input: NewSchedulePeriodInput) => {
@@ -32,12 +32,12 @@ export function useSchedule(classroomId: number) {
       const existing = periods.filter((p) => p.day_of_week === input.day_of_week);
       const sortOrder = existing.length > 0 ? Math.max(...existing.map((p) => p.sort_order)) + 1 : 0;
       await db.execute(
-        "INSERT INTO schedule_periods (classroom_id, day_of_week, name, start_time, end_time, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
-        [classroomId, input.day_of_week, input.name, input.start_time, input.end_time, sortOrder]
+        "INSERT INTO schedule_periods (group_id, day_of_week, name, start_time, end_time, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
+        [groupId, input.day_of_week, input.name, input.start_time, input.end_time, sortOrder]
       );
       await fetchPeriods();
     },
-    [classroomId, periods, fetchPeriods]
+    [groupId, periods, fetchPeriods]
   );
 
   const deletePeriod = useCallback(

@@ -1,28 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
 import Database from "@tauri-apps/plugin-sql";
-import type { Classroom, NewClassroomInput } from "../types/classroom";
+import type { Group, NewGroupInput } from "../types/group";
 
 const DB_URL = "sqlite:tizara.db";
 
-export function useClassrooms() {
-  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+export function useGroups() {
+  const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchClassrooms = useCallback(async () => {
+  const fetchGroups = useCallback(async () => {
     try {
       setLoading(true);
       const db = await Database.load(DB_URL);
-      const rows = await db.select<Classroom[]>(
+      const rows = await db.select<Group[]>(
         `SELECT c.id, c.name, c.subject, c.grade, c.created_at,
                 COUNT(s.id) AS student_count
-         FROM classrooms c
-         LEFT JOIN students s ON s.classroom_id = c.id AND s.is_deleted = 0
+         FROM groups c
+         LEFT JOIN students s ON s.group_id = c.id AND s.is_deleted = 0
          WHERE c.is_deleted = 0
          GROUP BY c.id
          ORDER BY c.created_at DESC`
       );
-      setClassrooms(rows);
+      setGroups(rows);
       setError(null);
     } catch (e) {
       setError(String(e));
@@ -31,21 +31,21 @@ export function useClassrooms() {
     }
   }, []);
 
-  const addClassroom = useCallback(
-    async (input: NewClassroomInput) => {
+  const addGroup = useCallback(
+    async (input: NewGroupInput) => {
       const db = await Database.load(DB_URL);
       await db.execute(
-        "INSERT INTO classrooms (name, subject, grade) VALUES (?, ?, ?)",
+        "INSERT INTO groups (name, subject, grade) VALUES (?, ?, ?)",
         [input.name, input.subject || null, input.grade || null]
       );
-      await fetchClassrooms();
+      await fetchGroups();
     },
-    [fetchClassrooms]
+    [fetchGroups]
   );
 
   useEffect(() => {
-    fetchClassrooms();
-  }, [fetchClassrooms]);
+    fetchGroups();
+  }, [fetchGroups]);
 
-  return { classrooms, loading, error, addClassroom };
+  return { groups, loading, error, addGroup };
 }

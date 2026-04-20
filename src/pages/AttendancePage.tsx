@@ -5,11 +5,11 @@ import { useAttendance } from "../hooks/useAttendance";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { DateNavigator } from "../components/DateNavigator";
 import { AttendancePeriodSection } from "../components/AttendancePeriodSection";
-import type { Classroom } from "../types/classroom";
+import type { Group } from "../types/group";
 
 interface AttendancePageProps {
-  classroom: Classroom;
-  onGoToClassrooms: () => void;
+  group: Group;
+  onGoToGroups: () => void;
   onGoToStudents: () => void;
   onGoToSchedule: () => void;
 }
@@ -19,8 +19,8 @@ function todayStr() {
 }
 
 export function AttendancePage({
-  classroom,
-  onGoToClassrooms,
+  group,
+  onGoToGroups,
   onGoToStudents,
   onGoToSchedule,
 }: AttendancePageProps) {
@@ -34,14 +34,14 @@ export function AttendancePage({
     setStatus,
     setStatusBulk,
     markEarlyPickup,
-  } = useAttendance(classroom.id, date);
+  } = useAttendance(group.id, date);
 
   return (
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Classrooms", onClick: onGoToClassrooms },
-          { label: classroom.name, onClick: onGoToStudents },
+          { label: "Groups", onClick: onGoToGroups },
+          { label: group.name, onClick: onGoToStudents },
           { label: "Attendance" },
         ]}
       />
@@ -50,8 +50,8 @@ export function AttendancePage({
         <div>
           <h2 className="text-2xl font-bold">Attendance</h2>
           <p className="text-sm text-muted">
-            {classroom.subject && <span>{classroom.subject} · </span>}
-            {classroom.grade && <span>{classroom.grade}</span>}
+            {group.subject && <span>{group.subject} · </span>}
+            {group.grade && <span>{group.grade}</span>}
           </p>
         </div>
         <Button variant="ghost" size="sm" onPress={onGoToSchedule}>

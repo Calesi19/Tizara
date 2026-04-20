@@ -6,11 +6,11 @@ import { AddPeriodModal } from "../components/AddPeriodModal";
 import { PeriodCard } from "../components/PeriodCard";
 import { DAY_LABELS } from "../types/schedule";
 import type { DayOfWeek } from "../types/schedule";
-import type { Classroom } from "../types/classroom";
+import type { Group } from "../types/group";
 
 interface SchedulePageProps {
-  classroom: Classroom;
-  onGoToClassrooms: () => void;
+  group: Group;
+  onGoToGroups: () => void;
   onGoToStudents: () => void;
   onGoToAttendance: () => void;
 }
@@ -18,21 +18,21 @@ interface SchedulePageProps {
 const ORDERED_DAYS: DayOfWeek[] = [1, 2, 3, 4, 5, 6, 0];
 
 export function SchedulePage({
-  classroom,
-  onGoToClassrooms,
+  group,
+  onGoToGroups,
   onGoToStudents,
   onGoToAttendance,
 }: SchedulePageProps) {
   const { periods, loading, error, addPeriod, deletePeriod, periodsByDay } = useSchedule(
-    classroom.id
+    group.id
   );
 
   return (
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Classrooms", onClick: onGoToClassrooms },
-          { label: classroom.name, onClick: onGoToStudents },
+          { label: "Groups", onClick: onGoToGroups },
+          { label: group.name, onClick: onGoToStudents },
           { label: "Schedule" },
         ]}
       />
@@ -41,8 +41,8 @@ export function SchedulePage({
         <div>
           <h2 className="text-2xl font-bold">Schedule</h2>
           <p className="text-sm text-muted">
-            {classroom.subject && <span>{classroom.subject} · </span>}
-            {classroom.grade && <span>{classroom.grade}</span>}
+            {group.subject && <span>{group.subject} · </span>}
+            {group.grade && <span>{group.grade}</span>}
           </p>
         </div>
         <div className="flex items-center gap-2">

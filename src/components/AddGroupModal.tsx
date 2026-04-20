@@ -7,17 +7,17 @@ import {
   Spinner,
   useOverlayState,
 } from "@heroui/react";
-import type { NewClassroomInput } from "../types/classroom";
+import type { NewGroupInput } from "../types/group";
 
-interface AddClassroomModalProps {
-  onAdd: (input: NewClassroomInput) => Promise<void>;
+interface AddGroupModalProps {
+  onAdd: (input: NewGroupInput) => Promise<void>;
 }
 
-const emptyForm: NewClassroomInput = { name: "", subject: "", grade: "" };
+const emptyForm: NewGroupInput = { name: "", subject: "", grade: "" };
 
-export function AddClassroomModal({ onAdd }: AddClassroomModalProps) {
+export function AddGroupModal({ onAdd }: AddGroupModalProps) {
   const state = useOverlayState();
-  const [form, setForm] = useState<NewClassroomInput>(emptyForm);
+  const [form, setForm] = useState<NewGroupInput>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +45,7 @@ export function AddClassroomModal({ onAdd }: AddClassroomModalProps) {
   return (
     <>
       <Button variant="primary" onPress={state.open}>
-        + Add Classroom
+        + Add Group
       </Button>
 
       <Modal state={state}>
@@ -53,12 +53,12 @@ export function AddClassroomModal({ onAdd }: AddClassroomModalProps) {
           <Modal.Container>
             <Modal.Dialog>
               <form onSubmit={handleSubmit}>
-                <Modal.Header>New Classroom</Modal.Header>
+                <Modal.Header>New Group</Modal.Header>
                 <Modal.Body className="flex flex-col gap-4 pb-px overflow-visible">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="add-classroom-name">Name *</Label>
+                    <Label htmlFor="add-group-name">Name *</Label>
                     <Input
-                      id="add-classroom-name"
+                      id="add-group-name"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="e.g. Room 101"
@@ -66,18 +66,18 @@ export function AddClassroomModal({ onAdd }: AddClassroomModalProps) {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="add-classroom-subject">Subject</Label>
+                    <Label htmlFor="add-group-subject">Subject</Label>
                     <Input
-                      id="add-classroom-subject"
+                      id="add-group-subject"
                       value={form.subject}
                       onChange={(e) => setForm({ ...form, subject: e.target.value })}
                       placeholder="e.g. Mathematics"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="add-classroom-grade">Grade</Label>
+                    <Label htmlFor="add-group-grade">Grade</Label>
                     <Input
-                      id="add-classroom-grade"
+                      id="add-group-grade"
                       value={form.grade}
                       onChange={(e) => setForm({ ...form, grade: e.target.value })}
                       placeholder="e.g. 10th"

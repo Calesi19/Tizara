@@ -2,13 +2,13 @@ import { Avatar, Card, Chip, Surface, ListBox, Spinner } from "@heroui/react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useFamilyMembers } from "../hooks/useFamilyMembers";
 import { useNotes } from "../hooks/useNotes";
-import type { Classroom } from "../types/classroom";
+import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 
 interface StudentProfilePageProps {
   student: Student;
-  classroom: Classroom;
-  onGoToClassrooms: () => void;
+  group: Group;
+  onGoToGroups: () => void;
   onGoToStudents: () => void;
   onGoToFamilyMembers: () => void;
   onGoToNotes: () => void;
@@ -45,8 +45,8 @@ function formatNoteTimestamp(dateStr: string): string {
 
 export function StudentProfilePage({
   student,
-  classroom,
-  onGoToClassrooms,
+  group,
+  onGoToGroups,
   onGoToStudents,
   onGoToFamilyMembers,
   onGoToNotes,
@@ -58,8 +58,8 @@ export function StudentProfilePage({
     <div className="p-6">
       <Breadcrumb
         items={[
-          { label: "Classrooms", onClick: onGoToClassrooms },
-          { label: classroom.name, onClick: onGoToStudents },
+          { label: "Groups", onClick: onGoToGroups },
+          { label: group.name, onClick: onGoToStudents },
           { label: student.name },
         ]}
       />
@@ -105,16 +105,16 @@ export function StudentProfilePage({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card variant="secondary">
           <Card.Header>
-            <Card.Title className="text-base">Classroom</Card.Title>
+            <Card.Title className="text-base">Group</Card.Title>
           </Card.Header>
           <Card.Content>
-            <p className="font-medium">{classroom.name}</p>
+            <p className="font-medium">{group.name}</p>
             <div className="flex gap-2 mt-1">
-              {classroom.subject && (
-                <Chip variant="secondary" color="accent" size="sm">{classroom.subject}</Chip>
+              {group.subject && (
+                <Chip variant="secondary" color="accent" size="sm">{group.subject}</Chip>
               )}
-              {classroom.grade && (
-                <Chip variant="tertiary" size="sm">{classroom.grade}</Chip>
+              {group.grade && (
+                <Chip variant="tertiary" size="sm">{group.grade}</Chip>
               )}
             </div>
           </Card.Content>

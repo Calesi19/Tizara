@@ -1,6 +1,6 @@
 export interface Student {
   id: number;
-  classroom_id: number;
+  group_id: number;
   name: string;
   gender: string | null;
   birthdate: string | null;

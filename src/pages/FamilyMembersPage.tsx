@@ -18,14 +18,14 @@ import {
 } from "@heroui/react";
 import { useFamilyMembers } from "../hooks/useFamilyMembers";
 import { Breadcrumb } from "../components/Breadcrumb";
-import type { Classroom } from "../types/classroom";
+import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 import type { NewFamilyMemberInput } from "../types/familyMember";
 
 interface FamilyMembersPageProps {
   student: Student;
-  classroom: Classroom;
-  onGoToClassrooms: () => void;
+  group: Group;
+  onGoToGroups: () => void;
   onGoToStudents: () => void;
   onGoToStudentProfile: () => void;
 }
@@ -64,8 +64,8 @@ function CopyButton({ value }: { value: string }) {
 
 export function FamilyMembersPage({
   student,
-  classroom,
-  onGoToClassrooms,
+  group,
+  onGoToGroups,
   onGoToStudents,
   onGoToStudentProfile,
 }: FamilyMembersPageProps) {
@@ -101,8 +101,8 @@ export function FamilyMembersPage({
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Classrooms", onClick: onGoToClassrooms },
-          { label: classroom.name, onClick: onGoToStudents },
+          { label: "Groups", onClick: onGoToGroups },
+          { label: group.name, onClick: onGoToStudents },
           { label: student.name, onClick: onGoToStudentProfile },
           { label: "Family Members" },
         ]}

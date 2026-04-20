@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import { Button, Drawer, useOverlayState } from "@heroui/react";
 import { Sidebar } from "./components/Sidebar";
-import { ClassroomsPage } from "./pages/ClassroomsPage";
+import { GroupsPage } from "./pages/GroupsPage";
 import { StudentsPage } from "./pages/StudentsPage";
 import { StudentProfilePage } from "./pages/StudentProfilePage";
 import { FamilyMembersPage } from "./pages/FamilyMembersPage";
@@ -10,115 +10,115 @@ import { NotesPage } from "./pages/NotesPage";
 import { SchedulePage } from "./pages/SchedulePage";
 import { AttendancePage } from "./pages/AttendancePage";
 import { SettingsPage } from "./pages/SettingsPage";
-import type { Classroom } from "./types/classroom";
+import type { Group } from "./types/group";
 import type { Student } from "./types/student";
 
 type Route =
-  | { page: "classrooms" }
-  | { page: "students"; classroom: Classroom }
-  | { page: "student-profile"; classroom: Classroom; student: Student }
-  | { page: "family-members"; classroom: Classroom; student: Student }
-  | { page: "notes"; classroom: Classroom; student: Student }
-  | { page: "schedule"; classroom: Classroom }
-  | { page: "attendance"; classroom: Classroom }
+  | { page: "groups" }
+  | { page: "students"; group: Group }
+  | { page: "student-profile"; group: Group; student: Student }
+  | { page: "family-members"; group: Group; student: Student }
+  | { page: "notes"; group: Group; student: Student }
+  | { page: "schedule"; group: Group }
+  | { page: "attendance"; group: Group }
   | { page: "settings" };
 
 function App() {
   const drawerState = useOverlayState();
-  const [route, setRoute] = useState<Route>({ page: "classrooms" });
+  const [route, setRoute] = useState<Route>({ page: "groups" });
 
-  const goToClassrooms = () => setRoute({ page: "classrooms" });
-  const goToStudents = (classroom: Classroom) => setRoute({ page: "students", classroom });
-  const goToStudentProfile = (classroom: Classroom, student: Student) =>
-    setRoute({ page: "student-profile", classroom, student });
-  const goToFamilyMembers = (classroom: Classroom, student: Student) =>
-    setRoute({ page: "family-members", classroom, student });
-  const goToNotes = (classroom: Classroom, student: Student) =>
-    setRoute({ page: "notes", classroom, student });
-  const goToSchedule = (classroom: Classroom) => setRoute({ page: "schedule", classroom });
-  const goToAttendance = (classroom: Classroom) => setRoute({ page: "attendance", classroom });
+  const goToGroups = () => setRoute({ page: "groups" });
+  const goToStudents = (group: Group) => setRoute({ page: "students", group });
+  const goToStudentProfile = (group: Group, student: Student) =>
+    setRoute({ page: "student-profile", group, student });
+  const goToFamilyMembers = (group: Group, student: Student) =>
+    setRoute({ page: "family-members", group, student });
+  const goToNotes = (group: Group, student: Student) =>
+    setRoute({ page: "notes", group, student });
+  const goToSchedule = (group: Group) => setRoute({ page: "schedule", group });
+  const goToAttendance = (group: Group) => setRoute({ page: "attendance", group });
   const goToSettings = () => setRoute({ page: "settings" });
 
-  const [currentClassroom, setCurrentClassroom] = useState<Classroom | null>(null);
+  const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
 
-  const handleSelectClassroom = (classroom: Classroom) => {
-    setCurrentClassroom(classroom);
+  const handleSelectGroup = (group: Group) => {
+    setCurrentGroup(group);
     switch (route.page) {
-      case "schedule": return goToSchedule(classroom);
-      case "attendance": return goToAttendance(classroom);
-      default: return goToStudents(classroom);
+      case "schedule": return goToSchedule(group);
+      case "attendance": return goToAttendance(group);
+      default: return goToStudents(group);
     }
   };
 
   const sidebarProps = {
     currentPage: route.page,
-    currentClassroom,
-    onSelectClassroom: handleSelectClassroom,
-    onGoToStudents: () => currentClassroom && goToStudents(currentClassroom),
-    onGoToSchedule: () => currentClassroom && goToSchedule(currentClassroom),
-    onGoToAttendance: () => currentClassroom && goToAttendance(currentClassroom),
+    currentGroup,
+    onSelectGroup: handleSelectGroup,
+    onGoToStudents: () => currentGroup && goToStudents(currentGroup),
+    onGoToSchedule: () => currentGroup && goToSchedule(currentGroup),
+    onGoToAttendance: () => currentGroup && goToAttendance(currentGroup),
     onGoToSettings: goToSettings,
   };
 
   function renderPage() {
     switch (route.page) {
-      case "classrooms":
-        return <ClassroomsPage currentClassroom={currentClassroom} onSelectClassroom={(c) => { setCurrentClassroom(c); goToStudents(c); }} />;
+      case "groups":
+        return <GroupsPage currentGroup={currentGroup} onSelectGroup={(c) => { setCurrentGroup(c); goToStudents(c); }} />;
       case "students":
         return (
           <StudentsPage
-            classroom={route.classroom}
-            onGoToClassrooms={goToClassrooms}
-            onSelectStudent={(s) => goToStudentProfile(route.classroom, s)}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onSelectStudent={(s) => goToStudentProfile(route.group, s)}
           />
         );
       case "student-profile":
         return (
           <StudentProfilePage
             student={route.student}
-            classroom={route.classroom}
-            onGoToClassrooms={goToClassrooms}
-            onGoToStudents={() => goToStudents(route.classroom)}
-            onGoToFamilyMembers={() => goToFamilyMembers(route.classroom, route.student)}
-            onGoToNotes={() => goToNotes(route.classroom, route.student)}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToFamilyMembers={() => goToFamilyMembers(route.group, route.student)}
+            onGoToNotes={() => goToNotes(route.group, route.student)}
           />
         );
       case "notes":
         return (
           <NotesPage
             student={route.student}
-            classroom={route.classroom}
-            onGoToClassrooms={goToClassrooms}
-            onGoToStudents={() => goToStudents(route.classroom)}
-            onGoToStudentProfile={() => goToStudentProfile(route.classroom, route.student)}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToStudentProfile={() => goToStudentProfile(route.group, route.student)}
           />
         );
       case "family-members":
         return (
           <FamilyMembersPage
             student={route.student}
-            classroom={route.classroom}
-            onGoToClassrooms={goToClassrooms}
-            onGoToStudents={() => goToStudents(route.classroom)}
-            onGoToStudentProfile={() => goToStudentProfile(route.classroom, route.student)}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToStudentProfile={() => goToStudentProfile(route.group, route.student)}
           />
         );
       case "schedule":
         return (
           <SchedulePage
-            classroom={route.classroom}
-            onGoToClassrooms={goToClassrooms}
-            onGoToStudents={() => goToStudents(route.classroom)}
-            onGoToAttendance={() => goToAttendance(route.classroom)}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToAttendance={() => goToAttendance(route.group)}
           />
         );
       case "attendance":
         return (
           <AttendancePage
-            classroom={route.classroom}
-            onGoToClassrooms={goToClassrooms}
-            onGoToStudents={() => goToStudents(route.classroom)}
-            onGoToSchedule={() => goToSchedule(route.classroom)}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToSchedule={() => goToSchedule(route.group)}
           />
         );
       case "settings":

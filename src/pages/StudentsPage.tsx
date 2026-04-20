@@ -27,19 +27,19 @@ import type { DateValue } from "@internationalized/date";
 import Database from "@tauri-apps/plugin-sql";
 import { useStudents } from "../hooks/useStudents";
 import { Breadcrumb } from "../components/Breadcrumb";
-import type { Classroom } from "../types/classroom";
+import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 
 const DB_URL = "sqlite:tizara.db";
 
 interface StudentsPageProps {
-  classroom: Classroom;
-  onGoToClassrooms: () => void;
+  group: Group;
+  onGoToGroups: () => void;
   onSelectStudent: (student: Student) => void;
 }
 
-export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: StudentsPageProps) {
-  const { students, loading, error, addStudent } = useStudents(classroom.id);
+export function StudentsPage({ group, onGoToGroups, onSelectStudent }: StudentsPageProps) {
+  const { students, loading, error, addStudent } = useStudents(group.id);
   const modalState = useOverlayState();
   const noteModalState = useOverlayState();
   const emptyForm = { name: "", gender: "", birthdate: "", student_number: "", enrollment_date: "" };
@@ -119,16 +119,16 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Classrooms", onClick: onGoToClassrooms },
-          { label: classroom.name },
+          { label: "Groups", onClick: onGoToGroups },
+          { label: group.name },
         ]}
       />
 
       <div className="mb-1">
         <h2 className="text-2xl font-bold">Students</h2>
         <p className="text-sm text-muted">
-          {classroom.subject && <span>{classroom.subject} · </span>}
-          {classroom.grade && <span>{classroom.grade}</span>}
+          {group.subject && <span>{group.subject} · </span>}
+          {group.grade && <span>{group.grade}</span>}
         </p>
       </div>
 

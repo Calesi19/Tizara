@@ -1,4 +1,4 @@
-export interface Classroom {
+export interface Group {
   id: number;
   name: string;
   subject: string | null;
@@ -7,7 +7,7 @@ export interface Classroom {
   student_count: number;
 }
 
-export interface NewClassroomInput {
+export interface NewGroupInput {
   name: string;
   subject: string;
   grade: string;

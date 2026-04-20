@@ -8,14 +8,14 @@ import {
 } from "@heroui/react";
 import { useNotes } from "../hooks/useNotes";
 import { Breadcrumb } from "../components/Breadcrumb";
-import type { Classroom } from "../types/classroom";
+import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 import type { NewNoteInput } from "../types/note";
 
 interface NotesPageProps {
   student: Student;
-  classroom: Classroom;
-  onGoToClassrooms: () => void;
+  group: Group;
+  onGoToGroups: () => void;
   onGoToStudents: () => void;
   onGoToStudentProfile: () => void;
 }
@@ -33,8 +33,8 @@ function formatTimestamp(dateStr: string): string {
 
 export function NotesPage({
   student,
-  classroom,
-  onGoToClassrooms,
+  group,
+  onGoToGroups,
   onGoToStudents,
   onGoToStudentProfile,
 }: NotesPageProps) {
@@ -71,8 +71,8 @@ export function NotesPage({
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Classrooms", onClick: onGoToClassrooms },
-          { label: classroom.name, onClick: onGoToStudents },
+          { label: "Groups", onClick: onGoToGroups },
+          { label: group.name, onClick: onGoToStudents },
           { label: student.name, onClick: onGoToStudentProfile },
           { label: "Notes" },
         ]}
