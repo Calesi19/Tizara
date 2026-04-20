@@ -96,7 +96,7 @@ function App() {
           </Button>
           <span className="text-lg font-bold">Tizara</span>
         </div>
-        <main className="flex-1 bg-background-secondary">{renderPage()}</main>
+        <main className="flex-1 bg-background-secondary flex flex-col">{renderPage()}</main>
       </div>
     </div>
   );

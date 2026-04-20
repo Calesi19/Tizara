@@ -57,7 +57,7 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
           { label: "Classrooms", onClick: onGoToClassrooms },
@@ -99,60 +99,62 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
         </div>
       )}
 
-      {!loading && !error && students.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-lg font-semibold text-muted">No students yet</p>
-          <p className="text-sm text-foreground/40 mt-1">
-            Click "+ Add Student" to enroll someone.
-          </p>
-        </div>
-      )}
+      <div className="flex-1 flex flex-col min-h-0">
+        {!loading && !error && students.length === 0 && (
+          <div className="flex flex-col items-center justify-center flex-1 text-center">
+            <p className="text-lg font-semibold text-muted">No students yet</p>
+            <p className="text-sm text-foreground/40 mt-1">
+              Click "+ Add Student" to enroll someone.
+            </p>
+          </div>
+        )}
 
-      {!loading && students.length > 0 && (() => {
-        const filtered = students.filter((s) =>
-          s.name.toLowerCase().includes(search.toLowerCase())
-        );
-        return (
-          <>
-            {filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <p className="text-lg font-semibold text-muted">No results</p>
-                <p className="text-sm text-foreground/40 mt-1">No students match "{search}".</p>
-              </div>
-            ) : (
-              <TableRoot variant="primary">
-                <TableScrollContainer>
-                  <TableContent
-                    aria-label="Students"
-                    selectionMode="none"
-                    onRowAction={(key) => {
-                      const student = students.find((s) => s.id === key);
-                      if (student) onSelectStudent(student);
-                    }}
-                  >
-                    <TableHeader>
-                      <TableColumn isRowHeader>#</TableColumn>
-                      <TableColumn>Name</TableColumn>
-                      <TableColumn>Enrolled</TableColumn>
-                    </TableHeader>
-                    <TableBody>
-                      {filtered.map((s, i) => (
-                        <TableRow key={s.id} id={s.id} className="cursor-pointer">
-                          <TableCell className="text-foreground/40">{i + 1}</TableCell>
-                          <TableCell className="font-medium">{s.name}</TableCell>
-                          <TableCell className="text-sm text-foreground/50">
-                            {new Date(s.created_at).toLocaleDateString()}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </TableContent>
-                </TableScrollContainer>
-              </TableRoot>
-            )}
-          </>
-        );
-      })()}
+        {!loading && students.length > 0 && (() => {
+          const filtered = students.filter((s) =>
+            s.name.toLowerCase().includes(search.toLowerCase())
+          );
+          return (
+            <>
+              {filtered.length === 0 ? (
+                <div className="flex flex-col items-center justify-center flex-1 text-center">
+                  <p className="text-lg font-semibold text-muted">No results</p>
+                  <p className="text-sm text-foreground/40 mt-1">No students match "{search}".</p>
+                </div>
+              ) : (
+                <TableRoot variant="primary" className="flex-1 h-full">
+                  <TableScrollContainer className="h-full">
+                    <TableContent
+                      aria-label="Students"
+                      selectionMode="none"
+                      onRowAction={(key) => {
+                        const student = students.find((s) => s.id === key);
+                        if (student) onSelectStudent(student);
+                      }}
+                    >
+                      <TableHeader>
+                        <TableColumn isRowHeader>#</TableColumn>
+                        <TableColumn>Name</TableColumn>
+                        <TableColumn>Enrolled</TableColumn>
+                      </TableHeader>
+                      <TableBody>
+                        {filtered.map((s, i) => (
+                          <TableRow key={s.id} id={s.id} className="cursor-pointer">
+                            <TableCell className="text-foreground/40">{i + 1}</TableCell>
+                            <TableCell className="font-medium">{s.name}</TableCell>
+                            <TableCell className="text-sm text-foreground/50">
+                              {new Date(s.created_at).toLocaleDateString()}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </TableContent>
+                  </TableScrollContainer>
+                </TableRoot>
+              )}
+            </>
+          );
+        })()}
+      </div>
 
       <Modal state={modalState}>
         <Modal.Backdrop isDismissable={!submitting}>
