@@ -14,7 +14,7 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const STUDENTS_PAGES = new Set(["students", "student-profile", "family-members", "notes"]);
+const STUDENTS_PAGES = new Set(["students", "student-profile", "contacts", "visitations", "notes"]);
 
 export function Sidebar({
   currentPage,

@@ -86,9 +86,29 @@ pub fn run() {
                 date               TEXT    NOT NULL,
                 status             TEXT    NOT NULL DEFAULT 'present',
                 is_deleted         INTEGER NOT NULL DEFAULT 0,
+                created_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
                 CONSTRAINT chk_status CHECK (status IN ('present','absent','late','early_pickup')),
-                CONSTRAINT uq_attendance UNIQUE (schedule_period_id, student_id, date),
-                created_at         DATETIME DEFAULT CURRENT_TIMESTAMP
+                CONSTRAINT uq_attendance UNIQUE (schedule_period_id, student_id, date)
+            );",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 7,
+            description: "rename_family_members_to_contacts",
+            sql: "ALTER TABLE family_members RENAME TO contacts;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 8,
+            description: "create_visitations_table",
+            sql: "CREATE TABLE IF NOT EXISTS visitations (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+                contact_id INTEGER NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+                notes      TEXT,
+                visited_at TEXT    NOT NULL DEFAULT CURRENT_DATE,
+                is_deleted INTEGER NOT NULL DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );",
             kind: MigrationKind::Up,
         },

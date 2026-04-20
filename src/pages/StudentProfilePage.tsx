@@ -1,7 +1,8 @@
 import { Avatar, Card, Chip, Surface, ListBox, Spinner } from "@heroui/react";
 import { Breadcrumb } from "../components/Breadcrumb";
-import { useFamilyMembers } from "../hooks/useFamilyMembers";
+import { useContacts } from "../hooks/useContacts";
 import { useNotes } from "../hooks/useNotes";
+import { useVisitations } from "../hooks/useVisitations";
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 
@@ -10,7 +11,8 @@ interface StudentProfilePageProps {
   group: Group;
   onGoToGroups: () => void;
   onGoToStudents: () => void;
-  onGoToFamilyMembers: () => void;
+  onGoToContacts: () => void;
+  onGoToVisitations: () => void;
   onGoToNotes: () => void;
 }
 
@@ -43,16 +45,27 @@ function formatNoteTimestamp(dateStr: string): string {
   });
 }
 
+function formatVisitDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export function StudentProfilePage({
   student,
   group,
   onGoToGroups,
   onGoToStudents,
-  onGoToFamilyMembers,
+  onGoToContacts,
+  onGoToVisitations,
   onGoToNotes,
 }: StudentProfilePageProps) {
-  const { familyMembers, loading: loadingFamily } = useFamilyMembers(student.id);
+  const { contacts, loading: loadingContacts } = useContacts(student.id);
   const { notes, loading: loadingNotes } = useNotes(student.id);
+  const { visitations, loading: loadingVisitations } = useVisitations(student.id);
 
   return (
     <div className="p-6">
@@ -126,35 +139,35 @@ export function StudentProfilePage({
 
         <Surface variant="secondary" className="rounded-2xl p-5 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">Family Members</h3>
+            <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">Contacts</h3>
             <button
               type="button"
-              onClick={onGoToFamilyMembers}
+              onClick={onGoToContacts}
               className="text-xs text-accent hover:underline"
             >
               View all →
             </button>
           </div>
 
-          {loadingFamily ? (
+          {loadingContacts ? (
             <div className="flex justify-center py-4">
               <Spinner size="sm" color="accent" />
             </div>
-          ) : familyMembers.length === 0 ? (
-            <p className="text-sm text-foreground/40">No family members added yet.</p>
+          ) : contacts.length === 0 ? (
+            <p className="text-sm text-foreground/40">No contacts added yet.</p>
           ) : (
-            <ListBox aria-label="Family members" selectionMode="none">
-              {familyMembers.map((fm) => (
-                <ListBox.Item key={fm.id} id={fm.id} textValue={fm.name}>
+            <ListBox aria-label="Contacts" selectionMode="none">
+              {contacts.slice(0, 3).map((contact) => (
+                <ListBox.Item key={contact.id} id={contact.id} textValue={contact.name}>
                   <div className="flex flex-col py-0.5">
                     <span className="text-sm font-medium">
-                      {fm.name}
-                      {fm.is_emergency_contact ? (
+                      {contact.name}
+                      {contact.is_emergency_contact ? (
                         <span className="ml-2 text-xs text-accent font-normal">Emergency Contact</span>
                       ) : null}
                     </span>
-                    {fm.relationship && (
-                      <span className="text-xs text-muted">{fm.relationship}</span>
+                    {contact.relationship && (
+                      <span className="text-xs text-muted">{contact.relationship}</span>
                     )}
                   </div>
                 </ListBox.Item>
@@ -163,6 +176,41 @@ export function StudentProfilePage({
           )}
         </Surface>
       </div>
+
+      <Surface variant="secondary" className="rounded-2xl p-5 mt-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">Recent Visitations</h3>
+          <button
+            type="button"
+            onClick={onGoToVisitations}
+            className="text-xs text-accent hover:underline"
+          >
+            View all →
+          </button>
+        </div>
+
+        {loadingVisitations ? (
+          <div className="flex justify-center py-4">
+            <Spinner size="sm" color="accent" />
+          </div>
+        ) : visitations.length === 0 ? (
+          <p className="text-sm text-foreground/40">No visitations recorded yet.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {visitations.slice(0, 3).map((v) => (
+              <div key={v.id} className="flex flex-col gap-0.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">{v.contact_name}</span>
+                  <span className="text-xs text-muted">{formatVisitDate(v.visited_at)}</span>
+                </div>
+                {v.notes && (
+                  <p className="text-xs text-foreground/60 truncate">{v.notes}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Surface>
 
       <Surface variant="secondary" className="rounded-2xl p-5 mt-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">

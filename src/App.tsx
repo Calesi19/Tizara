@@ -72,7 +72,8 @@ import { Sidebar } from "./components/Sidebar";
 import { GroupsPage } from "./pages/GroupsPage";
 import { StudentsPage } from "./pages/StudentsPage";
 import { StudentProfilePage } from "./pages/StudentProfilePage";
-import { FamilyMembersPage } from "./pages/FamilyMembersPage";
+import { ContactsPage } from "./pages/ContactsPage";
+import { VisitationsPage } from "./pages/VisitationsPage";
 import { NotesPage } from "./pages/NotesPage";
 import { SchedulePage } from "./pages/SchedulePage";
 import { AttendancePage } from "./pages/AttendancePage";
@@ -84,7 +85,8 @@ type Route =
   | { page: "groups" }
   | { page: "students"; group: Group }
   | { page: "student-profile"; group: Group; student: Student }
-  | { page: "family-members"; group: Group; student: Student }
+  | { page: "contacts"; group: Group; student: Student }
+  | { page: "visitations"; group: Group; student: Student }
   | { page: "notes"; group: Group; student: Student }
   | { page: "schedule"; group: Group }
   | { page: "attendance"; group: Group }
@@ -100,8 +102,10 @@ function App() {
   const goToStudents = (group: Group) => setRoute({ page: "students", group });
   const goToStudentProfile = (group: Group, student: Student) =>
     setRoute({ page: "student-profile", group, student });
-  const goToFamilyMembers = (group: Group, student: Student) =>
-    setRoute({ page: "family-members", group, student });
+  const goToContacts = (group: Group, student: Student) =>
+    setRoute({ page: "contacts", group, student });
+  const goToVisitations = (group: Group, student: Student) =>
+    setRoute({ page: "visitations", group, student });
   const goToNotes = (group: Group, student: Student) =>
     setRoute({ page: "notes", group, student });
   const goToSchedule = (group: Group) => setRoute({ page: "schedule", group });
@@ -148,7 +152,8 @@ function App() {
             group={route.group}
             onGoToGroups={goToGroups}
             onGoToStudents={() => goToStudents(route.group)}
-            onGoToFamilyMembers={() => goToFamilyMembers(route.group, route.student)}
+            onGoToContacts={() => goToContacts(route.group, route.student)}
+            onGoToVisitations={() => goToVisitations(route.group, route.student)}
             onGoToNotes={() => goToNotes(route.group, route.student)}
           />
         );
@@ -162,9 +167,19 @@ function App() {
             onGoToStudentProfile={() => goToStudentProfile(route.group, route.student)}
           />
         );
-      case "family-members":
+      case "contacts":
         return (
-          <FamilyMembersPage
+          <ContactsPage
+            student={route.student}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToStudentProfile={() => goToStudentProfile(route.group, route.student)}
+          />
+        );
+      case "visitations":
+        return (
+          <VisitationsPage
             student={route.student}
             group={route.group}
             onGoToGroups={goToGroups}
