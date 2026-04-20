@@ -1,5 +1,6 @@
-import { Avatar, Card, Chip, Surface } from "@heroui/react";
+import { Avatar, Card, Chip, Surface, ListBox, Spinner } from "@heroui/react";
 import { Breadcrumb } from "../components/Breadcrumb";
+import { useFamilyMembers } from "../hooks/useFamilyMembers";
 import type { Classroom } from "../types/classroom";
 import type { Student } from "../types/student";
 
@@ -36,6 +37,8 @@ export function StudentProfilePage({
   onGoToStudents,
   onGoToFamilyMembers,
 }: StudentProfilePageProps) {
+  const { familyMembers, loading: loadingFamily } = useFamilyMembers(student.id);
+
   return (
     <div className="p-6">
       <Breadcrumb
@@ -102,18 +105,44 @@ export function StudentProfilePage({
           </Card.Content>
         </Card>
 
-        <Card
-          variant="secondary"
-          className="cursor-pointer hover:shadow-md hover:border-accent/30 transition-all"
-          onClick={onGoToFamilyMembers}
-        >
-          <Card.Header>
-            <Card.Title className="text-base">Family Members</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <p className="text-sm text-muted">View and manage family contacts →</p>
-          </Card.Content>
-        </Card>
+        <Surface variant="secondary" className="rounded-2xl p-5 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold">Family Members</h3>
+            <button
+              type="button"
+              onClick={onGoToFamilyMembers}
+              className="text-xs text-accent hover:underline"
+            >
+              View all →
+            </button>
+          </div>
+
+          {loadingFamily ? (
+            <div className="flex justify-center py-4">
+              <Spinner size="sm" color="accent" />
+            </div>
+          ) : familyMembers.length === 0 ? (
+            <p className="text-sm text-foreground/40">No family members added yet.</p>
+          ) : (
+            <ListBox aria-label="Family members" selectionMode="none">
+              {familyMembers.map((fm) => (
+                <ListBox.Item key={fm.id} id={fm.id} textValue={fm.name}>
+                  <div className="flex flex-col py-0.5">
+                    <span className="text-sm font-medium">
+                      {fm.name}
+                      {fm.is_emergency_contact ? (
+                        <span className="ml-2 text-xs text-accent font-normal">Emergency Contact</span>
+                      ) : null}
+                    </span>
+                    {fm.relationship && (
+                      <span className="text-xs text-muted">{fm.relationship}</span>
+                    )}
+                  </div>
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          )}
+        </Surface>
       </div>
     </div>
   );
