@@ -87,9 +87,13 @@ export function StudentProfilePage({
             label="Birthdate"
             value={
               student.birthdate
-                ? `${new Date(student.birthdate).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} (${getAge(student.birthdate)})`
+                ? new Date(student.birthdate).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
                 : null
             }
+          />
+          <InfoField
+            label="Age"
+            value={student.birthdate ? `${getAge(student.birthdate)} years old` : null}
           />
           <InfoField
             label="Enrollment Date"
