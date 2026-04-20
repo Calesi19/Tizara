@@ -40,6 +40,18 @@ export function useSchedule(groupId: number) {
     [groupId, periods, fetchPeriods]
   );
 
+  const updatePeriod = useCallback(
+    async (id: number, input: { name: string; start_time: string; end_time: string }) => {
+      const db = await Database.load(DB_URL);
+      await db.execute(
+        "UPDATE schedule_periods SET name=?, start_time=?, end_time=? WHERE id=?",
+        [input.name, input.start_time, input.end_time, id]
+      );
+      await fetchPeriods();
+    },
+    [fetchPeriods]
+  );
+
   const deletePeriod = useCallback(
     async (id: number) => {
       const db = await Database.load(DB_URL);
@@ -63,5 +75,5 @@ export function useSchedule(groupId: number) {
     fetchPeriods();
   }, [fetchPeriods]);
 
-  return { periods, loading, error, addPeriod, deletePeriod, periodsByDay };
+  return { periods, loading, error, addPeriod, updatePeriod, deletePeriod, periodsByDay };
 }
