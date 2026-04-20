@@ -1,4 +1,4 @@
-import { Select, ListBox } from "@heroui/react";
+import { Select, ListBox, Surface } from "@heroui/react";
 
 type ThemePreference = "light" | "dark" | "system";
 
@@ -15,13 +15,17 @@ export function SettingsPage({ theme, onThemeChange }: SettingsPageProps) {
         <p className="text-sm text-muted mt-0.5">App preferences and configuration</p>
       </div>
 
-      <div className="max-w-md flex flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Appearance</label>
+      <div className="flex flex-col gap-4">
+        <Surface className="flex items-center justify-between gap-4 px-4 py-3 rounded-lg">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-medium">Appearance</span>
+            <span className="text-xs text-foreground/50">Choose between light, dark, or your system default.</span>
+          </div>
           <Select
             aria-label="Theme"
             selectedKey={theme}
             onSelectionChange={(key) => onThemeChange(String(key) as ThemePreference)}
+            className="w-36 shrink-0"
           >
             <Select.Trigger>
               <Select.Value />
@@ -35,7 +39,7 @@ export function SettingsPage({ theme, onThemeChange }: SettingsPageProps) {
               </ListBox>
             </Select.Popover>
           </Select>
-        </div>
+        </Surface>
       </div>
     </div>
   );
