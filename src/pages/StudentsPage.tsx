@@ -167,10 +167,10 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
       <Modal state={modalState}>
         <Modal.Backdrop isDismissable={!submitting}>
           <Modal.Container>
-            <Modal.Dialog>
+            <Modal.Dialog className="overflow-visible">
               <form onSubmit={handleSubmit}>
                 <Modal.Header>Add Student</Modal.Header>
-                <Modal.Body className="flex flex-col gap-4">
+                <Modal.Body className="flex flex-col gap-4 pb-px overflow-visible">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor="add-student-name">Student Name *</Label>
                     <Input
