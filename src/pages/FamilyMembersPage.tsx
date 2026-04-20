@@ -98,7 +98,7 @@ export function FamilyMembersPage({
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
           { label: "Classrooms", onClick: onGoToClassrooms },
@@ -130,18 +130,19 @@ export function FamilyMembersPage({
         </div>
       )}
 
-      {!loading && !error && familyMembers.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-lg font-semibold text-muted">No family members yet</p>
-          <p className="text-sm text-foreground/40 mt-1">
-            Click "+ Add Family Member" to add one.
-          </p>
-        </div>
-      )}
+      <div className="flex-1 flex flex-col min-h-0">
+        {!loading && !error && familyMembers.length === 0 && (
+          <div className="flex flex-col items-center justify-center flex-1 text-center">
+            <p className="text-lg font-semibold text-muted">No family members yet</p>
+            <p className="text-sm text-foreground/40 mt-1">
+              Click "+ Add Family Member" to add one.
+            </p>
+          </div>
+        )}
 
-      {!loading && familyMembers.length > 0 && (
-        <TableRoot variant="primary">
-          <TableScrollContainer>
+        {!loading && familyMembers.length > 0 && (
+          <TableRoot variant="primary" className="flex-1 h-full">
+            <TableScrollContainer className="h-full">
             <TableContent aria-label="Family members" selectionMode="none">
               <TableHeader>
                 <TableColumn isRowHeader>Name</TableColumn>
@@ -171,8 +172,9 @@ export function FamilyMembersPage({
               </TableBody>
             </TableContent>
           </TableScrollContainer>
-        </TableRoot>
-      )}
+          </TableRoot>
+        )}
+      </div>
 
       <Modal state={modalState}>
         <Modal.Backdrop isDismissable={!submitting}>
