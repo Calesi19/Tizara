@@ -153,7 +153,7 @@ export function AddPeriodModal({ onAdd }: AddPeriodModalProps) {
                             onClick={() => toggleDay(day)}
                             className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition-colors ${
                               active
-                                ? "bg-primary text-primary-foreground"
+                                ? "bg-accent text-white"
                                 : "bg-foreground/5 text-foreground/50 hover:bg-foreground/10"
                             }`}
                           >
