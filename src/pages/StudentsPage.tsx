@@ -14,7 +14,14 @@ import {
   TableScrollContainer,
   TableRoot,
   useOverlayState,
+  Select,
+  ListBox,
+  DatePicker,
+  DateField,
+  Calendar,
 } from "@heroui/react";
+import { parseDate } from "@internationalized/date";
+import type { DateValue } from "@internationalized/date";
 import { useStudents } from "../hooks/useStudents";
 import { Breadcrumb } from "../components/Breadcrumb";
 import type { Classroom } from "../types/classroom";
@@ -29,25 +36,26 @@ interface StudentsPageProps {
 export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: StudentsPageProps) {
   const { students, loading, error, addStudent } = useStudents(classroom.id);
   const modalState = useOverlayState();
-  const [name, setName] = useState("");
+  const emptyForm = { name: "", gender: "", birthdate: "", student_number: "", enrollment_date: "" };
+  const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
   const closeModal = () => {
-    setName("");
+    setForm(emptyForm);
     setAddError(null);
     modalState.close();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!form.name.trim()) return;
     setSubmitting(true);
     setAddError(null);
     try {
-      await addStudent({ name: name.trim() });
-      setName("");
+      await addStudent({ ...form, name: form.name.trim() });
+      setForm(emptyForm);
       modalState.close();
     } catch (err) {
       setAddError(String(err));
@@ -167,12 +175,140 @@ export function StudentsPage({ classroom, onGoToClassrooms, onSelectStudent }: S
                     <Label htmlFor="add-student-name">Student Name *</Label>
                     <Input
                       id="add-student-name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="e.g. Jane Doe"
                       required
                     />
                   </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Gender</Label>
+                    <Select
+                      aria-label="Gender"
+                      selectedKey={form.gender || null}
+                      onSelectionChange={(key) => setForm({ ...form, gender: String(key ?? "") })}
+                    >
+                      <Select.Trigger>
+                        <Select.Value>{({ selectedItem }) => (selectedItem as { id?: string } | null)?.id ?? "Select gender..."}</Select.Value>
+                        <Select.Indicator />
+                      </Select.Trigger>
+                      <Select.Popover>
+                        <ListBox>
+                          <ListBox.Item id="Male">Male</ListBox.Item>
+                          <ListBox.Item id="Female">Female</ListBox.Item>
+                          <ListBox.Item id="Other">Other</ListBox.Item>
+                        </ListBox>
+                      </Select.Popover>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Birthdate</Label>
+                    <DatePicker
+                      className="w-full"
+                      aria-label="Birthdate"
+                      value={form.birthdate ? parseDate(form.birthdate) : null}
+                      onChange={(date: DateValue | null) =>
+                        setForm({ ...form, birthdate: date ? date.toString() : "" })
+                      }
+                    >
+                      <DateField.Group fullWidth>
+                        <DateField.Input>
+                          {(segment) => <DateField.Segment segment={segment} />}
+                        </DateField.Input>
+                        <DateField.Suffix>
+                          <DatePicker.Trigger>
+                            <DatePicker.TriggerIndicator />
+                          </DatePicker.Trigger>
+                        </DateField.Suffix>
+                      </DateField.Group>
+                      <DatePicker.Popover>
+                        <Calendar aria-label="Birthdate">
+                          <Calendar.Header>
+                            <Calendar.YearPickerTrigger>
+                              <Calendar.YearPickerTriggerHeading />
+                              <Calendar.YearPickerTriggerIndicator />
+                            </Calendar.YearPickerTrigger>
+                            <Calendar.NavButton slot="previous" />
+                            <Calendar.NavButton slot="next" />
+                          </Calendar.Header>
+                          <Calendar.Grid>
+                            <Calendar.GridHeader>
+                              {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
+                            </Calendar.GridHeader>
+                            <Calendar.GridBody>
+                              {(date) => <Calendar.Cell date={date} />}
+                            </Calendar.GridBody>
+                          </Calendar.Grid>
+                          <Calendar.YearPickerGrid>
+                            <Calendar.YearPickerGridBody>
+                              {({ year }) => <Calendar.YearPickerCell year={year} />}
+                            </Calendar.YearPickerGridBody>
+                          </Calendar.YearPickerGrid>
+                        </Calendar>
+                      </DatePicker.Popover>
+                    </DatePicker>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="add-student-number">Student ID</Label>
+                    <Input
+                      id="add-student-number"
+                      value={form.student_number}
+                      onChange={(e) => setForm({ ...form, student_number: e.target.value })}
+                      placeholder="e.g. 2024-0001"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Enrollment Date</Label>
+                    <DatePicker
+                      className="w-full"
+                      aria-label="Enrollment Date"
+                      value={form.enrollment_date ? parseDate(form.enrollment_date) : null}
+                      onChange={(date: DateValue | null) =>
+                        setForm({ ...form, enrollment_date: date ? date.toString() : "" })
+                      }
+                    >
+                      <DateField.Group fullWidth>
+                        <DateField.Input>
+                          {(segment) => <DateField.Segment segment={segment} />}
+                        </DateField.Input>
+                        <DateField.Suffix>
+                          <DatePicker.Trigger>
+                            <DatePicker.TriggerIndicator />
+                          </DatePicker.Trigger>
+                        </DateField.Suffix>
+                      </DateField.Group>
+                      <DatePicker.Popover>
+                        <Calendar aria-label="Enrollment Date">
+                          <Calendar.Header>
+                            <Calendar.YearPickerTrigger>
+                              <Calendar.YearPickerTriggerHeading />
+                              <Calendar.YearPickerTriggerIndicator />
+                            </Calendar.YearPickerTrigger>
+                            <Calendar.NavButton slot="previous" />
+                            <Calendar.NavButton slot="next" />
+                          </Calendar.Header>
+                          <Calendar.Grid>
+                            <Calendar.GridHeader>
+                              {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
+                            </Calendar.GridHeader>
+                            <Calendar.GridBody>
+                              {(date) => <Calendar.Cell date={date} />}
+                            </Calendar.GridBody>
+                          </Calendar.Grid>
+                          <Calendar.YearPickerGrid>
+                            <Calendar.YearPickerGridBody>
+                              {({ year }) => <Calendar.YearPickerCell year={year} />}
+                            </Calendar.YearPickerGridBody>
+                          </Calendar.YearPickerGrid>
+                        </Calendar>
+                      </DatePicker.Popover>
+                    </DatePicker>
+                  </div>
+
                   {addError && (
                     <p className="text-danger text-sm">{addError}</p>
                   )}

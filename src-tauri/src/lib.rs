@@ -40,6 +40,15 @@ pub fn run() {
             );",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 4,
+            description: "add_student_extended_fields",
+            sql: "ALTER TABLE students ADD COLUMN gender TEXT;
+                  ALTER TABLE students ADD COLUMN birthdate TEXT;
+                  ALTER TABLE students ADD COLUMN student_number TEXT;
+                  ALTER TABLE students ADD COLUMN enrollment_date TEXT;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

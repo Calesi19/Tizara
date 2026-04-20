@@ -14,7 +14,7 @@ export function useStudents(classroomId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<Student[]>(
-        "SELECT id, classroom_id, name, created_at FROM students WHERE classroom_id = ? ORDER BY name ASC",
+        "SELECT id, classroom_id, name, gender, birthdate, student_number, enrollment_date, created_at FROM students WHERE classroom_id = ? ORDER BY name ASC",
         [classroomId]
       );
       setStudents(rows);
@@ -30,8 +30,15 @@ export function useStudents(classroomId: number) {
     async (input: NewStudentInput) => {
       const db = await Database.load(DB_URL);
       await db.execute(
-        "INSERT INTO students (classroom_id, name) VALUES (?, ?)",
-        [classroomId, input.name]
+        "INSERT INTO students (classroom_id, name, gender, birthdate, student_number, enrollment_date) VALUES (?, ?, ?, ?, ?, ?)",
+        [
+          classroomId,
+          input.name,
+          input.gender || null,
+          input.birthdate || null,
+          input.student_number || null,
+          input.enrollment_date || null,
+        ]
       );
       await fetchStudents();
     },
