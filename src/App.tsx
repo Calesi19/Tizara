@@ -1,50 +1,104 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import { Button, Drawer, useOverlayState } from "@heroui/react";
+import { Sidebar } from "./components/Sidebar";
+import { ClassroomsPage } from "./pages/ClassroomsPage";
+import { StudentsPage } from "./pages/StudentsPage";
+import { StudentProfilePage } from "./pages/StudentProfilePage";
+import { FamilyMembersPage } from "./pages/FamilyMembersPage";
+import type { Classroom } from "./types/classroom";
+import type { Student } from "./types/student";
+
+type Route =
+  | { page: "classrooms" }
+  | { page: "students"; classroom: Classroom }
+  | { page: "student-profile"; classroom: Classroom; student: Student }
+  | { page: "family-members"; classroom: Classroom; student: Student };
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const drawerState = useOverlayState();
+  const [route, setRoute] = useState<Route>({ page: "classrooms" });
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+  const goToClassrooms = () => setRoute({ page: "classrooms" });
+  const goToStudents = (classroom: Classroom) => setRoute({ page: "students", classroom });
+  const goToStudentProfile = (classroom: Classroom, student: Student) =>
+    setRoute({ page: "student-profile", classroom, student });
+  const goToFamilyMembers = (classroom: Classroom, student: Student) =>
+    setRoute({ page: "family-members", classroom, student });
+
+  function renderPage() {
+    switch (route.page) {
+      case "classrooms":
+        return <ClassroomsPage onSelectClassroom={(c) => goToStudents(c)} />;
+      case "students":
+        return (
+          <StudentsPage
+            classroom={route.classroom}
+            onGoToClassrooms={goToClassrooms}
+            onSelectStudent={(s) => goToStudentProfile(route.classroom, s)}
+          />
+        );
+      case "student-profile":
+        return (
+          <StudentProfilePage
+            student={route.student}
+            classroom={route.classroom}
+            onGoToClassrooms={goToClassrooms}
+            onGoToStudents={() => goToStudents(route.classroom)}
+            onGoToFamilyMembers={() => goToFamilyMembers(route.classroom, route.student)}
+          />
+        );
+      case "family-members":
+        return (
+          <FamilyMembersPage
+            student={route.student}
+            classroom={route.classroom}
+            onGoToClassrooms={goToClassrooms}
+            onGoToStudents={() => goToStudents(route.classroom)}
+            onGoToStudentProfile={() => goToStudentProfile(route.classroom, route.student)}
+          />
+        );
+    }
   }
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <div className="flex min-h-screen">
+      {/* Mobile drawer — only visible when open */}
+      <Drawer state={drawerState}>
+        <Drawer.Backdrop isDismissable>
+          <Drawer.Content placement="left">
+            <Drawer.Dialog aria-label="Navigation">
+              <Drawer.Body className="p-0">
+                <Sidebar
+                  currentPage={route.page}
+                  onNavigate={() => {
+                    goToClassrooms();
+                    drawerState.close();
+                  }}
+                />
+              </Drawer.Body>
+            </Drawer.Dialog>
+          </Drawer.Content>
+        </Drawer.Backdrop>
+      </Drawer>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      {/* Static desktop sidebar */}
+      <div className="hidden lg:flex">
+        <Sidebar currentPage={route.page} onNavigate={goToClassrooms} />
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+      {/* Main content */}
+      <div className="flex flex-col flex-1 min-h-screen">
+        {/* Mobile header */}
+        <div className="lg:hidden flex items-center gap-2 px-4 py-3 bg-background border-b border-border shadow-sm">
+          <Button variant="ghost" isIconOnly size="sm" onPress={drawerState.open} aria-label="Open menu">
+            ☰
+          </Button>
+          <span className="text-lg font-bold">Tizara</span>
+        </div>
+        <main className="flex-1 bg-background-secondary">{renderPage()}</main>
+      </div>
+    </div>
   );
 }
 
