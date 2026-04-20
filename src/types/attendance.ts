@@ -1,4 +1,5 @@
 export type AttendanceStatus = "present" | "absent" | "late" | "early_pickup";
+export type DayAttendanceStatus = "present" | "absent" | "late" | "early_pickup" | "late_arrival";
 
 export interface AttendanceRecord {
   id: number;
@@ -6,13 +7,13 @@ export interface AttendanceRecord {
   student_id: number;
   date: string;
   status: AttendanceStatus;
+  notes: string | null;
   created_at: string;
 }
 
-export interface StudentAttendanceRow {
+export interface StudentDayStatus {
   student_id: number;
   student_name: string;
-  schedule_period_id: number;
-  status: AttendanceStatus;
-  record_id: number | null;
+  status: DayAttendanceStatus;
+  time?: string;
 }

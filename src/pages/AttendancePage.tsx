@@ -4,7 +4,7 @@ import { CalendarDays } from "lucide-react";
 import { useAttendance } from "../hooks/useAttendance";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { DateNavigator } from "../components/DateNavigator";
-import { AttendancePeriodSection } from "../components/AttendancePeriodSection";
+import { AttendanceDaySection } from "../components/AttendanceDaySection";
 import type { Group } from "../types/group";
 
 interface AttendancePageProps {
@@ -27,13 +27,16 @@ export function AttendancePage({
   const [date, setDate] = useState(todayStr);
   const {
     periodsForDay,
-    attendanceByPeriod,
     allStudents,
+    dayStatuses,
     loading,
     error,
-    setStatus,
-    setStatusBulk,
+    markPresent,
+    markAbsent,
+    markLate,
     markEarlyPickup,
+    markLateArrival,
+    markDayStatusBulk,
   } = useAttendance(group.id, date);
 
   return (
@@ -91,28 +94,23 @@ export function AttendancePage({
         <div className="flex flex-col items-center justify-center flex-1 text-center gap-2 mt-8">
           <p className="text-lg font-semibold text-muted">No students enrolled</p>
           <p className="text-sm text-foreground/40">Add students to start tracking attendance.</p>
-          <Button variant="ghost" size="sm" onPress={onGoToStudents}>Go to Students</Button>
+          <Button variant="ghost" size="sm" onPress={onGoToStudents}>
+            Go to Students
+          </Button>
         </div>
       )}
 
       {!loading && !error && periodsForDay.length > 0 && allStudents.length > 0 && (
-        <div className="flex flex-col gap-4 mt-2">
-          {periodsForDay.map((period) => (
-            <AttendancePeriodSection
-              key={period.id}
-              period={period}
-              rows={attendanceByPeriod.get(period.id) ?? []}
-              onSetStatus={(studentId, periodId, status) =>
-                setStatus(studentId, periodId, status)
-              }
-              onSetStatusBulk={(studentIds, periodId, status) =>
-                setStatusBulk(studentIds, periodId, status)
-              }
-              onMarkEarlyPickup={(studentId, periodId) =>
-                markEarlyPickup(studentId, periodId)
-              }
-            />
-          ))}
+        <div className="mt-2">
+          <AttendanceDaySection
+            rows={dayStatuses}
+            onMarkPresent={markPresent}
+            onMarkAbsent={markAbsent}
+            onMarkLate={markLate}
+            onMarkEarlyPickup={markEarlyPickup}
+            onMarkLateArrival={markLateArrival}
+            onMarkBulk={markDayStatusBulk}
+          />
         </div>
       )}
     </div>

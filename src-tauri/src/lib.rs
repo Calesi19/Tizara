@@ -161,6 +161,12 @@ pub fn run() {
             ALTER TABLE assignments_v2 RENAME TO assignments;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 12,
+            description: "add_notes_to_attendance_records",
+            sql: "ALTER TABLE attendance_records ADD COLUMN notes TEXT;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

@@ -1,7 +1,8 @@
-import { Button, DatePicker, DateField, Calendar } from "@heroui/react";
+import { useRef } from "react";
+import { Button, DatePicker, Calendar } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DateNavigatorProps {
   date: string;
@@ -30,6 +31,7 @@ function today() {
 
 export function DateNavigator({ date, onChange }: DateNavigatorProps) {
   const isToday = date === today();
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="flex items-center gap-2 py-3 px-1">
@@ -37,37 +39,20 @@ export function DateNavigator({ date, onChange }: DateNavigatorProps) {
         <ChevronLeft size={16} />
       </Button>
 
-      <span className="flex-1 text-center font-semibold text-sm select-none">
-        {formatDisplay(date)}
-      </span>
-
-      {!isToday && (
-        <Button variant="ghost" size="sm" onPress={() => onChange(today())}>
-          Today
-        </Button>
-      )}
-
-      <Button variant="ghost" isIconOnly size="sm" onPress={() => onChange(addDays(date, 1))} aria-label="Next day">
-        <ChevronRight size={16} />
-      </Button>
-
       <DatePicker
+        className="flex-1"
         aria-label="Jump to date"
         value={parseDate(date)}
         onChange={(val: DateValue | null) => {
           if (val) onChange(val.toString());
         }}
       >
-        <DateField.Group>
-          <DateField.Suffix>
-            <DatePicker.Trigger>
-              <Button variant="ghost" isIconOnly size="sm" aria-label="Open calendar">
-                <CalendarDays size={16} />
-              </Button>
-            </DatePicker.Trigger>
-          </DateField.Suffix>
-        </DateField.Group>
-        <DatePicker.Popover>
+        <DatePicker.Trigger>
+          <button ref={triggerRef} className="w-full font-semibold text-sm px-2 py-1 rounded-lg hover:bg-foreground/5 transition-colors select-none cursor-pointer">
+            {formatDisplay(date)}
+          </button>
+        </DatePicker.Trigger>
+        <DatePicker.Popover placement="bottom" triggerRef={triggerRef}>
           <Calendar aria-label="Pick a date">
             <Calendar.Header>
               <Calendar.YearPickerTrigger>
@@ -93,6 +78,16 @@ export function DateNavigator({ date, onChange }: DateNavigatorProps) {
           </Calendar>
         </DatePicker.Popover>
       </DatePicker>
+
+      {!isToday && (
+        <Button variant="ghost" size="sm" onPress={() => onChange(today())}>
+          Today
+        </Button>
+      )}
+
+      <Button variant="ghost" isIconOnly size="sm" onPress={() => onChange(addDays(date, 1))} aria-label="Next day">
+        <ChevronRight size={16} />
+      </Button>
     </div>
   );
 }

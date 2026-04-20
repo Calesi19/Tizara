@@ -39,7 +39,7 @@ export function useVisitations(studentId: number) {
           "INSERT INTO contacts (student_id, name) VALUES (?, ?)",
           [studentId, input.visitor_name.trim()]
         );
-        contactId = result.lastInsertId;
+        contactId = result.lastInsertId ?? null;
       }
       await db.execute(
         "INSERT INTO visitations (student_id, contact_id, notes, visited_at) VALUES (?, ?, ?, ?)",

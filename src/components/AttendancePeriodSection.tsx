@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { Button } from "@heroui/react";
 import type { SchedulePeriod } from "../types/schedule";
-import type { StudentAttendanceRow, AttendanceStatus } from "../types/attendance";
+import type { AttendanceStatus } from "../types/attendance";
+
+interface StudentAttendanceRow {
+  student_id: number;
+  student_name: string;
+  schedule_period_id: number;
+  status: AttendanceStatus;
+  record_id: number | null;
+}
 
 function formatTime(t: string) {
   const [h, m] = t.split(":").map(Number);
