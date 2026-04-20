@@ -14,7 +14,7 @@ export function useSchedule(classroomId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<SchedulePeriod[]>(
-        "SELECT id, classroom_id, day_of_week, name, start_time, end_time, sort_order, created_at FROM schedule_periods WHERE classroom_id = ? ORDER BY day_of_week ASC, sort_order ASC, start_time ASC",
+        "SELECT id, classroom_id, day_of_week, name, start_time, end_time, sort_order, created_at FROM schedule_periods WHERE classroom_id = ? AND is_deleted = 0 ORDER BY day_of_week ASC, sort_order ASC, start_time ASC",
         [classroomId]
       );
       setPeriods(rows);
@@ -43,7 +43,7 @@ export function useSchedule(classroomId: number) {
   const deletePeriod = useCallback(
     async (id: number) => {
       const db = await Database.load(DB_URL);
-      await db.execute("DELETE FROM schedule_periods WHERE id = ?", [id]);
+      await db.execute("UPDATE schedule_periods SET is_deleted = 1 WHERE id = ?", [id]);
       await fetchPeriods();
     },
     [fetchPeriods]

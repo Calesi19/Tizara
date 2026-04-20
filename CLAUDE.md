@@ -51,3 +51,11 @@ Schema migrations live in `src-tauri/src/lib.rs`. Three tables: `classrooms`, `s
 ### Modals
 
 `Modal.Body` always gets `className="flex flex-col gap-4 pb-px overflow-visible"`. The `pb-px` adds 1px bottom padding required for the modal content to render correctly.
+
+### Destructive Actions
+
+Any delete or remove action **must** open a `ConfirmModal` before executing. Never delete inline on button press. Use the reusable `src/components/ConfirmModal.tsx` component, which accepts `title`, `description`, `confirmLabel`, `onConfirm`, and `onClose` props.
+
+### Soft Deletes
+
+**Never issue `DELETE FROM` SQL statements.** All tables have an `is_deleted INTEGER NOT NULL DEFAULT 0` column. To delete a record, run `UPDATE <table> SET is_deleted = 1 WHERE id = ?`. All `SELECT` queries must include `AND is_deleted = 0` (or `WHERE is_deleted = 0`) to filter out soft-deleted rows. This applies to every table in the schema.

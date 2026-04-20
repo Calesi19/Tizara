@@ -14,7 +14,7 @@ export function useFamilyMembers(studentId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<FamilyMember[]>(
-        "SELECT id, student_id, name, relationship, phone, email, is_emergency_contact, created_at FROM family_members WHERE student_id = ? ORDER BY is_emergency_contact DESC, name ASC",
+        "SELECT id, student_id, name, relationship, phone, email, is_emergency_contact, created_at FROM family_members WHERE student_id = ? AND is_deleted = 0 ORDER BY is_emergency_contact DESC, name ASC",
         [studentId]
       );
       setFamilyMembers(rows);

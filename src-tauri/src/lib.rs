@@ -96,6 +96,42 @@ pub fn run() {
             );",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 9,
+            description: "add_is_deleted_to_classrooms",
+            sql: "ALTER TABLE classrooms ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 10,
+            description: "add_is_deleted_to_students",
+            sql: "ALTER TABLE students ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 11,
+            description: "add_is_deleted_to_family_members",
+            sql: "ALTER TABLE family_members ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 12,
+            description: "add_is_deleted_to_student_notes",
+            sql: "ALTER TABLE student_notes ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 13,
+            description: "add_is_deleted_to_schedule_periods",
+            sql: "ALTER TABLE schedule_periods ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 14,
+            description: "add_is_deleted_to_attendance_records",
+            sql: "ALTER TABLE attendance_records ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

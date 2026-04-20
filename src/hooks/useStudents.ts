@@ -14,7 +14,7 @@ export function useStudents(classroomId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<Student[]>(
-        "SELECT id, classroom_id, name, gender, birthdate, student_number, enrollment_date, created_at FROM students WHERE classroom_id = ? ORDER BY name ASC",
+        "SELECT id, classroom_id, name, gender, birthdate, student_number, enrollment_date, created_at FROM students WHERE classroom_id = ? AND is_deleted = 0 ORDER BY name ASC",
         [classroomId]
       );
       setStudents(rows);

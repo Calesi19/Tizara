@@ -14,7 +14,7 @@ export function useNotes(studentId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<Note[]>(
-        "SELECT id, student_id, content, created_at FROM student_notes WHERE student_id = ? ORDER BY created_at DESC",
+        "SELECT id, student_id, content, created_at FROM student_notes WHERE student_id = ? AND is_deleted = 0 ORDER BY created_at DESC",
         [studentId]
       );
       setNotes(rows);

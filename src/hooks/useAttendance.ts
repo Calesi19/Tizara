@@ -27,13 +27,13 @@ export function useAttendance(classroomId: number, date: string) {
       const dayOfWeek = new Date(date + "T12:00:00").getDay();
 
       const periods = await db.select<SchedulePeriod[]>(
-        "SELECT id, classroom_id, day_of_week, name, start_time, end_time, sort_order, created_at FROM schedule_periods WHERE classroom_id = ? AND day_of_week = ? ORDER BY sort_order ASC, start_time ASC",
+        "SELECT id, classroom_id, day_of_week, name, start_time, end_time, sort_order, created_at FROM schedule_periods WHERE classroom_id = ? AND day_of_week = ? AND is_deleted = 0 ORDER BY sort_order ASC, start_time ASC",
         [classroomId, dayOfWeek]
       );
       setPeriodsForDay(periods);
 
       const students = await db.select<{ id: number; name: string }[]>(
-        "SELECT id, name FROM students WHERE classroom_id = ? ORDER BY name ASC",
+        "SELECT id, name FROM students WHERE classroom_id = ? AND is_deleted = 0 ORDER BY name ASC",
         [classroomId]
       );
       setAllStudents(students);
@@ -42,7 +42,7 @@ export function useAttendance(classroomId: number, date: string) {
         const periodIds = periods.map((p) => p.id);
         const placeholders = periodIds.map(() => "?").join(",");
         const records = await db.select<RawAttendanceRow[]>(
-          `SELECT id, schedule_period_id, student_id, status FROM attendance_records WHERE schedule_period_id IN (${placeholders}) AND date = ?`,
+          `SELECT id, schedule_period_id, student_id, status FROM attendance_records WHERE schedule_period_id IN (${placeholders}) AND date = ? AND is_deleted = 0`,
           [...periodIds, date]
         );
         setRawRecords(records);

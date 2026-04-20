@@ -17,7 +17,8 @@ export function useClassrooms() {
         `SELECT c.id, c.name, c.subject, c.grade, c.created_at,
                 COUNT(s.id) AS student_count
          FROM classrooms c
-         LEFT JOIN students s ON s.classroom_id = c.id
+         LEFT JOIN students s ON s.classroom_id = c.id AND s.is_deleted = 0
+         WHERE c.is_deleted = 0
          GROUP BY c.id
          ORDER BY c.created_at DESC`
       );
