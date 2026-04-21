@@ -536,7 +536,7 @@ export function StudentProfilePage({
             </div>
           ) : (
             <>
-              {attendanceDays.length > 0 && <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              {attendanceDays.length > 0 && <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
                 {(
                   [
                     {
