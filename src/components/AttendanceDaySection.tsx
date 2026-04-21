@@ -10,7 +10,7 @@ interface AttendanceDaySectionProps {
   onMarkPresent: (studentId: number) => void;
   onMarkAbsent: (studentId: number) => void;
   onMarkLate: (studentId: number) => void;
-  onMarkPartial: (studentId: number, periodStatuses: { periodId: number; status: "present" | "absent" }[]) => void;
+  onMarkPartial: (studentId: number, periodStatuses: { periodId: number; status: "present" | "absent" }[], note?: string) => void;
   onMarkBulk: (studentIds: number[], status: "present" | "absent" | "late") => void;
 }
 
@@ -18,18 +18,21 @@ type PartialModalState = {
   studentId: number;
   studentName: string;
   periodStatuses: { periodId: number; periodName: string; status: "present" | "absent" }[];
+  note: string;
 } | null;
 
 function PartialModal({
   state: modalState,
   partial,
   onToggle,
+  onNoteChange,
   onConfirm,
   onClose,
 }: {
   state: ReturnType<typeof useOverlayState>;
   partial: PartialModalState;
   onToggle: (periodId: number, status: "present" | "absent") => void;
+  onNoteChange: (note: string) => void;
   onConfirm: () => void;
   onClose: () => void;
 }) {
@@ -71,6 +74,18 @@ function PartialModal({
                   </div>
                 </div>
               ))}
+              <div className="flex flex-col gap-1.5 pt-1 border-t border-border/40">
+                <label className="text-xs font-medium text-foreground/60">
+                  {t("attendance.partialModal.noteLabel")}
+                </label>
+                <textarea
+                  value={partial?.note ?? ""}
+                  onChange={(e) => onNoteChange(e.target.value)}
+                  placeholder={t("attendance.partialModal.notePlaceholder")}
+                  rows={2}
+                  className="w-full rounded-lg border border-border bg-background-secondary px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary/50"
+                />
+              </div>
             </Modal.Body>
             <Modal.Footer>
               <Button variant="ghost" onPress={onClose}>
@@ -138,6 +153,7 @@ export function AttendanceDaySection({
         studentId: row.student_id,
         studentName: row.student_name,
         periodStatuses: row.periodStatuses.map((ps) => ({ ...ps })),
+        note: "",
       });
     } else if (status === "present") {
       onMarkPresent(row.student_id);
@@ -161,11 +177,16 @@ export function AttendanceDaySection({
     );
   };
 
+  const handleNoteChange = (note: string) => {
+    setPartialModal((prev) => prev ? { ...prev, note } : null);
+  };
+
   const handlePartialConfirm = () => {
     if (!partialModal) return;
     onMarkPartial(
       partialModal.studentId,
-      partialModal.periodStatuses.map(({ periodId, status }) => ({ periodId, status }))
+      partialModal.periodStatuses.map(({ periodId, status }) => ({ periodId, status })),
+      partialModal.note || undefined
     );
     setPartialModal(null);
   };
@@ -252,6 +273,7 @@ export function AttendanceDaySection({
         state={modalState}
         partial={partialModal}
         onToggle={handleTogglePeriod}
+        onNoteChange={handleNoteChange}
         onConfirm={handlePartialConfirm}
         onClose={handleModalClose}
       />

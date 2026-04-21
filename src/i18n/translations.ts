@@ -345,6 +345,8 @@ const en = {
     partialModal: {
       title: "Partial Attendance",
       confirm: "Confirm",
+      noteLabel: "Note (optional)",
+      notePlaceholder: "Add a note about this student's attendance…",
     },
     pastDateConfirm: {
       title: "Update past attendance?",
@@ -773,6 +775,8 @@ const es: typeof en = {
     partialModal: {
       title: "Asistencia parcial",
       confirm: "Confirmar",
+      noteLabel: "Nota (opcional)",
+      notePlaceholder: "Agrega una nota sobre la asistencia de este estudiante…",
     },
     pastDateConfirm: {
       title: "¿Actualizar asistencia anterior?",

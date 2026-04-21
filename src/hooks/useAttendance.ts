@@ -149,11 +149,17 @@ export function useAttendance(groupId: number, date: string) {
   );
 
   const markPartial = useCallback(
-    async (studentId: number, periodStatuses: { periodId: number; status: "present" | "absent" }[]) => {
+    async (studentId: number, periodStatuses: { periodId: number; status: "present" | "absent" }[], note?: string) => {
       const db = await Database.load(DB_URL);
       await Promise.all(
         periodStatuses.map(({ periodId, status }) => upsert(db, studentId, periodId, status))
       );
+      if (note?.trim()) {
+        await db.execute(
+          "INSERT INTO student_notes (student_id, content, tags) VALUES (?, ?, ?)",
+          [studentId, note.trim(), "attendance"]
+        );
+      }
       await fetchData(true);
     },
     [upsert, fetchData]

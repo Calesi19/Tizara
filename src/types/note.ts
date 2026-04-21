@@ -11,11 +11,16 @@ export interface NewNoteInput {
   tags: string;
 }
 
-export type NoteTagKey = "incident" | "positive" | "negative" | "health";
+export type NoteTagKey = "incident" | "positive" | "negative" | "health" | "attendance";
 
-export const NOTE_TAG_KEYS: NoteTagKey[] = ["incident", "positive", "negative", "health"];
+export const NOTE_TAG_KEYS: NoteTagKey[] = ["incident", "positive", "negative", "health", "attendance"];
 
 export const NOTE_TAG_COLORS: Record<NoteTagKey, { chip: string; active: string; inactive: string }> = {
+  attendance: {
+    chip: "bg-secondary/15 text-secondary-foreground",
+    active: "bg-secondary/20 text-secondary-foreground border border-secondary/40",
+    inactive: "border border-border text-foreground/40 hover:border-foreground/20 hover:text-foreground/70",
+  },
   incident: {
     chip: "bg-warning/15 text-warning",
     active: "bg-warning/20 text-warning border border-warning/40",
