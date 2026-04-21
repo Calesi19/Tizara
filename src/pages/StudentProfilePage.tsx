@@ -152,6 +152,13 @@ export function StudentProfilePage({
     summary: attendanceSummary,
     loading: loadingAttendance,
   } = useStudentAttendance(student.id);
+  const [attendanceFilter, setAttendanceFilter] = useState<"totalDays" | "present" | "absent" | "late" | "partial" | null>(null);
+
+  const filteredAttendanceDays = attendanceDays.filter((d) => {
+    if (!attendanceFilter || attendanceFilter === "totalDays") return true;
+    if (attendanceFilter === "present") return d.dayStatus === "present" || d.dayStatus === "late";
+    return d.dayStatus === attendanceFilter;
+  });
 
   const assignmentPeriods = Array.from(
     new Set(assignments.map((a) => a.period_name)),
@@ -539,46 +546,30 @@ export function StudentProfilePage({
               {attendanceDays.length > 0 && <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
                 {(
                   [
-                    {
-                      key: "totalDays",
-                      value: attendanceSummary.totalDays,
-                      color: "text-foreground",
-                    },
-                    {
-                      key: "present",
-                      value: attendanceSummary.present,
-                      color: "text-success",
-                    },
-                    {
-                      key: "absent",
-                      value: attendanceSummary.absent,
-                      color: "text-danger",
-                    },
-                    {
-                      key: "late",
-                      value: attendanceSummary.late,
-                      color: "text-warning",
-                    },
-                    {
-                      key: "partial",
-                      value: attendanceSummary.partial,
-                      color: "text-secondary-foreground",
-                    },
-                  ] as { key: string; value: number; color: string }[]
-                ).map(({ key, value, color }) => (
-                  <Surface
-                    key={key}
-                    variant="default"
-                    className="rounded-xl p-3 flex flex-col gap-0.5 text-center"
-                  >
-                    <span className={`text-xl font-bold ${color}`}>
-                      {value}
-                    </span>
-                    <span className="text-xs text-muted">
-                      {t(`studentProfile.attendance.summary.${key}`)}
-                    </span>
-                  </Surface>
-                ))}
+                    { key: "totalDays", value: attendanceSummary.totalDays, color: "text-foreground" },
+                    { key: "present",   value: attendanceSummary.present,   color: "text-success" },
+                    { key: "absent",    value: attendanceSummary.absent,    color: "text-danger" },
+                    { key: "late",      value: attendanceSummary.late,      color: "text-warning" },
+                    { key: "partial",   value: attendanceSummary.partial,   color: "text-secondary-foreground" },
+                  ] as { key: "totalDays" | "present" | "absent" | "late" | "partial"; value: number; color: string }[]
+                ).map(({ key, value, color }) => {
+                  const isActive = attendanceFilter === key;
+                  return (
+                    <Surface
+                      key={key}
+                      variant="default"
+                      className={`rounded-xl p-3 flex flex-col gap-0.5 text-center cursor-pointer select-none transition-all ${
+                        isActive ? "ring-2 ring-foreground/30" : "hover:ring-1 hover:ring-foreground/10"
+                      }`}
+                      onClick={() => setAttendanceFilter(isActive ? null : key)}
+                    >
+                      <span className={`text-xl font-bold ${color}`}>{value}</span>
+                      <span className="text-xs text-muted">
+                        {t(`studentProfile.attendance.summary.${key}`)}
+                      </span>
+                    </Surface>
+                  );
+                })}
               </div>}
               <TableRoot variant="primary" className="flex-1 min-h-0">
                 <TableScrollContainer className="h-full">
@@ -610,7 +601,7 @@ export function StudentProfilePage({
                         </EmptyState>
                       )}
                     >
-                      {attendanceDays.map((day) => {
+                      {filteredAttendanceDays.map((day) => {
                         const statusColors: Record<DayAttendanceStatus, string> = {
                           present: "text-success",
                           absent: "text-danger",
