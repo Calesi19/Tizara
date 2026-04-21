@@ -78,7 +78,7 @@ export function AssignmentDetailPage({
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
           { label: t("groups.breadcrumb"), onClick: onGoToGroups },
@@ -110,7 +110,7 @@ export function AssignmentDetailPage({
           {error}
         </div>
       ) : (
-        <>
+        <div className="flex-1 min-h-0 flex flex-col">
           <Surface variant="secondary" className="rounded-2xl p-5 mb-6 flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-0.5">
@@ -215,7 +215,7 @@ export function AssignmentDetailPage({
               </TableScrollContainer>
             </TableRoot>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
