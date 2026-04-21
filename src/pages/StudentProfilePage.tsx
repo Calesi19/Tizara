@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Avatar,
   EmptyState,
@@ -46,6 +46,36 @@ interface StudentProfilePageProps {
   onGoToDashboard: () => void;
   onGoToStudents: () => void;
   onGoToContacts: () => void;
+}
+
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [value]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="ml-1.5 inline-flex items-center text-foreground/30 hover:text-foreground/70 transition-colors"
+      aria-label="Copy to clipboard"
+    >
+      {copied ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+      )}
+    </button>
+  );
 }
 
 function InfoField({
@@ -411,9 +441,11 @@ export function StudentProfilePage({
                   <button
                     type="button"
                     onClick={onGoToContacts}
-                    className="text-xs text-accent hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-foreground/40 hover:text-foreground/70 transition-colors"
+                    aria-label="Edit contacts"
                   >
-                    {t("studentProfile.overview.viewAll")}
+                    <Pencil size={12} />
+                    Edit
                   </button>
                 </div>
                 {loadingContacts ? (
@@ -425,34 +457,37 @@ export function StudentProfilePage({
                     {t("studentProfile.overview.noContacts")}
                   </p>
                 ) : (
-                  <ListBox
-                    aria-label={t("studentProfile.overview.contacts")}
-                    selectionMode="none"
-                  >
+                  <div className="flex flex-col divide-y divide-border">
                     {contacts.slice(0, 3).map((contact) => (
-                      <ListBox.Item
-                        key={contact.id}
-                        id={contact.id}
-                        textValue={contact.name}
-                      >
-                        <div className="flex flex-col py-0.5">
-                          <span className="text-sm font-medium">
-                            {contact.name}
-                            {contact.is_emergency_contact ? (
-                              <span className="ml-2 text-xs text-accent font-normal">
-                                {t("studentProfile.overview.emergencyContact")}
-                              </span>
-                            ) : null}
-                          </span>
-                          {contact.relationship && (
-                            <span className="text-xs text-muted">
-                              {contact.relationship}
+                      <div key={contact.id} className="flex flex-col gap-0.5 py-2.5 first:pt-0 last:pb-0">
+                        <span className="text-sm font-medium">
+                          {contact.name}
+                          {contact.is_emergency_contact ? (
+                            <span className="ml-2 text-xs text-accent font-normal">
+                              {t("studentProfile.overview.emergencyContact")}
                             </span>
-                          )}
-                        </div>
-                      </ListBox.Item>
+                          ) : null}
+                        </span>
+                        {contact.relationship && (
+                          <span className="text-xs text-muted">
+                            {contact.relationship}
+                          </span>
+                        )}
+                        {contact.phone && (
+                          <span className="inline-flex items-center text-xs text-foreground/60">
+                            {contact.phone}
+                            <CopyButton value={contact.phone} />
+                          </span>
+                        )}
+                        {contact.email && (
+                          <span className="inline-flex items-center text-xs text-foreground/60">
+                            {contact.email}
+                            <CopyButton value={contact.email} />
+                          </span>
+                        )}
+                      </div>
                     ))}
-                  </ListBox>
+                  </div>
                 )}
               </Surface>
             </div>
