@@ -84,6 +84,7 @@ const en = {
       titlePlural: "Add Note to {count} students",
       noteLabel: "Note *",
       notePlaceholder: "Write your note here...",
+      tagsLabel: "Tags",
     },
   },
   studentProfile: {
@@ -180,6 +181,7 @@ const en = {
         positive: "Positive",
         negative: "Negative",
         health: "Health",
+        attendance: "Attendance",
       },
     },
     addNoteModal: {
@@ -557,6 +559,7 @@ const es: typeof en = {
       titlePlural: "Agregar nota a {count} estudiantes",
       noteLabel: "Nota *",
       notePlaceholder: "Escribe tu nota aquí...",
+      tagsLabel: "Etiquetas",
     },
   },
   studentProfile: {
@@ -654,6 +657,7 @@ const es: typeof en = {
         positive: "Positivo",
         negative: "Negativo",
         health: "Salud",
+        attendance: "Asistencia",
       },
     },
     addNoteModal: {

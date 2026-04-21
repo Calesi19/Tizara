@@ -17,8 +17,8 @@ export const NOTE_TAG_KEYS: NoteTagKey[] = ["incident", "positive", "negative", 
 
 export const NOTE_TAG_COLORS: Record<NoteTagKey, { chip: string; active: string; inactive: string }> = {
   attendance: {
-    chip: "bg-secondary/15 text-secondary-foreground",
-    active: "bg-secondary/20 text-secondary-foreground border border-secondary/40",
+    chip: "bg-violet-500/15 text-violet-500",
+    active: "bg-violet-500/20 text-violet-500 border border-violet-500/40",
     inactive: "border border-border text-foreground/40 hover:border-foreground/20 hover:text-foreground/70",
   },
   incident: {
@@ -37,8 +37,8 @@ export const NOTE_TAG_COLORS: Record<NoteTagKey, { chip: string; active: string;
     inactive: "border border-border text-foreground/40 hover:border-foreground/20 hover:text-foreground/70",
   },
   health: {
-    chip: "bg-primary/15 text-primary",
-    active: "bg-primary/20 text-primary border border-primary/40",
+    chip: "bg-sky-500/15 text-sky-500",
+    active: "bg-sky-500/20 text-sky-500 border border-sky-500/40",
     inactive: "border border-border text-foreground/40 hover:border-foreground/20 hover:text-foreground/70",
   },
 };

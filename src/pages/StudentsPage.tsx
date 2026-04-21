@@ -30,6 +30,7 @@ import Database from "@tauri-apps/plugin-sql";
 import { useStudents } from "../hooks/useStudents";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useTranslation } from "../i18n/LanguageContext";
+import { NOTE_TAG_KEYS, NOTE_TAG_COLORS, serializeTags, type NoteTagKey } from "../types/note";
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 
@@ -65,6 +66,7 @@ export function StudentsPage({
   const [search, setSearch] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [noteContent, setNoteContent] = useState("");
+  const [noteTags, setNoteTags] = useState<NoteTagKey[]>([]);
   const [noteSubmitting, setNoteSubmitting] = useState(false);
   const [noteError, setNoteError] = useState<string | null>(null);
 
@@ -76,6 +78,7 @@ export function StudentsPage({
 
   const closeNoteModal = () => {
     setNoteContent("");
+    setNoteTags([]);
     setNoteError(null);
     noteModalState.close();
   };
@@ -117,8 +120,8 @@ export function StudentsPage({
       await Promise.all(
         selectedStudents.map((s) =>
           db.execute(
-            "INSERT INTO student_notes (student_id, content) VALUES (?, ?)",
-            [s.id, noteContent.trim()],
+            "INSERT INTO student_notes (student_id, content, tags) VALUES (?, ?, ?)",
+            [s.id, noteContent.trim(), serializeTags(noteTags)],
           ),
         ),
       );
@@ -557,7 +560,7 @@ export function StudentsPage({
             <Modal.Dialog>
               <form onSubmit={handleBulkAddNote}>
                 <Modal.Header>{bulkNoteTitle}</Modal.Header>
-                <Modal.Body className="flex flex-col gap-4 pb-px overflow-visible">
+                <Modal.Body className="flex flex-col gap-4 pb-px overflow-y-auto">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor="bulk-note-content">
                       {t("students.bulkNoteModal.noteLabel")}
@@ -571,6 +574,32 @@ export function StudentsPage({
                       required
                       className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-accent resize-none"
                     />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-sm font-medium">
+                      {t("students.bulkNoteModal.tagsLabel")}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {NOTE_TAG_KEYS.map((tag) => {
+                        const isActive = noteTags.includes(tag);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() =>
+                              setNoteTags((prev) =>
+                                isActive ? prev.filter((k) => k !== tag) : [...prev, tag]
+                              )
+                            }
+                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                              isActive ? NOTE_TAG_COLORS[tag].active : NOTE_TAG_COLORS[tag].inactive
+                            }`}
+                          >
+                            {t(`studentProfile.notes.tags.${tag}` as Parameters<typeof t>[0])}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                   {noteError && (
                     <p className="text-danger text-sm">{noteError}</p>

@@ -1006,7 +1006,7 @@ export function StudentProfilePage({
               {isEditingNote ? (
                 <form onSubmit={handleEditNoteSubmit}>
                   <Modal.Header>{t("notes.viewModal.editTitle")}</Modal.Header>
-                  <Modal.Body className="flex flex-col gap-4 pb-px overflow-visible">
+                  <Modal.Body className="flex flex-col gap-4 pb-px overflow-y-auto">
                     <div className="flex flex-col gap-1.5">
                       <Label htmlFor="edit-note-content">{t("studentProfile.addNoteModal.noteLabel")}</Label>
                       <textarea
@@ -1096,7 +1096,7 @@ export function StudentProfilePage({
                 <Modal.Header>
                   {t("studentProfile.addNoteModal.title")}
                 </Modal.Header>
-                <Modal.Body className="flex flex-col gap-4 pb-px overflow-visible">
+                <Modal.Body className="flex flex-col gap-4 pb-px overflow-y-auto">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor="note-content">
                       {t("studentProfile.addNoteModal.noteLabel")}
