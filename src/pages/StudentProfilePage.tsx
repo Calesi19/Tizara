@@ -31,6 +31,9 @@ import { Ambulance, Inbox, Pencil, ShieldUser, Star } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useContacts } from "../hooks/useContacts";
 import { useAddresses } from "../hooks/useAddresses";
+import { useStudentServices } from "../hooks/useStudentServices";
+import { useStudentAccommodations } from "../hooks/useStudentAccommodations";
+import { useStudentObservations } from "../hooks/useStudentObservations";
 import { useNotes } from "../hooks/useNotes";
 import { useVisitations } from "../hooks/useVisitations";
 import { useStudentAssignmentPreviews } from "../hooks/useStudentAssignmentPreviews";
@@ -49,6 +52,9 @@ interface StudentProfilePageProps {
   onGoToStudents: () => void;
   onGoToContacts: () => void;
   onGoToAddresses: () => void;
+  onGoToServices: () => void;
+  onGoToAccommodations: () => void;
+  onGoToObservations: () => void;
 }
 
 function CopyButton({ value }: { value: string }) {
@@ -136,6 +142,9 @@ export function StudentProfilePage({
   onGoToStudents,
   onGoToContacts,
   onGoToAddresses,
+  onGoToServices,
+  onGoToAccommodations,
+  onGoToObservations,
 }: StudentProfilePageProps) {
   const { t } = useTranslation();
 
@@ -182,6 +191,9 @@ export function StudentProfilePage({
 
   const { contacts, loading: loadingContacts } = useContacts(student.id);
   const { addresses, loading: loadingAddresses } = useAddresses(student.id);
+  const { data: services, loading: loadingServices } = useStudentServices(student.id);
+  const { data: accommodations, loading: loadingAccommodations } = useStudentAccommodations(student.id);
+  const { data: observations, loading: loadingObservations } = useStudentObservations(student.id);
   const { notes, loading: loadingNotes, addNote, updateNote } = useNotes(student.id);
   const {
     visitations,
@@ -572,6 +584,165 @@ export function StudentProfilePage({
                 )}
               </Surface>
             </div>
+
+            {/* Services surface */}
+            <Surface variant="default" className="rounded-2xl p-5 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">
+                  Status &amp; Services
+                </h3>
+                <button
+                  type="button"
+                  onClick={onGoToServices}
+                  className="inline-flex items-center gap-1 text-xs text-foreground/40 hover:text-foreground/70 transition-colors"
+                  aria-label="Edit services"
+                >
+                  <Pencil size={12} />
+                  Edit
+                </button>
+              </div>
+              {loadingServices ? (
+                <div className="flex justify-center py-4">
+                  <Spinner size="sm" color="accent" />
+                </div>
+              ) : !services ? (
+                <p className="text-sm text-foreground/40">No services recorded</p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {services.has_special_education ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                      Special Education
+                    </span>
+                  ) : null}
+                  {services.therapy_speech ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
+                      Speech (HL)
+                    </span>
+                  ) : null}
+                  {services.therapy_occupational ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
+                      Occupational (OCUP)
+                    </span>
+                  ) : null}
+                  {services.therapy_psychological ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
+                      Psychological (PSIC)
+                    </span>
+                  ) : null}
+                  {services.therapy_physical ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
+                      Physical (FIS)
+                    </span>
+                  ) : null}
+                  {services.medical_plan !== "none" ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success">
+                      {services.medical_plan.charAt(0).toUpperCase() + services.medical_plan.slice(1)} Plan
+                    </span>
+                  ) : null}
+                  {services.has_treatment ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-warning/10 text-warning">
+                      Treatment Active
+                    </span>
+                  ) : null}
+                  {!services.has_special_education && !services.therapy_speech && !services.therapy_occupational && !services.therapy_psychological && !services.therapy_physical && services.medical_plan === "none" && !services.has_treatment ? (
+                    <p className="text-sm text-foreground/40">No services recorded</p>
+                  ) : null}
+                </div>
+              )}
+            </Surface>
+
+            {/* Accommodations surface */}
+            <Surface variant="default" className="rounded-2xl p-5 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">
+                  Accommodations
+                </h3>
+                <button
+                  type="button"
+                  onClick={onGoToAccommodations}
+                  className="inline-flex items-center gap-1 text-xs text-foreground/40 hover:text-foreground/70 transition-colors"
+                  aria-label="Edit accommodations"
+                >
+                  <Pencil size={12} />
+                  Edit
+                </button>
+              </div>
+              {loadingAccommodations ? (
+                <div className="flex justify-center py-4">
+                  <Spinner size="sm" color="accent" />
+                </div>
+              ) : !accommodations ? (
+                <p className="text-sm text-foreground/40">No accommodations recorded</p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {accommodations.desk_placement ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Desk placement</span> : null}
+                  {accommodations.extended_time ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Extended time</span> : null}
+                  {accommodations.shorter_assignments ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Shorter assignments</span> : null}
+                  {accommodations.use_abacus ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Abacus</span> : null}
+                  {accommodations.simple_instructions ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Simple instructions</span> : null}
+                  {accommodations.visual_examples ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Visual examples</span> : null}
+                  {!accommodations.desk_placement && !accommodations.extended_time && !accommodations.shorter_assignments && !accommodations.use_abacus && !accommodations.simple_instructions && !accommodations.visual_examples ? (
+                    <p className="text-sm text-foreground/40">No accommodations recorded</p>
+                  ) : null}
+                </div>
+              )}
+            </Surface>
+
+            {/* Observations surface */}
+            <Surface variant="default" className="rounded-2xl p-5 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">
+                  Observations
+                </h3>
+                <button
+                  type="button"
+                  onClick={onGoToObservations}
+                  className="inline-flex items-center gap-1 text-xs text-foreground/40 hover:text-foreground/70 transition-colors"
+                  aria-label="Edit observations"
+                >
+                  <Pencil size={12} />
+                  Edit
+                </button>
+              </div>
+              {loadingObservations ? (
+                <div className="flex justify-center py-4">
+                  <Spinner size="sm" color="accent" />
+                </div>
+              ) : !observations ? (
+                <p className="text-sm text-foreground/40">No observations recorded</p>
+              ) : (() => {
+                const dyslexiaCount = [observations.obs_reading_writing, observations.obs_mirror_numbers, observations.obs_left_right_confusion, observations.obs_sequence_difficulty].filter(Boolean).length;
+                const adhdCount = [observations.obs_disorganized_work, observations.obs_inattention_detail, observations.obs_sustained_attention, observations.obs_doesnt_listen, observations.obs_task_organization, observations.obs_loses_belongings, observations.obs_distracted_stimuli, observations.obs_forgetful, observations.obs_excess_hand_foot, observations.obs_gets_up_from_seat, observations.obs_running_jumping, observations.obs_talks_excessively, observations.obs_difficulty_quiet, observations.obs_driven_by_motor, observations.obs_impulsive_answers, observations.obs_difficulty_waiting, observations.obs_interrupts_others].filter(Boolean).length;
+                const oppCount = [observations.obs_easily_angered, observations.obs_argues, observations.obs_defies_adults, observations.obs_annoys_others, observations.obs_aggressive, observations.obs_spiteful, observations.obs_blames_others, observations.obs_breaks_property].filter(Boolean).length;
+                const otherCount = [observations.obs_incomplete_homework, observations.obs_frequent_absences, observations.obs_neglected_appearance, observations.obs_uses_profanity, observations.obs_takes_belongings, observations.obs_forgets_materials, observations.obs_appears_sad].filter(Boolean).length;
+                const total = dyslexiaCount + adhdCount + oppCount + otherCount;
+                if (total === 0) return <p className="text-sm text-foreground/40">No observations recorded</p>;
+                return (
+                  <div className="flex flex-wrap gap-1.5">
+                    {dyslexiaCount > 0 && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
+                        Dyslexia ({dyslexiaCount})
+                      </span>
+                    )}
+                    {adhdCount > 0 && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
+                        ADD/ADHD ({adhdCount})
+                      </span>
+                    )}
+                    {oppCount > 0 && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
+                        Oppositional ({oppCount})
+                      </span>
+                    )}
+                    {otherCount > 0 && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
+                        Other ({otherCount})
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+            </Surface>
           </div>
         </Tabs.Panel>
 
