@@ -76,6 +76,7 @@ import { StudentProfilePage } from "./pages/StudentProfilePage";
 import { ContactsPage } from "./pages/ContactsPage";
 import { VisitationsPage } from "./pages/VisitationsPage";
 import { NotesPage } from "./pages/NotesPage";
+import { DashboardPage } from "./pages/DashboardPage";
 import { SchedulePage } from "./pages/SchedulePage";
 import { AttendancePage } from "./pages/AttendancePage";
 import { AssignmentsPage } from "./pages/AssignmentsPage";
@@ -87,6 +88,7 @@ import type { Assignment } from "./types/assignment";
 
 type Route =
   | { page: "groups" }
+  | { page: "dashboard"; group: Group }
   | { page: "students"; group: Group }
   | { page: "student-profile"; group: Group; student: Student }
   | { page: "contacts"; group: Group; student: Student }
@@ -105,6 +107,7 @@ function App() {
   const [route, setRoute] = useState<Route>({ page: "groups" });
 
   const goToGroups = () => setRoute({ page: "groups" });
+  const goToDashboard = (group: Group) => setRoute({ page: "dashboard", group });
   const goToStudents = (group: Group) => setRoute({ page: "students", group });
   const goToStudentProfile = (group: Group, student: Student) =>
     setRoute({ page: "student-profile", group, student });
@@ -122,6 +125,7 @@ function App() {
   const handleSelectGroup = (group: Group) => {
     setCurrentGroup(group);
     switch (route.page) {
+      case "dashboard": return goToDashboard(group);
       case "schedule": return goToSchedule(group);
       case "attendance": return goToAttendance(group);
       case "assignments":
@@ -134,6 +138,7 @@ function App() {
     currentPage: route.page,
     currentGroup,
     onSelectGroup: handleSelectGroup,
+    onGoToDashboard: () => currentGroup && goToDashboard(currentGroup),
     onGoToStudents: () => currentGroup && goToStudents(currentGroup),
     onGoToSchedule: () => currentGroup && goToSchedule(currentGroup),
     onGoToAttendance: () => currentGroup && goToAttendance(currentGroup),
@@ -144,7 +149,18 @@ function App() {
   function renderPage() {
     switch (route.page) {
       case "groups":
-        return <GroupsPage currentGroup={currentGroup} onSelectGroup={(c) => { setCurrentGroup(c); goToStudents(c); }} />;
+        return <GroupsPage currentGroup={currentGroup} onSelectGroup={(c) => { setCurrentGroup(c); goToDashboard(c); }} />;
+      case "dashboard":
+        return (
+          <DashboardPage
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToSchedule={() => goToSchedule(route.group)}
+            onGoToAttendance={() => goToAttendance(route.group)}
+            onGoToAssignments={() => goToAssignments(route.group)}
+          />
+        );
       case "students":
         return (
           <StudentsPage

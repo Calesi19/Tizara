@@ -1,5 +1,5 @@
 import { Button, Select, ListBox, Spinner, Label } from "@heroui/react";
-import { Users, CalendarDays, ClipboardCheck, BookOpen, Settings } from "lucide-react";
+import { Users, CalendarDays, ClipboardCheck, BookOpen, Settings, LayoutDashboard } from "lucide-react";
 import { useGroups } from "../hooks/useGroups";
 import { useTranslation } from "../i18n/LanguageContext";
 import type { Group } from "../types/group";
@@ -8,6 +8,7 @@ interface SidebarProps {
   currentPage: string;
   currentGroup: Group | null;
   onSelectGroup: (group: Group) => void;
+  onGoToDashboard: () => void;
   onGoToStudents: () => void;
   onGoToSchedule: () => void;
   onGoToAttendance: () => void;
@@ -28,6 +29,7 @@ export function Sidebar({
   currentPage,
   currentGroup,
   onSelectGroup,
+  onGoToDashboard,
   onGoToStudents,
   onGoToSchedule,
   onGoToAttendance,
@@ -44,6 +46,13 @@ export function Sidebar({
   };
 
   const navItems = [
+    {
+      id: "dashboard",
+      label: t("sidebar.dashboard"),
+      icon: <LayoutDashboard size={16} />,
+      active: currentPage === "dashboard",
+      onPress: nav(onGoToDashboard),
+    },
     {
       id: "students",
       label: t("sidebar.students"),
