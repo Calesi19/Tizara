@@ -217,6 +217,12 @@ pub fn run() {
             );",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 18,
+            description: "add_is_primary_guardian_to_contacts",
+            sql: "ALTER TABLE contacts ADD COLUMN is_primary_guardian INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

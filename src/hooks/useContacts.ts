@@ -14,7 +14,7 @@ export function useContacts(studentId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<Contact[]>(
-        "SELECT id, student_id, name, relationship, phone, email, is_emergency_contact, created_at FROM contacts WHERE student_id = ? AND is_deleted = 0 ORDER BY is_emergency_contact DESC, name ASC",
+        "SELECT id, student_id, name, relationship, phone, email, is_emergency_contact, is_primary_guardian, created_at FROM contacts WHERE student_id = ? AND is_deleted = 0 ORDER BY is_primary_guardian DESC, is_emergency_contact DESC, name ASC",
         [studentId]
       );
       setContacts(rows);
@@ -30,8 +30,8 @@ export function useContacts(studentId: number) {
     async (input: NewContactInput) => {
       const db = await Database.load(DB_URL);
       await db.execute(
-        "INSERT INTO contacts (student_id, name, relationship, phone, email, is_emergency_contact) VALUES (?, ?, ?, ?, ?, ?)",
-        [studentId, input.name, input.relationship || null, input.phone || null, input.email || null, input.is_emergency_contact ? 1 : 0]
+        "INSERT INTO contacts (student_id, name, relationship, phone, email, is_emergency_contact, is_primary_guardian) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [studentId, input.name, input.relationship || null, input.phone || null, input.email || null, input.is_emergency_contact ? 1 : 0, input.is_primary_guardian ? 1 : 0]
       );
       await fetchContacts();
     },
@@ -42,8 +42,8 @@ export function useContacts(studentId: number) {
     async (id: number, input: NewContactInput) => {
       const db = await Database.load(DB_URL);
       await db.execute(
-        "UPDATE contacts SET name=?, relationship=?, phone=?, email=?, is_emergency_contact=? WHERE id=?",
-        [input.name, input.relationship || null, input.phone || null, input.email || null, input.is_emergency_contact ? 1 : 0, id]
+        "UPDATE contacts SET name=?, relationship=?, phone=?, email=?, is_emergency_contact=?, is_primary_guardian=? WHERE id=?",
+        [input.name, input.relationship || null, input.phone || null, input.email || null, input.is_emergency_contact ? 1 : 0, input.is_primary_guardian ? 1 : 0, id]
       );
       await fetchContacts();
     },

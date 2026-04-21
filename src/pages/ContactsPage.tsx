@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import {
   Button,
-  Checkbox,
   EmptyState,
   Modal,
   Label,
@@ -33,7 +32,7 @@ interface ContactsPageProps {
   onGoToStudentProfile: () => void;
 }
 
-const emptyForm: NewContactInput = { name: "", relationship: "", phone: "", email: "", is_emergency_contact: false };
+const emptyForm: NewContactInput = { name: "", relationship: "", phone: "", email: "", is_emergency_contact: false, is_primary_guardian: false };
 
 function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
@@ -97,6 +96,7 @@ export function ContactsPage({
       phone: contact.phone ?? "",
       email: contact.email ?? "",
       is_emergency_contact: contact.is_emergency_contact === 1,
+      is_primary_guardian: contact.is_primary_guardian === 1,
     });
     setEditError(null);
     editModalState.open();
@@ -183,7 +183,7 @@ export function ContactsPage({
                   <TableColumn>{t("contacts.columns.relationship")}</TableColumn>
                   <TableColumn>{t("contacts.columns.phone")}</TableColumn>
                   <TableColumn>{t("contacts.columns.email")}</TableColumn>
-                  <TableColumn>{t("contacts.columns.emergencyContact")}</TableColumn>
+                  <TableColumn> </TableColumn>
                   <TableColumn> </TableColumn>
                 </TableHeader>
                 <TableBody
@@ -209,7 +209,20 @@ export function ContactsPage({
                           ? <span className="inline-flex items-center">{contact.email}<CopyButton value={contact.email} /></span>
                           : <span className="text-foreground/30">—</span>}
                       </TableCell>
-                      <TableCell>{contact.is_emergency_contact ? t("contacts.yes") : <span className="text-foreground/30">—</span>}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1.5">
+                          {contact.is_primary_guardian ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                              {t("contacts.columns.primaryGuardian")}
+                            </span>
+                          ) : null}
+                          {contact.is_emergency_contact ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-warning/10 text-warning">
+                              {t("contacts.columns.emergencyContact")}
+                            </span>
+                          ) : null}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <button
                           type="button"
@@ -274,15 +287,22 @@ export function ContactsPage({
                       placeholder={t("contacts.editModal.emailPlaceholder")}
                     />
                   </div>
-                  <Checkbox
-                    isSelected={editForm.is_emergency_contact}
-                    onChange={(isSelected) => setEditForm({ ...editForm, is_emergency_contact: isSelected })}
-                  >
-                    <Checkbox.Control>
-                      <Checkbox.Indicator />
-                    </Checkbox.Control>
-                    <Checkbox.Content>{t("contacts.editModal.primaryEmergency")}</Checkbox.Content>
-                  </Checkbox>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditForm({ ...editForm, is_primary_guardian: !editForm.is_primary_guardian })}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${editForm.is_primary_guardian ? "bg-accent/20 text-accent" : "bg-foreground/8 text-foreground/40 hover:bg-foreground/12"}`}
+                    >
+                      {t("contacts.editModal.primaryGuardian")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditForm({ ...editForm, is_emergency_contact: !editForm.is_emergency_contact })}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${editForm.is_emergency_contact ? "bg-warning/20 text-warning" : "bg-foreground/8 text-foreground/40 hover:bg-foreground/12"}`}
+                    >
+                      {t("contacts.editModal.primaryEmergency")}
+                    </button>
+                  </div>
                   {editError && (
                     <p className="text-danger text-sm">{editError}</p>
                   )}
@@ -346,15 +366,22 @@ export function ContactsPage({
                       placeholder={t("contacts.addModal.emailPlaceholder")}
                     />
                   </div>
-                  <Checkbox
-                    isSelected={form.is_emergency_contact}
-                    onChange={(isSelected) => setForm({ ...form, is_emergency_contact: isSelected })}
-                  >
-                    <Checkbox.Control>
-                      <Checkbox.Indicator />
-                    </Checkbox.Control>
-                    <Checkbox.Content>{t("contacts.addModal.primaryEmergency")}</Checkbox.Content>
-                  </Checkbox>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, is_primary_guardian: !form.is_primary_guardian })}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${form.is_primary_guardian ? "bg-accent/20 text-accent" : "bg-foreground/8 text-foreground/40 hover:bg-foreground/12"}`}
+                    >
+                      {t("contacts.addModal.primaryGuardian")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, is_emergency_contact: !form.is_emergency_contact })}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${form.is_emergency_contact ? "bg-warning/20 text-warning" : "bg-foreground/8 text-foreground/40 hover:bg-foreground/12"}`}
+                    >
+                      {t("contacts.addModal.primaryEmergency")}
+                    </button>
+                  </div>
                   {addError && (
                     <p className="text-danger text-sm">{addError}</p>
                   )}

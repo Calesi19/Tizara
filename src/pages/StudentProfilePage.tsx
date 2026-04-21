@@ -466,6 +466,11 @@ export function StudentProfilePage({
                       <div key={contact.id} className="flex flex-col gap-0.5 py-2.5 first:pt-0 last:pb-0">
                         <span className="text-sm font-medium">
                           {contact.name}
+                          {contact.is_primary_guardian ? (
+                            <span className="ml-2 text-xs text-accent font-normal">
+                              {t("studentProfile.overview.primaryGuardian")}
+                            </span>
+                          ) : null}
                           {contact.is_emergency_contact ? (
                             <span className="ml-2 text-xs text-accent font-normal">
                               {t("studentProfile.overview.emergencyContact")}

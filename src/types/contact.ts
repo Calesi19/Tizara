@@ -6,6 +6,7 @@ export interface Contact {
   phone: string | null;
   email: string | null;
   is_emergency_contact: number;
+  is_primary_guardian: number;
   created_at: string;
 }
 
@@ -15,4 +16,5 @@ export interface NewContactInput {
   phone: string;
   email: string;
   is_emergency_contact: boolean;
+  is_primary_guardian: boolean;
 }
