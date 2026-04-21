@@ -415,7 +415,7 @@ export function StudentProfilePage({
                   aria-label="Edit student info"
                 >
                   <Pencil size={12} />
-                  Edit
+                  {t("common.edit")}
                 </button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
@@ -467,7 +467,7 @@ export function StudentProfilePage({
                   }
                 />
                 <InfoField
-                  label="Enrollment End Date"
+                  label={t("studentProfile.overview.enrollmentEndDate")}
                   value={
                     s.enrollment_end_date
                       ? new Date(s.enrollment_end_date + "T12:00:00").toLocaleDateString(
@@ -475,7 +475,7 @@ export function StudentProfilePage({
                           { month: "short", day: "numeric", year: "numeric" },
                         )
                       : group.end_date
-                        ? <span className="text-foreground/40">{new Date(group.end_date + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} <span className="text-xs">(group default)</span></span>
+                        ? <span className="text-foreground/40">{new Date(group.end_date + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} <span className="text-xs">{t("studentProfile.overview.groupDefault")}</span></span>
                         : null
                   }
                 />
@@ -498,7 +498,7 @@ export function StudentProfilePage({
                     aria-label="Edit contacts"
                   >
                     <Pencil size={12} />
-                    Edit
+                    {t("common.edit")}
                   </button>
                 </div>
                 {loadingContacts ? (
@@ -575,7 +575,7 @@ export function StudentProfilePage({
                     aria-label="Edit addresses"
                   >
                     <Pencil size={12} />
-                    Edit
+                    {t("common.edit")}
                   </button>
                 </div>
                 {loadingAddresses ? (
@@ -625,7 +625,7 @@ export function StudentProfilePage({
             <Surface variant="default" className="rounded-2xl p-5 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">
-                  Health
+                  {t("studentProfile.overview.health")}
                 </h3>
                 <button
                   type="button"
@@ -634,7 +634,7 @@ export function StudentProfilePage({
                   aria-label="Edit health"
                 >
                   <Pencil size={12} />
-                  Edit
+                  {t("common.edit")}
                 </button>
               </div>
               {loadingServices ? (
@@ -642,51 +642,51 @@ export function StudentProfilePage({
                   <Spinner size="sm" color="accent" />
                 </div>
               ) : !services ? (
-                <p className="text-sm text-foreground/40">No health information recorded</p>
+                <p className="text-sm text-foreground/40">{t("studentProfile.overview.noHealth")}</p>
               ) : (() => {
-                const therapies = [
-                  services.therapy_speech        ? "Speech (HL)" : "",
-                  services.therapy_occupational  ? "Occupational (OCUP)" : "",
-                  services.therapy_psychological ? "Psychological (PSIC)" : "",
-                  services.therapy_physical      ? "Physical (FIS)" : "",
+                const therapyLabels = [
+                  services.therapy_speech        ? t("servicesPage.speechTherapy") : "",
+                  services.therapy_occupational  ? t("servicesPage.occupationalTherapy") : "",
+                  services.therapy_psychological ? t("servicesPage.psychologicalTherapy") : "",
+                  services.therapy_physical      ? t("servicesPage.physicalTherapy") : "",
                 ].filter(Boolean);
-                const hasAnything = services.has_special_education || therapies.length > 0 || services.medical_plan !== "none" || services.has_treatment || services.allergies;
-                if (!hasAnything) return <p className="text-sm text-foreground/40">No health information recorded</p>;
+                const hasAnything = services.has_special_education || therapyLabels.length > 0 || services.medical_plan !== "none" || services.has_treatment || services.allergies;
+                if (!hasAnything) return <p className="text-sm text-foreground/40">{t("studentProfile.overview.noHealth")}</p>;
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                     {services.has_special_education ? (
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-xs text-muted uppercase tracking-wide">Special Education</span>
-                        <span className="text-sm font-medium text-foreground">Yes</span>
+                        <span className="text-xs text-muted uppercase tracking-wide">{t("studentProfile.health.specialEducation")}</span>
+                        <span className="text-sm font-medium text-foreground">{t("studentProfile.health.yes")}</span>
                       </div>
                     ) : null}
-                    {therapies.length > 0 ? (
+                    {therapyLabels.length > 0 ? (
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted uppercase tracking-wide">Attends Therapy</span>
+                        <span className="text-xs text-muted uppercase tracking-wide">{t("studentProfile.health.attendsTherapy")}</span>
                         <div className="flex flex-wrap gap-1">
-                          {therapies.map((t) => (
-                            <span key={t} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">{t}</span>
+                          {therapyLabels.map((label) => (
+                            <span key={label} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">{label}</span>
                           ))}
                         </div>
                       </div>
                     ) : null}
                     {services.medical_plan !== "none" ? (
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-xs text-muted uppercase tracking-wide">Medical Insurance</span>
+                        <span className="text-xs text-muted uppercase tracking-wide">{t("studentProfile.health.medicalInsurance")}</span>
                         <span className="text-sm font-medium text-foreground">
-                          {services.medical_plan.charAt(0).toUpperCase() + services.medical_plan.slice(1)}
+                          {services.medical_plan === "private" ? t("servicesPage.medicalPrivate") : t("servicesPage.medicalGovernment")}
                         </span>
                       </div>
                     ) : null}
                     {services.has_treatment ? (
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-xs text-muted uppercase tracking-wide">Medical Treatment</span>
-                        <span className="text-sm font-medium text-foreground">Active</span>
+                        <span className="text-xs text-muted uppercase tracking-wide">{t("studentProfile.health.medicalTreatment")}</span>
+                        <span className="text-sm font-medium text-foreground">{t("studentProfile.health.active")}</span>
                       </div>
                     ) : null}
                     {services.allergies ? (
                       <div className="flex flex-col gap-0.5 sm:col-span-2">
-                        <span className="text-xs text-muted uppercase tracking-wide">Allergies</span>
+                        <span className="text-xs text-muted uppercase tracking-wide">{t("studentProfile.health.allergies")}</span>
                         <span className="text-sm font-medium text-foreground">{services.allergies}</span>
                       </div>
                     ) : null}
@@ -699,7 +699,7 @@ export function StudentProfilePage({
             <Surface variant="default" className="rounded-2xl p-5 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">
-                  Accommodations
+                  {t("studentProfile.overview.accommodations")}
                 </h3>
                 <button
                   type="button"
@@ -708,7 +708,7 @@ export function StudentProfilePage({
                   aria-label="Edit accommodations"
                 >
                   <Pencil size={12} />
-                  Edit
+                  {t("common.edit")}
                 </button>
               </div>
               {loadingAccommodations ? (
@@ -716,17 +716,17 @@ export function StudentProfilePage({
                   <Spinner size="sm" color="accent" />
                 </div>
               ) : !accommodations ? (
-                <p className="text-sm text-foreground/40">No accommodations recorded</p>
+                <p className="text-sm text-foreground/40">{t("studentProfile.overview.noAccommodations")}</p>
               ) : (
                 <div className="flex flex-wrap gap-1.5">
-                  {accommodations.desk_placement ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Desk placement</span> : null}
-                  {accommodations.extended_time ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Extended time</span> : null}
-                  {accommodations.shorter_assignments ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Shorter assignments</span> : null}
-                  {accommodations.use_abacus ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Abacus</span> : null}
-                  {accommodations.simple_instructions ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Simple instructions</span> : null}
-                  {accommodations.visual_examples ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">Visual examples</span> : null}
+                  {accommodations.desk_placement ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">{t("studentProfile.accommodations.deskPlacement")}</span> : null}
+                  {accommodations.extended_time ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">{t("studentProfile.accommodations.extendedTime")}</span> : null}
+                  {accommodations.shorter_assignments ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">{t("studentProfile.accommodations.shorterAssignments")}</span> : null}
+                  {accommodations.use_abacus ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">{t("studentProfile.accommodations.abacus")}</span> : null}
+                  {accommodations.simple_instructions ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">{t("studentProfile.accommodations.simpleInstructions")}</span> : null}
+                  {accommodations.visual_examples ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">{t("studentProfile.accommodations.visualExamples")}</span> : null}
                   {!accommodations.desk_placement && !accommodations.extended_time && !accommodations.shorter_assignments && !accommodations.use_abacus && !accommodations.simple_instructions && !accommodations.visual_examples ? (
-                    <p className="text-sm text-foreground/40">No accommodations recorded</p>
+                    <p className="text-sm text-foreground/40">{t("studentProfile.overview.noAccommodations")}</p>
                   ) : null}
                 </div>
               )}
@@ -736,7 +736,7 @@ export function StudentProfilePage({
             <Surface variant="default" className="rounded-2xl p-5 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">
-                  Observations
+                  {t("studentProfile.overview.observations")}
                 </h3>
                 <button
                   type="button"
@@ -745,7 +745,7 @@ export function StudentProfilePage({
                   aria-label="Edit observations"
                 >
                   <Pencil size={12} />
-                  Edit
+                  {t("common.edit")}
                 </button>
               </div>
               {loadingObservations ? (
@@ -753,75 +753,75 @@ export function StudentProfilePage({
                   <Spinner size="sm" color="accent" />
                 </div>
               ) : !observations ? (
-                <p className="text-sm text-foreground/40">No observations recorded</p>
+                <p className="text-sm text-foreground/40">{t("studentProfile.overview.noObservations")}</p>
               ) : (() => {
-                const groups: { label: string; items: string[] }[] = [
+                const obsGroups: { label: string; items: string[] }[] = [
                   {
-                    label: "Dyslexia",
+                    label: t("studentProfile.observations.dyslexia"),
                     items: [
-                      observations.obs_reading_writing    ? "Difficulty learning to read and write" : "",
-                      observations.obs_mirror_numbers     ? "Writing numbers in mirror image or backward" : "",
-                      observations.obs_left_right_confusion ? "Difficulty distinguishing left from right" : "",
-                      observations.obs_sequence_difficulty  ? "Difficulty retaining sequences" : "",
+                      observations.obs_reading_writing      ? t("studentProfile.observations.readingWriting") : "",
+                      observations.obs_mirror_numbers       ? t("studentProfile.observations.mirrorNumbers") : "",
+                      observations.obs_left_right_confusion ? t("studentProfile.observations.leftRightConfusion") : "",
+                      observations.obs_sequence_difficulty  ? t("studentProfile.observations.sequenceDifficulty") : "",
                     ].filter(Boolean) as string[],
                   },
                   {
-                    label: "ADD / ADHD",
+                    label: t("studentProfile.observations.addAdhd"),
                     items: [
-                      observations.obs_disorganized_work   ? "Disorganized in work" : "",
-                      observations.obs_inattention_detail  ? "Does not pay sufficient attention to detail" : "",
-                      observations.obs_sustained_attention ? "Difficulty with sustained attention" : "",
-                      observations.obs_doesnt_listen       ? "Does not seem to listen when spoken to directly" : "",
-                      observations.obs_task_organization   ? "Difficulty organizing tasks or activities" : "",
-                      observations.obs_loses_belongings    ? "Loses belongings easily" : "",
-                      observations.obs_distracted_stimuli  ? "Distracted by irrelevant stimuli" : "",
-                      observations.obs_forgetful           ? "Forgetful" : "",
-                      observations.obs_excess_hand_foot    ? "Excessive movement of hands and feet" : "",
-                      observations.obs_gets_up_from_seat   ? "Constantly getting up from seat" : "",
-                      observations.obs_running_jumping     ? "Running or jumping in inappropriate situations" : "",
-                      observations.obs_talks_excessively   ? "Talking excessively" : "",
-                      observations.obs_difficulty_quiet    ? "Difficulty engaging in quiet or passive activities" : "",
-                      observations.obs_driven_by_motor     ? "Acting as if \"driven by a motor\"" : "",
-                      observations.obs_impulsive_answers   ? "Answering questions impulsively or prematurely" : "",
-                      observations.obs_difficulty_waiting  ? "Difficulty waiting in lines" : "",
-                      observations.obs_interrupts_others   ? "Interrupting or intruding on others' activities" : "",
+                      observations.obs_disorganized_work   ? t("studentProfile.observations.disorganizedWork") : "",
+                      observations.obs_inattention_detail  ? t("studentProfile.observations.inattentionDetail") : "",
+                      observations.obs_sustained_attention ? t("studentProfile.observations.sustainedAttention") : "",
+                      observations.obs_doesnt_listen       ? t("studentProfile.observations.doesntListen") : "",
+                      observations.obs_task_organization   ? t("studentProfile.observations.taskOrganization") : "",
+                      observations.obs_loses_belongings    ? t("studentProfile.observations.losesbelongings") : "",
+                      observations.obs_distracted_stimuli  ? t("studentProfile.observations.distractedStimuli") : "",
+                      observations.obs_forgetful           ? t("studentProfile.observations.forgetful") : "",
+                      observations.obs_excess_hand_foot    ? t("studentProfile.observations.excessHandFoot") : "",
+                      observations.obs_gets_up_from_seat   ? t("studentProfile.observations.getsUpFromSeat") : "",
+                      observations.obs_running_jumping     ? t("studentProfile.observations.runningJumping") : "",
+                      observations.obs_talks_excessively   ? t("studentProfile.observations.talksExcessively") : "",
+                      observations.obs_difficulty_quiet    ? t("studentProfile.observations.difficultyQuiet") : "",
+                      observations.obs_driven_by_motor     ? t("studentProfile.observations.drivenByMotor") : "",
+                      observations.obs_impulsive_answers   ? t("studentProfile.observations.impulsiveAnswers") : "",
+                      observations.obs_difficulty_waiting  ? t("studentProfile.observations.difficultyWaiting") : "",
+                      observations.obs_interrupts_others   ? t("studentProfile.observations.interruptsOthers") : "",
                     ].filter(Boolean) as string[],
                   },
                   {
-                    label: "Oppositional / Social",
+                    label: t("studentProfile.observations.oppositionalSocial"),
                     items: [
-                      observations.obs_easily_angered ? "Easily angered" : "",
-                      observations.obs_argues         ? "Argues with friends and adults" : "",
-                      observations.obs_defies_adults  ? "Defies adults and fails to obey" : "",
-                      observations.obs_annoys_others  ? "Deliberately annoys other people" : "",
-                      observations.obs_aggressive     ? "Aggressive behavior" : "",
-                      observations.obs_spiteful       ? "Spiteful or vindictive" : "",
-                      observations.obs_blames_others  ? "Blames others for their own mistakes" : "",
-                      observations.obs_breaks_property ? "Breaks others' property" : "",
+                      observations.obs_easily_angered  ? t("studentProfile.observations.easilyAngered") : "",
+                      observations.obs_argues          ? t("studentProfile.observations.argues") : "",
+                      observations.obs_defies_adults   ? t("studentProfile.observations.defiesAdults") : "",
+                      observations.obs_annoys_others   ? t("studentProfile.observations.annoysOthers") : "",
+                      observations.obs_aggressive      ? t("studentProfile.observations.aggressive") : "",
+                      observations.obs_spiteful        ? t("studentProfile.observations.spiteful") : "",
+                      observations.obs_blames_others   ? t("studentProfile.observations.blamesOthers") : "",
+                      observations.obs_breaks_property ? t("studentProfile.observations.breaksProperty") : "",
                     ].filter(Boolean) as string[],
                   },
                   {
-                    label: "Other",
+                    label: t("studentProfile.observations.other"),
                     items: [
-                      observations.obs_incomplete_homework  ? "Does not complete home assignments" : "",
-                      observations.obs_frequent_absences    ? "Frequent absences or pattern of tardiness" : "",
-                      observations.obs_neglected_appearance ? "Neglected appearance and poor eating habits" : "",
-                      observations.obs_uses_profanity       ? "Use of profanity" : "",
-                      observations.obs_takes_belongings     ? "Taking things that belong to others" : "",
-                      observations.obs_forgets_materials    ? "Failure to bring work materials" : "",
-                      observations.obs_appears_sad          ? "Appearing sad most of the time" : "",
+                      observations.obs_incomplete_homework  ? t("studentProfile.observations.incompleteHomework") : "",
+                      observations.obs_frequent_absences    ? t("studentProfile.observations.frequentAbsences") : "",
+                      observations.obs_neglected_appearance ? t("studentProfile.observations.neglectedAppearance") : "",
+                      observations.obs_uses_profanity       ? t("studentProfile.observations.usesProfanity") : "",
+                      observations.obs_takes_belongings     ? t("studentProfile.observations.takesBelongings") : "",
+                      observations.obs_forgets_materials    ? t("studentProfile.observations.forgetsMaterials") : "",
+                      observations.obs_appears_sad          ? t("studentProfile.observations.appearsSad") : "",
                     ].filter(Boolean) as string[],
                   },
                 ].filter((g) => g.items.length > 0);
 
-                if (groups.length === 0) return <p className="text-sm text-foreground/40">No observations recorded</p>;
+                if (obsGroups.length === 0) return <p className="text-sm text-foreground/40">{t("studentProfile.overview.noObservations")}</p>;
                 return (
                   <div className="flex flex-col gap-3">
-                    {groups.map((group) => (
-                      <div key={group.label} className="flex flex-col gap-1.5">
-                        <span className="text-xs font-semibold text-muted uppercase tracking-wide">{group.label}</span>
+                    {obsGroups.map((obsGroup) => (
+                      <div key={obsGroup.label} className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold text-muted uppercase tracking-wide">{obsGroup.label}</span>
                         <div className="flex flex-wrap gap-1.5">
-                          {group.items.map((item) => (
+                          {obsGroup.items.map((item) => (
                             <span key={item} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/60 text-secondary-foreground">
                               {item}
                             </span>

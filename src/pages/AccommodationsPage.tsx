@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Spinner } from "@heroui/react";
 import { useStudentAccommodations } from "../hooks/useStudentAccommodations";
 import { Breadcrumb } from "../components/Breadcrumb";
+import { useTranslation } from "../i18n/LanguageContext";
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 import type { StudentAccommodationsInput } from "../types/studentAccommodations";
@@ -59,6 +60,7 @@ export function AccommodationsPage({
   onGoToStudents,
   onGoToStudentProfile,
 }: AccommodationsPageProps) {
+  const { t } = useTranslation();
   const { data, loading, error, save } = useStudentAccommodations(student.id);
   const [form, setForm] = useState<StudentAccommodationsInput>(defaultForm);
   const [submitting, setSubmitting] = useState(false);
@@ -94,21 +96,21 @@ export function AccommodationsPage({
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Groups", onClick: onGoToGroups },
+          { label: t("groups.breadcrumb"), onClick: onGoToGroups },
           { label: group.name },
-          { label: "Students", onClick: onGoToStudents },
+          { label: t("students.breadcrumb"), onClick: onGoToStudents },
           { label: student.name, onClick: onGoToStudentProfile },
-          { label: "Accommodations" },
+          { label: t("accommodationsPage.breadcrumb") },
         ]}
       />
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold">Accommodations</h2>
+          <h2 className="text-2xl font-bold">{t("accommodationsPage.title")}</h2>
           <p className="text-sm text-muted">{student.name}</p>
         </div>
         <Button variant="primary" size="sm" onPress={handleSave} isDisabled={submitting}>
-          {submitting ? <Spinner size="sm" /> : "Save"}
+          {submitting ? <Spinner size="sm" /> : t("common.save")}
         </Button>
       </div>
 
@@ -122,41 +124,41 @@ export function AccommodationsPage({
         </div>
       ) : (
         <div className="flex flex-col gap-4 max-w-2xl">
-          <p className="text-sm text-muted">Select all accommodations that apply to this student.</p>
+          <p className="text-sm text-muted">{t("accommodationsPage.instruction")}</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <SelectCard
-              label="Desk Placement"
-              sublabel="Ubicación de pupitre"
+              label={t("accommodationsPage.deskPlacement")}
+              sublabel={t("accommodationsPage.deskPlacementSublabel")}
               selected={form.desk_placement}
               onToggle={() => setForm((f) => ({ ...f, desk_placement: !f.desk_placement }))}
             />
             <SelectCard
-              label="Extended Time"
-              sublabel="Tiempo y medio"
+              label={t("accommodationsPage.extendedTime")}
+              sublabel={t("accommodationsPage.extendedTimeSublabel")}
               selected={form.extended_time}
               onToggle={() => setForm((f) => ({ ...f, extended_time: !f.extended_time }))}
             />
             <SelectCard
-              label="Shorter Assignments"
-              sublabel="Tareas más cortas"
+              label={t("accommodationsPage.shorterAssignments")}
+              sublabel={t("accommodationsPage.shorterAssignmentsSublabel")}
               selected={form.shorter_assignments}
               onToggle={() => setForm((f) => ({ ...f, shorter_assignments: !f.shorter_assignments }))}
             />
             <SelectCard
-              label="Abacus"
-              sublabel="Ábaco"
+              label={t("accommodationsPage.abacus")}
+              sublabel={t("accommodationsPage.abacusSublabel")}
               selected={form.use_abacus}
               onToggle={() => setForm((f) => ({ ...f, use_abacus: !f.use_abacus }))}
             />
             <SelectCard
-              label="Simple Instructions"
-              sublabel="Instrucciones sencillas"
+              label={t("accommodationsPage.simpleInstructions")}
+              sublabel={t("accommodationsPage.simpleInstructionsSublabel")}
               selected={form.simple_instructions}
               onToggle={() => setForm((f) => ({ ...f, simple_instructions: !f.simple_instructions }))}
             />
             <SelectCard
-              label="Visual Examples"
-              sublabel="Proveer ejemplos visuales"
+              label={t("accommodationsPage.visualExamples")}
+              sublabel={t("accommodationsPage.visualExamplesSublabel")}
               selected={form.visual_examples}
               onToggle={() => setForm((f) => ({ ...f, visual_examples: !f.visual_examples }))}
             />

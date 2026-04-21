@@ -179,7 +179,7 @@ export function AddGroupModal({ onAdd }: AddGroupModalProps) {
                             className="cursor-pointer transition-transform active:scale-95"
                             onClick={() => handleGradeSelect(grade)}
                           >
-                            {grade}
+                            {t(`groups.addGroupModal.grades.${grade}`)}
                           </Chip>
                         );
                       })}

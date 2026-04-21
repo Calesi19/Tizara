@@ -88,7 +88,7 @@ export function DashboardPage({
 
       <div className="mb-6">
         <h2 className="text-2xl font-bold">{group.name}</h2>
-        {group.grade && <p className="text-sm text-muted">{group.grade}</p>}
+        {group.grade && <p className="text-sm text-muted">{t(`groups.addGroupModal.grades.${group.grade}`) || group.grade}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4 max-w-lg">

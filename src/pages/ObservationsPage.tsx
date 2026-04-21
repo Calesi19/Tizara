@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Spinner } from "@heroui/react";
 import { useStudentObservations } from "../hooks/useStudentObservations";
 import { Breadcrumb } from "../components/Breadcrumb";
+import { useTranslation } from "../i18n/LanguageContext";
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 import type { StudentObservationsInput } from "../types/studentObservations";
@@ -84,6 +85,7 @@ export function ObservationsPage({
   onGoToStudents,
   onGoToStudentProfile,
 }: ObservationsPageProps) {
+  const { t } = useTranslation();
   const { data, loading, error, save } = useStudentObservations(student.id);
   const [form, setForm] = useState<StudentObservationsInput>(defaultForm);
   const [submitting, setSubmitting] = useState(false);
@@ -152,21 +154,21 @@ export function ObservationsPage({
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Groups", onClick: onGoToGroups },
+          { label: t("groups.breadcrumb"), onClick: onGoToGroups },
           { label: group.name },
-          { label: "Students", onClick: onGoToStudents },
+          { label: t("students.breadcrumb"), onClick: onGoToStudents },
           { label: student.name, onClick: onGoToStudentProfile },
-          { label: "Observations" },
+          { label: t("observationsPage.breadcrumb") },
         ]}
       />
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold">Observations</h2>
+          <h2 className="text-2xl font-bold">{t("observationsPage.title")}</h2>
           <p className="text-sm text-muted">{student.name}</p>
         </div>
         <Button variant="primary" size="sm" onPress={handleSave} isDisabled={submitting}>
-          {submitting ? <Spinner size="sm" /> : "Save"}
+          {submitting ? <Spinner size="sm" /> : t("common.save")}
         </Button>
       </div>
 
@@ -181,62 +183,62 @@ export function ObservationsPage({
       ) : (
         <div className="flex flex-col gap-8 max-w-2xl pb-10">
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Learning & Dyslexia (Dislexia)</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("observationsPage.sectionLearningDyslexia")}</h3>
             <div className="grid grid-cols-2 gap-2">
-              <SelectCard label="Difficulty learning to read and write" selected={form.obs_reading_writing} onToggle={() => toggle("obs_reading_writing")} />
-              <SelectCard label="Writing numbers in mirror image or backward" selected={form.obs_mirror_numbers} onToggle={() => toggle("obs_mirror_numbers")} />
-              <SelectCard label="Difficulty distinguishing left from right" selected={form.obs_left_right_confusion} onToggle={() => toggle("obs_left_right_confusion")} />
-              <SelectCard label="Difficulty retaining sequences" selected={form.obs_sequence_difficulty} onToggle={() => toggle("obs_sequence_difficulty")} />
+              <SelectCard label={t("studentProfile.observations.readingWriting")} selected={form.obs_reading_writing} onToggle={() => toggle("obs_reading_writing")} />
+              <SelectCard label={t("studentProfile.observations.mirrorNumbers")} selected={form.obs_mirror_numbers} onToggle={() => toggle("obs_mirror_numbers")} />
+              <SelectCard label={t("studentProfile.observations.leftRightConfusion")} selected={form.obs_left_right_confusion} onToggle={() => toggle("obs_left_right_confusion")} />
+              <SelectCard label={t("studentProfile.observations.sequenceDifficulty")} selected={form.obs_sequence_difficulty} onToggle={() => toggle("obs_sequence_difficulty")} />
             </div>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Attention & Hyperactivity (ADD / ADHD)</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("observationsPage.sectionAttentionHyperactivity")}</h3>
             <div className="grid grid-cols-2 gap-2">
-              <SelectCard label="Disorganized in work" selected={form.obs_disorganized_work} onToggle={() => toggle("obs_disorganized_work")} />
-              <SelectCard label="Does not pay sufficient attention to detail" selected={form.obs_inattention_detail} onToggle={() => toggle("obs_inattention_detail")} />
-              <SelectCard label="Difficulty with sustained attention" selected={form.obs_sustained_attention} onToggle={() => toggle("obs_sustained_attention")} />
-              <SelectCard label="Does not seem to listen when spoken to directly" selected={form.obs_doesnt_listen} onToggle={() => toggle("obs_doesnt_listen")} />
-              <SelectCard label="Difficulty organizing tasks or activities" selected={form.obs_task_organization} onToggle={() => toggle("obs_task_organization")} />
-              <SelectCard label="Loses belongings easily" selected={form.obs_loses_belongings} onToggle={() => toggle("obs_loses_belongings")} />
-              <SelectCard label="Distracted by irrelevant stimuli" selected={form.obs_distracted_stimuli} onToggle={() => toggle("obs_distracted_stimuli")} />
-              <SelectCard label="Forgetful" selected={form.obs_forgetful} onToggle={() => toggle("obs_forgetful")} />
-              <SelectCard label="Excessive movement of hands and feet" selected={form.obs_excess_hand_foot} onToggle={() => toggle("obs_excess_hand_foot")} />
-              <SelectCard label="Constantly getting up from seat" selected={form.obs_gets_up_from_seat} onToggle={() => toggle("obs_gets_up_from_seat")} />
-              <SelectCard label="Running or jumping in inappropriate situations" selected={form.obs_running_jumping} onToggle={() => toggle("obs_running_jumping")} />
-              <SelectCard label="Talking excessively" selected={form.obs_talks_excessively} onToggle={() => toggle("obs_talks_excessively")} />
-              <SelectCard label="Difficulty engaging in quiet or passive activities" selected={form.obs_difficulty_quiet} onToggle={() => toggle("obs_difficulty_quiet")} />
-              <SelectCard label='Acting as if "driven by a motor"' selected={form.obs_driven_by_motor} onToggle={() => toggle("obs_driven_by_motor")} />
-              <SelectCard label="Answering questions impulsively or prematurely" selected={form.obs_impulsive_answers} onToggle={() => toggle("obs_impulsive_answers")} />
-              <SelectCard label="Difficulty waiting in lines" selected={form.obs_difficulty_waiting} onToggle={() => toggle("obs_difficulty_waiting")} />
-              <SelectCard label="Interrupting or intruding on others' activities" selected={form.obs_interrupts_others} onToggle={() => toggle("obs_interrupts_others")} />
+              <SelectCard label={t("studentProfile.observations.disorganizedWork")} selected={form.obs_disorganized_work} onToggle={() => toggle("obs_disorganized_work")} />
+              <SelectCard label={t("studentProfile.observations.inattentionDetail")} selected={form.obs_inattention_detail} onToggle={() => toggle("obs_inattention_detail")} />
+              <SelectCard label={t("studentProfile.observations.sustainedAttention")} selected={form.obs_sustained_attention} onToggle={() => toggle("obs_sustained_attention")} />
+              <SelectCard label={t("studentProfile.observations.doesntListen")} selected={form.obs_doesnt_listen} onToggle={() => toggle("obs_doesnt_listen")} />
+              <SelectCard label={t("studentProfile.observations.taskOrganization")} selected={form.obs_task_organization} onToggle={() => toggle("obs_task_organization")} />
+              <SelectCard label={t("studentProfile.observations.losesbelongings")} selected={form.obs_loses_belongings} onToggle={() => toggle("obs_loses_belongings")} />
+              <SelectCard label={t("studentProfile.observations.distractedStimuli")} selected={form.obs_distracted_stimuli} onToggle={() => toggle("obs_distracted_stimuli")} />
+              <SelectCard label={t("studentProfile.observations.forgetful")} selected={form.obs_forgetful} onToggle={() => toggle("obs_forgetful")} />
+              <SelectCard label={t("studentProfile.observations.excessHandFoot")} selected={form.obs_excess_hand_foot} onToggle={() => toggle("obs_excess_hand_foot")} />
+              <SelectCard label={t("studentProfile.observations.getsUpFromSeat")} selected={form.obs_gets_up_from_seat} onToggle={() => toggle("obs_gets_up_from_seat")} />
+              <SelectCard label={t("studentProfile.observations.runningJumping")} selected={form.obs_running_jumping} onToggle={() => toggle("obs_running_jumping")} />
+              <SelectCard label={t("studentProfile.observations.talksExcessively")} selected={form.obs_talks_excessively} onToggle={() => toggle("obs_talks_excessively")} />
+              <SelectCard label={t("studentProfile.observations.difficultyQuiet")} selected={form.obs_difficulty_quiet} onToggle={() => toggle("obs_difficulty_quiet")} />
+              <SelectCard label={t("studentProfile.observations.drivenByMotor")} selected={form.obs_driven_by_motor} onToggle={() => toggle("obs_driven_by_motor")} />
+              <SelectCard label={t("studentProfile.observations.impulsiveAnswers")} selected={form.obs_impulsive_answers} onToggle={() => toggle("obs_impulsive_answers")} />
+              <SelectCard label={t("studentProfile.observations.difficultyWaiting")} selected={form.obs_difficulty_waiting} onToggle={() => toggle("obs_difficulty_waiting")} />
+              <SelectCard label={t("studentProfile.observations.interruptsOthers")} selected={form.obs_interrupts_others} onToggle={() => toggle("obs_interrupts_others")} />
             </div>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Social & Oppositional (Oposicional / Social)</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("observationsPage.sectionSocialOppositional")}</h3>
             <div className="grid grid-cols-2 gap-2">
-              <SelectCard label="Easily angered" selected={form.obs_easily_angered} onToggle={() => toggle("obs_easily_angered")} />
-              <SelectCard label="Argues with friends and adults" selected={form.obs_argues} onToggle={() => toggle("obs_argues")} />
-              <SelectCard label="Defies adults and fails to obey" selected={form.obs_defies_adults} onToggle={() => toggle("obs_defies_adults")} />
-              <SelectCard label="Deliberately annoys other people" selected={form.obs_annoys_others} onToggle={() => toggle("obs_annoys_others")} />
-              <SelectCard label="Aggressive behavior" selected={form.obs_aggressive} onToggle={() => toggle("obs_aggressive")} />
-              <SelectCard label="Spiteful or vindictive" selected={form.obs_spiteful} onToggle={() => toggle("obs_spiteful")} />
-              <SelectCard label="Blames others for their own mistakes" selected={form.obs_blames_others} onToggle={() => toggle("obs_blames_others")} />
-              <SelectCard label="Breaks others' property" selected={form.obs_breaks_property} onToggle={() => toggle("obs_breaks_property")} />
+              <SelectCard label={t("studentProfile.observations.easilyAngered")} selected={form.obs_easily_angered} onToggle={() => toggle("obs_easily_angered")} />
+              <SelectCard label={t("studentProfile.observations.argues")} selected={form.obs_argues} onToggle={() => toggle("obs_argues")} />
+              <SelectCard label={t("studentProfile.observations.defiesAdults")} selected={form.obs_defies_adults} onToggle={() => toggle("obs_defies_adults")} />
+              <SelectCard label={t("studentProfile.observations.annoysOthers")} selected={form.obs_annoys_others} onToggle={() => toggle("obs_annoys_others")} />
+              <SelectCard label={t("studentProfile.observations.aggressive")} selected={form.obs_aggressive} onToggle={() => toggle("obs_aggressive")} />
+              <SelectCard label={t("studentProfile.observations.spiteful")} selected={form.obs_spiteful} onToggle={() => toggle("obs_spiteful")} />
+              <SelectCard label={t("studentProfile.observations.blamesOthers")} selected={form.obs_blames_others} onToggle={() => toggle("obs_blames_others")} />
+              <SelectCard label={t("studentProfile.observations.breaksProperty")} selected={form.obs_breaks_property} onToggle={() => toggle("obs_breaks_property")} />
             </div>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Other Indicators</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("observationsPage.sectionOtherIndicators")}</h3>
             <div className="grid grid-cols-2 gap-2">
-              <SelectCard label="Does not complete home assignments" selected={form.obs_incomplete_homework} onToggle={() => toggle("obs_incomplete_homework")} />
-              <SelectCard label="Frequent absences or pattern of tardiness" selected={form.obs_frequent_absences} onToggle={() => toggle("obs_frequent_absences")} />
-              <SelectCard label="Neglected appearance and poor eating habits" selected={form.obs_neglected_appearance} onToggle={() => toggle("obs_neglected_appearance")} />
-              <SelectCard label="Use of profanity" selected={form.obs_uses_profanity} onToggle={() => toggle("obs_uses_profanity")} />
-              <SelectCard label="Taking things that belong to others" selected={form.obs_takes_belongings} onToggle={() => toggle("obs_takes_belongings")} />
-              <SelectCard label="Failure to bring work materials" selected={form.obs_forgets_materials} onToggle={() => toggle("obs_forgets_materials")} />
-              <SelectCard label="Appearing sad most of the time" selected={form.obs_appears_sad} onToggle={() => toggle("obs_appears_sad")} />
+              <SelectCard label={t("studentProfile.observations.incompleteHomework")} selected={form.obs_incomplete_homework} onToggle={() => toggle("obs_incomplete_homework")} />
+              <SelectCard label={t("studentProfile.observations.frequentAbsences")} selected={form.obs_frequent_absences} onToggle={() => toggle("obs_frequent_absences")} />
+              <SelectCard label={t("studentProfile.observations.neglectedAppearance")} selected={form.obs_neglected_appearance} onToggle={() => toggle("obs_neglected_appearance")} />
+              <SelectCard label={t("studentProfile.observations.usesProfanity")} selected={form.obs_uses_profanity} onToggle={() => toggle("obs_uses_profanity")} />
+              <SelectCard label={t("studentProfile.observations.takesBelongings")} selected={form.obs_takes_belongings} onToggle={() => toggle("obs_takes_belongings")} />
+              <SelectCard label={t("studentProfile.observations.forgetsMaterials")} selected={form.obs_forgets_materials} onToggle={() => toggle("obs_forgets_materials")} />
+              <SelectCard label={t("studentProfile.observations.appearsSad")} selected={form.obs_appears_sad} onToggle={() => toggle("obs_appears_sad")} />
             </div>
           </section>
 

@@ -14,6 +14,7 @@ import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
 import { useStudentInfo } from "../hooks/useStudentInfo";
 import { Breadcrumb } from "../components/Breadcrumb";
+import { useTranslation } from "../i18n/LanguageContext";
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 
@@ -93,6 +94,7 @@ export function StudentInfoPage({
   onGoToStudents,
   onGoToStudentProfile,
 }: StudentInfoPageProps) {
+  const { t } = useTranslation();
   const { student: fresh, loading, error, save } = useStudentInfo(student.id);
 
   const [name, setName] = useState(student.name);
@@ -143,17 +145,17 @@ export function StudentInfoPage({
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Groups", onClick: onGoToGroups },
+          { label: t("groups.breadcrumb"), onClick: onGoToGroups },
           { label: group.name },
-          { label: "Students", onClick: onGoToStudents },
+          { label: t("students.breadcrumb"), onClick: onGoToStudents },
           { label: student.name, onClick: onGoToStudentProfile },
-          { label: "Student Info" },
+          { label: t("studentInfoPage.breadcrumb") },
         ]}
       />
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold">Student Info</h2>
+          <h2 className="text-2xl font-bold">{t("studentInfoPage.title")}</h2>
           <p className="text-sm text-muted">{student.name}</p>
         </div>
         <Button
@@ -162,7 +164,7 @@ export function StudentInfoPage({
           onPress={handleSave}
           isDisabled={submitting || !name.trim()}
         >
-          {submitting ? <Spinner size="sm" /> : "Save"}
+          {submitting ? <Spinner size="sm" /> : t("common.save")}
         </Button>
       </div>
 
@@ -177,46 +179,46 @@ export function StudentInfoPage({
       ) : (
         <div className="flex flex-col gap-5 max-w-lg pb-10">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="info-name">Name *</Label>
+            <Label htmlFor="info-name">{t("studentInfoPage.nameLabel")}</Label>
             <Input
               id="info-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Full name"
+              placeholder={t("studentInfoPage.namePlaceholder")}
               required
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="info-student-number">Student ID</Label>
+            <Label htmlFor="info-student-number">{t("studentInfoPage.studentIdLabel")}</Label>
             <Input
               id="info-student-number"
               value={studentNumber}
               onChange={(e) => setStudentNumber(e.target.value)}
-              placeholder="e.g. 2024-001"
+              placeholder={t("studentInfoPage.studentIdPlaceholder")}
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label>Gender</Label>
+            <Label>{t("studentInfoPage.genderLabel")}</Label>
             <Select
-              aria-label="Gender"
+              aria-label={t("studentInfoPage.genderLabel")}
               selectedKey={gender || null}
               onSelectionChange={(key) => setGender(String(key ?? ""))}
             >
               <Select.Trigger>
                 <Select.Value>
                   {({ selectedText, isPlaceholder }) =>
-                    isPlaceholder ? "Select gender" : selectedText
+                    isPlaceholder ? t("studentInfoPage.selectGender") : selectedText
                   }
                 </Select.Value>
                 <Select.Indicator />
               </Select.Trigger>
               <Select.Popover>
                 <ListBox>
-                  <ListBox.Item id="Male" textValue="Male">Male</ListBox.Item>
-                  <ListBox.Item id="Female" textValue="Female">Female</ListBox.Item>
-                  <ListBox.Item id="Other" textValue="Other">Other</ListBox.Item>
+                  <ListBox.Item id="Male" textValue={t("studentInfoPage.male")}>{t("studentInfoPage.male")}</ListBox.Item>
+                  <ListBox.Item id="Female" textValue={t("studentInfoPage.female")}>{t("studentInfoPage.female")}</ListBox.Item>
+                  <ListBox.Item id="Other" textValue={t("studentInfoPage.other")}>{t("studentInfoPage.other")}</ListBox.Item>
                 </ListBox>
               </Select.Popover>
             </Select>
@@ -224,14 +226,14 @@ export function StudentInfoPage({
 
           <AppDatePicker
             id="info-birthdate"
-            label="Birthdate"
+            label={t("studentInfoPage.birthdateLabel")}
             value={birthdate}
             onChange={setBirthdate}
           />
 
           <AppDatePicker
             id="info-enrollment-date"
-            label="Enrollment Date"
+            label={t("studentInfoPage.enrollmentDateLabel")}
             value={enrollmentDate}
             onChange={setEnrollmentDate}
           />
@@ -239,13 +241,13 @@ export function StudentInfoPage({
           <div className="flex flex-col gap-1.5">
             <AppDatePicker
               id="info-enrollment-end-date"
-              label="Enrollment End Date"
+              label={t("studentInfoPage.enrollmentEndDateLabel")}
               value={enrollmentEndDate}
               onChange={setEnrollmentEndDate}
             />
             {group.end_date && (
               <p className="text-xs text-muted">
-                Group ends {new Date(group.end_date + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                {t("studentInfoPage.groupEnds", { date: new Date(group.end_date + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) })}
               </p>
             )}
           </div>

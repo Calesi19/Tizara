@@ -58,7 +58,6 @@ export function StudentsPage({
     gender: "",
     birthdate: "",
     student_number: "",
-    enrollment_date: "",
   };
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
@@ -89,7 +88,7 @@ export function StudentsPage({
     setSubmitting(true);
     setAddError(null);
     try {
-      await addStudent({ ...form, name: form.name.trim() });
+      await addStudent({ ...form, name: form.name.trim(), enrollment_date: group.start_date ?? "" });
       setForm(emptyForm);
       modalState.close();
     } catch (err) {
@@ -154,7 +153,7 @@ export function StudentsPage({
       <div className="mb-1">
         <h2 className="text-2xl font-bold">{t("students.title")}</h2>
         <p className="text-sm text-muted">
-          {group.grade && <span>{group.grade}</span>}
+          {group.grade && <span>{t(`groups.addGroupModal.grades.${group.grade}`) || group.grade}</span>}
         </p>
       </div>
 
@@ -462,73 +461,6 @@ export function StudentsPage({
                         "students.addStudentModal.studentIdPlaceholder",
                       )}
                     />
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <Label>
-                      {t("students.addStudentModal.enrollmentDateLabel")}
-                    </Label>
-                    <DatePicker
-                      className="w-full"
-                      aria-label={t(
-                        "students.addStudentModal.enrollmentDateLabel",
-                      )}
-                      value={
-                        form.enrollment_date
-                          ? parseDate(form.enrollment_date)
-                          : null
-                      }
-                      onChange={(date: DateValue | null) =>
-                        setForm({
-                          ...form,
-                          enrollment_date: date ? date.toString() : "",
-                        })
-                      }
-                    >
-                      <DateField.Group fullWidth>
-                        <DateField.Input>
-                          {(segment) => <DateField.Segment segment={segment} />}
-                        </DateField.Input>
-                        <DateField.Suffix>
-                          <DatePicker.Trigger>
-                            <DatePicker.TriggerIndicator />
-                          </DatePicker.Trigger>
-                        </DateField.Suffix>
-                      </DateField.Group>
-                      <DatePicker.Popover>
-                        <Calendar
-                          aria-label={t(
-                            "students.addStudentModal.enrollmentDateLabel",
-                          )}
-                        >
-                          <Calendar.Header>
-                            <Calendar.YearPickerTrigger>
-                              <Calendar.YearPickerTriggerHeading />
-                              <Calendar.YearPickerTriggerIndicator />
-                            </Calendar.YearPickerTrigger>
-                            <Calendar.NavButton slot="previous" />
-                            <Calendar.NavButton slot="next" />
-                          </Calendar.Header>
-                          <Calendar.Grid>
-                            <Calendar.GridHeader>
-                              {(day) => (
-                                <Calendar.HeaderCell>{day}</Calendar.HeaderCell>
-                              )}
-                            </Calendar.GridHeader>
-                            <Calendar.GridBody>
-                              {(date) => <Calendar.Cell date={date} />}
-                            </Calendar.GridBody>
-                          </Calendar.Grid>
-                          <Calendar.YearPickerGrid>
-                            <Calendar.YearPickerGridBody>
-                              {({ year }) => (
-                                <Calendar.YearPickerCell year={year} />
-                              )}
-                            </Calendar.YearPickerGridBody>
-                          </Calendar.YearPickerGrid>
-                        </Calendar>
-                      </DatePicker.Popover>
-                    </DatePicker>
                   </div>
 
                   {addError && (

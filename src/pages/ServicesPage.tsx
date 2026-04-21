@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Spinner, Label, Input } from "@heroui/react";
 import { useStudentServices } from "../hooks/useStudentServices";
 import { Breadcrumb } from "../components/Breadcrumb";
+import { useTranslation } from "../i18n/LanguageContext";
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 import type { StudentServicesInput } from "../types/studentServices";
@@ -56,6 +57,7 @@ export function ServicesPage({
   onGoToStudents,
   onGoToStudentProfile,
 }: ServicesPageProps) {
+  const { t } = useTranslation();
   const { data, loading, error, save } = useStudentServices(student.id);
   const [form, setForm] = useState<StudentServicesInput>(defaultForm);
   const [submitting, setSubmitting] = useState(false);
@@ -93,21 +95,21 @@ export function ServicesPage({
     <div className="p-6 flex flex-col h-full">
       <Breadcrumb
         items={[
-          { label: "Groups", onClick: onGoToGroups },
+          { label: t("groups.breadcrumb"), onClick: onGoToGroups },
           { label: group.name },
-          { label: "Students", onClick: onGoToStudents },
+          { label: t("students.breadcrumb"), onClick: onGoToStudents },
           { label: student.name, onClick: onGoToStudentProfile },
-          { label: "Health" },
+          { label: t("servicesPage.breadcrumb") },
         ]}
       />
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold">Health</h2>
+          <h2 className="text-2xl font-bold">{t("servicesPage.title")}</h2>
           <p className="text-sm text-muted">{student.name}</p>
         </div>
         <Button variant="primary" size="sm" onPress={handleSave} isDisabled={submitting}>
-          {submitting ? <Spinner size="sm" /> : "Save"}
+          {submitting ? <Spinner size="sm" /> : t("common.save")}
         </Button>
       </div>
 
@@ -122,10 +124,10 @@ export function ServicesPage({
       ) : (
         <div className="flex flex-col gap-8 max-w-2xl pb-10">
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Special Education</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("servicesPage.sectionSpecialEducation")}</h3>
             <div className="flex flex-wrap gap-2">
               <SelectCard
-                label="Has Special Education Services"
+                label={t("servicesPage.hasSpecialEducation")}
                 selected={form.has_special_education}
                 onToggle={() => setForm((f) => ({ ...f, has_special_education: !f.has_special_education }))}
               />
@@ -133,25 +135,25 @@ export function ServicesPage({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Therapies</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("servicesPage.sectionTherapies")}</h3>
             <div className="flex flex-wrap gap-2">
               <SelectCard
-                label="Speech and Language (HL)"
+                label={t("servicesPage.speechTherapy")}
                 selected={form.therapy_speech}
                 onToggle={() => setForm((f) => ({ ...f, therapy_speech: !f.therapy_speech }))}
               />
               <SelectCard
-                label="Occupational (OCUP)"
+                label={t("servicesPage.occupationalTherapy")}
                 selected={form.therapy_occupational}
                 onToggle={() => setForm((f) => ({ ...f, therapy_occupational: !f.therapy_occupational }))}
               />
               <SelectCard
-                label="Psychological (PSIC)"
+                label={t("servicesPage.psychologicalTherapy")}
                 selected={form.therapy_psychological}
                 onToggle={() => setForm((f) => ({ ...f, therapy_psychological: !f.therapy_psychological }))}
               />
               <SelectCard
-                label="Physical (FIS)"
+                label={t("servicesPage.physicalTherapy")}
                 selected={form.therapy_physical}
                 onToggle={() => setForm((f) => ({ ...f, therapy_physical: !f.therapy_physical }))}
               />
@@ -159,7 +161,7 @@ export function ServicesPage({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Medical Insurance</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("servicesPage.sectionMedicalInsurance")}</h3>
             <div className="flex flex-wrap gap-2">
               {(["none", "private", "government"] as const).map((option) => (
                 <button
@@ -172,17 +174,17 @@ export function ServicesPage({
                       : "border-border bg-background text-foreground/60 hover:border-foreground/30 hover:text-foreground"
                   }`}
                 >
-                  {option === "none" ? "None" : option.charAt(0).toUpperCase() + option.slice(1)}
+                  {option === "none" ? t("servicesPage.medicalNone") : option === "private" ? t("servicesPage.medicalPrivate") : t("servicesPage.medicalGovernment")}
                 </button>
               ))}
             </div>
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Treatment</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("servicesPage.sectionTreatment")}</h3>
             <div className="flex flex-wrap gap-2">
               <SelectCard
-                label="Currently Receiving Medical Treatment"
+                label={t("servicesPage.hasTreatment")}
                 selected={form.has_treatment}
                 onToggle={() => setForm((f) => ({ ...f, has_treatment: !f.has_treatment }))}
               />
@@ -190,14 +192,14 @@ export function ServicesPage({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">Allergies</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">{t("servicesPage.sectionAllergies")}</h3>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="allergies">Known allergies</Label>
+              <Label htmlFor="allergies">{t("servicesPage.allergiesLabel")}</Label>
               <Input
                 id="allergies"
                 value={form.allergies}
                 onChange={(e) => setForm((f) => ({ ...f, allergies: e.target.value }))}
-                placeholder="e.g. Peanuts, Penicillin, Latex"
+                placeholder={t("servicesPage.allergiesPlaceholder")}
               />
             </div>
           </section>

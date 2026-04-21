@@ -27,7 +27,7 @@ export function GroupCard({ group, isSelected, onClick }: GroupCardProps) {
       <Card.Content>
         <div className="flex flex-wrap gap-2">
           {group.grade && (
-            <Chip variant="tertiary">{group.grade}</Chip>
+            <Chip variant="tertiary">{t(`groups.addGroupModal.grades.${group.grade}`) || group.grade}</Chip>
           )}
         </div>
         <div className="flex items-center justify-between mt-3">
