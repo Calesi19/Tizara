@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import "./App.css";
 import { Button, Drawer, useOverlayState } from "@heroui/react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+
+const appWindow = getCurrentWindow();
 
 type ThemePreference = "light" | "dark" | "system";
 const THEME_KEY = "heroui-theme";
@@ -230,10 +233,18 @@ function App() {
             onGoToStudents={() => goToStudents(route.group)}
             onGoToContacts={() => goToContacts(route.group, route.student)}
             onGoToAddresses={() => goToAddresses(route.group, route.student)}
-            onGoToStudentInfo={() => goToStudentInfoPage(route.group, route.student)}
-            onGoToServices={() => goToStudentServices(route.group, route.student)}
-            onGoToAccommodations={() => goToStudentAccommodations(route.group, route.student)}
-            onGoToObservations={() => goToStudentObservations(route.group, route.student)}
+            onGoToStudentInfo={() =>
+              goToStudentInfoPage(route.group, route.student)
+            }
+            onGoToServices={() =>
+              goToStudentServices(route.group, route.student)
+            }
+            onGoToAccommodations={() =>
+              goToStudentAccommodations(route.group, route.student)
+            }
+            onGoToObservations={() =>
+              goToStudentObservations(route.group, route.student)
+            }
           />
         );
       case "notes":
@@ -382,6 +393,35 @@ function App() {
 
   return (
     <LanguageProvider>
+      <div
+        data-tauri-drag-region
+        className="fixed top-0 left-0 right-0 h-8 z-[9999] flex justify-end items-center select-none"
+        style={{ cursor: "default" }}
+      >
+        {/* The container for buttons MUST NOT have data-tauri-drag-region 
+      so that the buttons themselves remain clickable */}
+        <div className="flex no-drag">
+          <button
+            onClick={() => appWindow.minimize()}
+            className="px-3 py-1 hover:bg-white/10"
+          >
+            —
+          </button>
+          <button
+            onClick={() => appWindow.toggleMaximize()}
+            className="px-3 py-1 hover:bg-white/10"
+          >
+            ▢
+          </button>
+          <button
+            onClick={() => appWindow.close()}
+            className="px-3 py-1 hover:bg-red-500"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
       <div className="flex h-screen overflow-hidden">
         <Drawer state={drawerState}>
           <Drawer.Backdrop isDismissable>

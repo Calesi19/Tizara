@@ -10,13 +10,17 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "Tizara",
         "width": 1100,
         "height": 700,
         "minWidth": 800,
-        "minHeight": 500
+        "minHeight": 500,
+        "decorations": false,
+        "transparent": true,
+        "center": true
       }
     ],
     "security": {

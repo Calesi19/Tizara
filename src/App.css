@@ -1,7 +1,8 @@
 @import "@heroui/styles";
 
 /* ── Ocean (hue 195) ─────────────────────────────────────────────── */
-[data-color-theme="ocean"].light, [data-color-theme="ocean"][data-theme="light"] {
+[data-color-theme="ocean"].light,
+[data-color-theme="ocean"][data-theme="light"] {
   --accent: oklch(0.65 0.17 195);
   --accent-foreground: var(--snow);
   --focus: var(--accent);
@@ -18,7 +19,8 @@
   --border: oklch(90% 0.006 195);
   --separator: oklch(92% 0.006 195);
 }
-[data-color-theme="ocean"].dark, [data-color-theme="ocean"][data-theme="dark"] {
+[data-color-theme="ocean"].dark,
+[data-color-theme="ocean"][data-theme="dark"] {
   --accent: oklch(0.72 0.15 195);
   --accent-foreground: var(--eclipse);
   --focus: var(--accent);
@@ -37,7 +39,8 @@
 }
 
 /* ── Forest (hue 145) ─────────────────────────────────────────────── */
-[data-color-theme="forest"].light, [data-color-theme="forest"][data-theme="light"] {
+[data-color-theme="forest"].light,
+[data-color-theme="forest"][data-theme="light"] {
   --accent: oklch(0.65 0.17 145);
   --accent-foreground: var(--snow);
   --focus: var(--accent);
@@ -54,7 +57,8 @@
   --border: oklch(90% 0.006 145);
   --separator: oklch(92% 0.006 145);
 }
-[data-color-theme="forest"].dark, [data-color-theme="forest"][data-theme="dark"] {
+[data-color-theme="forest"].dark,
+[data-color-theme="forest"][data-theme="dark"] {
   --accent: oklch(0.72 0.15 145);
   --accent-foreground: var(--eclipse);
   --focus: var(--accent);
@@ -73,7 +77,8 @@
 }
 
 /* ── Sunset (hue 55) ──────────────────────────────────────────────── */
-[data-color-theme="sunset"].light, [data-color-theme="sunset"][data-theme="light"] {
+[data-color-theme="sunset"].light,
+[data-color-theme="sunset"][data-theme="light"] {
   --accent: oklch(0.72 0.18 55);
   --accent-foreground: var(--eclipse);
   --focus: var(--accent);
@@ -90,7 +95,8 @@
   --border: oklch(90% 0.007 55);
   --separator: oklch(92% 0.007 55);
 }
-[data-color-theme="sunset"].dark, [data-color-theme="sunset"][data-theme="dark"] {
+[data-color-theme="sunset"].dark,
+[data-color-theme="sunset"][data-theme="dark"] {
   --accent: oklch(0.78 0.16 55);
   --accent-foreground: var(--eclipse);
   --focus: var(--accent);
@@ -109,7 +115,8 @@
 }
 
 /* ── Rose (hue 0) ─────────────────────────────────────────────────── */
-[data-color-theme="rose"].light, [data-color-theme="rose"][data-theme="light"] {
+[data-color-theme="rose"].light,
+[data-color-theme="rose"][data-theme="light"] {
   --accent: oklch(0.65 0.22 0);
   --accent-foreground: var(--snow);
   --focus: var(--accent);
@@ -126,7 +133,8 @@
   --border: oklch(90% 0.006 0);
   --separator: oklch(92% 0.006 0);
 }
-[data-color-theme="rose"].dark, [data-color-theme="rose"][data-theme="dark"] {
+[data-color-theme="rose"].dark,
+[data-color-theme="rose"][data-theme="dark"] {
   --accent: oklch(0.72 0.18 0);
   --accent-foreground: var(--snow);
   --focus: var(--accent);
@@ -154,4 +162,35 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+/* Window Bar CSS */
+.window-bar {
+  height: 30px;
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  align-items: center;
+  background: transparent;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+.controls button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #fff; /* Or your theme color */
+  transition: background 0.2s;
+}
+
+.controls button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.close-btn:hover {
+  background: #e81123 !important; /* Standard Windows close red */
 }
