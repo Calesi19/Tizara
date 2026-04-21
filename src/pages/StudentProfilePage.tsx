@@ -287,7 +287,7 @@ export function StudentProfilePage({
 
         <Tabs.Panel className="pt-4 flex-1 overflow-y-auto" id="overview">
           <div className="flex flex-col gap-4">
-            <Surface variant="secondary" className="rounded-2xl p-5">
+            <Surface variant="default" className="rounded-2xl p-5">
               <h3 className="text-sm font-semibold text-muted uppercase tracking-wide mb-4">
                 {t("studentProfile.overview.studentInfo")}
               </h3>
@@ -337,7 +337,7 @@ export function StudentProfilePage({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Surface
-                variant="secondary"
+                variant="default"
                 className="rounded-2xl p-5 flex flex-col gap-3"
               >
                 <div className="flex items-center justify-between">
@@ -588,7 +588,7 @@ export function StudentProfilePage({
                 ).map(({ key, value, color }) => (
                   <Surface
                     key={key}
-                    variant="secondary"
+                    variant="default"
                     className="rounded-xl p-3 flex flex-col gap-0.5 text-center"
                   >
                     <span className={`text-xl font-bold ${color}`}>
