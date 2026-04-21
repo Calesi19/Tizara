@@ -191,7 +191,7 @@ export function AssignmentDetailPage({
                             <div className="flex items-center justify-end gap-2">
                               {isExtraCredit && (
                                 <Chip size="sm" color="warning" variant="secondary">
-                                  EC
+                                  {t("assignmentDetail.extraCredit")}
                                 </Chip>
                               )}
                               <input

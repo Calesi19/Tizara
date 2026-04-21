@@ -391,6 +391,7 @@ const en = {
     scoreColumn: "Score",
     noStudents: "No students",
     notScored: "Not Scored",
+    extraCredit: "Extra Credit",
   },
   settings: {
     title: "Settings",
@@ -808,6 +809,7 @@ const es: typeof en = {
     scoreColumn: "Puntaje",
     noStudents: "Sin estudiantes",
     notScored: "Sin Calificar",
+    extraCredit: "Crédito Extra",
   },
   settings: {
     title: "Configuración",
