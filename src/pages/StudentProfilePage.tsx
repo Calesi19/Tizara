@@ -23,10 +23,11 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Tooltip,
 } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
-import { Inbox, Pencil } from "lucide-react";
+import { Ambulance, Inbox, Pencil, ShieldUser, Star } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useContacts } from "../hooks/useContacts";
 import { useAddresses } from "../hooks/useAddresses";
@@ -464,19 +465,29 @@ export function StudentProfilePage({
                   <div className="flex flex-col divide-y divide-border">
                     {contacts.slice(0, 3).map((contact) => (
                       <div key={contact.id} className="flex flex-col gap-0.5 py-2.5 first:pt-0 last:pb-0">
-                        <span className="text-sm font-medium">
-                          {contact.name}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium">{contact.name}</span>
                           {contact.is_primary_guardian ? (
-                            <span className="ml-2 text-xs text-accent font-normal">
-                              {t("studentProfile.overview.primaryGuardian")}
-                            </span>
+                            <Tooltip>
+                              <Tooltip.Trigger>
+                                <span className="inline-flex items-center justify-center size-5 rounded-full bg-accent/10 text-accent">
+                                  <ShieldUser size={10} />
+                                </span>
+                              </Tooltip.Trigger>
+                              <Tooltip.Content>{t("studentProfile.overview.primaryGuardian")}</Tooltip.Content>
+                            </Tooltip>
                           ) : null}
                           {contact.is_emergency_contact ? (
-                            <span className="ml-2 text-xs text-accent font-normal">
-                              {t("studentProfile.overview.emergencyContact")}
-                            </span>
+                            <Tooltip>
+                              <Tooltip.Trigger>
+                                <span className="inline-flex items-center justify-center size-5 rounded-full bg-warning/10 text-warning">
+                                  <Ambulance size={10} />
+                                </span>
+                              </Tooltip.Trigger>
+                              <Tooltip.Content>{t("studentProfile.overview.emergencyContact")}</Tooltip.Content>
+                            </Tooltip>
                           ) : null}
-                        </span>
+                        </div>
                         {contact.relationship && (
                           <span className="text-xs text-muted">
                             {contact.relationship}
@@ -531,9 +542,21 @@ export function StudentProfilePage({
                   <div className="flex flex-col divide-y divide-border">
                     {addresses.slice(0, 3).map((address) => (
                       <div key={address.id} className="flex flex-col gap-0.5 py-2.5 first:pt-0 last:pb-0">
-                        {address.label && (
-                          <span className="text-sm font-medium">{address.label}</span>
-                        )}
+                        <div className="flex items-center gap-1.5">
+                          {address.label && (
+                            <span className="text-sm font-medium">{address.label}</span>
+                          )}
+                          {address.is_student_home ? (
+                            <Tooltip>
+                              <Tooltip.Trigger>
+                                <span className="inline-flex items-center justify-center size-5 rounded-full bg-success/10 text-success">
+                                  <Star size={10} fill="currentColor" />
+                                </span>
+                              </Tooltip.Trigger>
+                              <Tooltip.Content>{t("addresses.studentLivesHere")}</Tooltip.Content>
+                            </Tooltip>
+                          ) : null}
+                        </div>
                         <span className="text-xs text-foreground/60">{address.street}</span>
                         {(address.city || address.state || address.zip_code) && (
                           <span className="text-xs text-foreground/60">

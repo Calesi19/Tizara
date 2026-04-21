@@ -15,6 +15,7 @@ import {
   TableRow,
   TableCell,
   useOverlayState,
+  Tooltip,
 } from "@heroui/react";
 import { Inbox, Pencil, Star, Trash2 } from "lucide-react";
 import { useAddresses } from "../hooks/useAddresses";
@@ -205,12 +206,14 @@ export function AddressesPage({
                       <TableCell>{address.country ?? <span className="text-foreground/30">—</span>}</TableCell>
                       <TableCell>
                         {address.is_student_home ? (
-                          <span
-                            className="inline-flex items-center justify-center size-6 rounded-full bg-success/10 text-success"
-                            title={t("addresses.studentLivesHere")}
-                          >
-                            <Star size={11} fill="currentColor" />
-                          </span>
+                          <Tooltip>
+                            <Tooltip.Trigger>
+                              <span className="inline-flex items-center justify-center size-6 rounded-full bg-success/10 text-success">
+                                <Star size={11} fill="currentColor" />
+                              </span>
+                            </Tooltip.Trigger>
+                            <Tooltip.Content>{t("addresses.studentLivesHere")}</Tooltip.Content>
+                          </Tooltip>
                         ) : null}
                       </TableCell>
                       <TableCell>
