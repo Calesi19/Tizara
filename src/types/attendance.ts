@@ -11,6 +11,14 @@ export interface AttendanceRecord {
   created_at: string;
 }
 
+export interface CanceledDay {
+  id: number;
+  group_id: number;
+  date: string;
+  reason: string | null;
+  created_at: string;
+}
+
 export interface StudentDayStatus {
   student_id: number;
   student_name: string;

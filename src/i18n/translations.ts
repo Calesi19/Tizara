@@ -351,6 +351,9 @@ const en = {
       description: "You're editing attendance for a previous date. Are you sure you want to make this change?",
       confirmLabel: "Update",
     },
+    cancelDay: "Cancel Day",
+    restoreDay: "Restore Day",
+    canceledBanner: "This day is canceled — attendance is not required.",
   },
   assignments: {
     title: "Assignments",
@@ -776,6 +779,9 @@ const es: typeof en = {
       description: "Estás editando la asistencia de una fecha pasada. ¿Seguro que deseas realizar este cambio?",
       confirmLabel: "Actualizar",
     },
+    cancelDay: "Cancelar día",
+    restoreDay: "Restaurar día",
+    canceledBanner: "Este día está cancelado — no se requiere asistencia.",
   },
   assignments: {
     title: "Tareas",

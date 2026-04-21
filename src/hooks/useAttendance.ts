@@ -45,6 +45,7 @@ export function useAttendance(groupId: number, date: string) {
   const [periodsForDay, setPeriodsForDay] = useState<SchedulePeriod[]>([]);
   const [rawRecords, setRawRecords] = useState<RawAttendanceRow[]>([]);
   const [allStudents, setAllStudents] = useState<{ id: number; name: string }[]>([]);
+  const [isCanceled, setIsCanceled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,6 +78,13 @@ export function useAttendance(groupId: number, date: string) {
       } else {
         setRawRecords([]);
       }
+
+      const canceled = await db.select<{ id: number }[]>(
+        "SELECT id FROM canceled_days WHERE group_id = ? AND date = ? AND is_deleted = 0",
+        [groupId, date]
+      );
+      setIsCanceled(canceled.length > 0);
+
       setError(null);
     } catch (e) {
       setError(String(e));
@@ -168,6 +176,32 @@ export function useAttendance(groupId: number, date: string) {
     [periodsForDay, upsert, fetchData]
   );
 
+  const cancelDay = useCallback(
+    async (reason?: string) => {
+      const db = await Database.load(DB_URL);
+      await db.execute(
+        `INSERT INTO canceled_days (group_id, date, reason)
+         VALUES (?, ?, ?)
+         ON CONFLICT(group_id, date) DO UPDATE SET is_deleted = 0, reason = excluded.reason`,
+        [groupId, date, reason ?? null]
+      );
+      await fetchData(true);
+    },
+    [groupId, date, fetchData]
+  );
+
+  const uncancelDay = useCallback(
+    async () => {
+      const db = await Database.load(DB_URL);
+      await db.execute(
+        "UPDATE canceled_days SET is_deleted = 1 WHERE group_id = ? AND date = ? AND is_deleted = 0",
+        [groupId, date]
+      );
+      await fetchData(true);
+    },
+    [groupId, date, fetchData]
+  );
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -176,6 +210,7 @@ export function useAttendance(groupId: number, date: string) {
     periodsForDay,
     allStudents,
     dayStatuses,
+    isCanceled,
     loading,
     error,
     markPresent,
@@ -183,5 +218,7 @@ export function useAttendance(groupId: number, date: string) {
     markLate,
     markPartial,
     markDayStatusBulk,
+    cancelDay,
+    uncancelDay,
   };
 }

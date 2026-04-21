@@ -45,6 +45,7 @@ function deriveDayStatus(records: RawRecord[]): { status: DayAttendanceStatus } 
 
 export function useStudentAttendance(studentId: number) {
   const [rawRecords, setRawRecords] = useState<RawRecord[]>([]);
+  const [canceledDates, setCanceledDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +62,21 @@ export function useStudentAttendance(studentId: number) {
         [studentId]
       );
       setRawRecords(rows);
+
+      const groupRow = await db.select<{ group_id: number }[]>(
+        "SELECT group_id FROM students WHERE id = ? AND is_deleted = 0",
+        [studentId]
+      );
+      if (groupRow.length > 0) {
+        const canceled = await db.select<{ date: string }[]>(
+          "SELECT date FROM canceled_days WHERE group_id = ? AND is_deleted = 0",
+          [groupRow[0].group_id]
+        );
+        setCanceledDates(new Set(canceled.map((r) => r.date)));
+      } else {
+        setCanceledDates(new Set());
+      }
+
       setError(null);
     } catch (e) {
       setError(String(e));
@@ -76,6 +92,7 @@ export function useStudentAttendance(studentId: number) {
   const days = useMemo((): StudentAttendanceDay[] => {
     const grouped = new Map<string, RawRecord[]>();
     for (const r of rawRecords) {
+      if (canceledDates.has(r.date)) continue;
       if (!grouped.has(r.date)) grouped.set(r.date, []);
       grouped.get(r.date)!.push(r);
     }
@@ -87,7 +104,7 @@ export function useStudentAttendance(studentId: number) {
         records: recs.map((r) => ({ period_name: r.period_name, status: r.status, notes: r.notes })),
       };
     });
-  }, [rawRecords]);
+  }, [rawRecords, canceledDates]);
 
   const summary = useMemo(
     (): StudentAttendanceSummary => ({

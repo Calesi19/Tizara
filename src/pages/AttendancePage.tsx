@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Spinner } from "@heroui/react";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, CalendarX, RotateCcw } from "lucide-react";
 
 import { useAttendance } from "../hooks/useAttendance";
 import { Breadcrumb } from "../components/Breadcrumb";
@@ -42,6 +42,7 @@ export function AttendancePage({
     periodsForDay,
     allStudents,
     dayStatuses,
+    isCanceled,
     loading,
     error,
     markPresent,
@@ -49,6 +50,8 @@ export function AttendancePage({
     markLate,
     markPartial,
     markDayStatusBulk,
+    cancelDay,
+    uncancelDay,
   } = useAttendance(group.id, date);
 
   const withPastDateConfirm = (action: () => void) => {
@@ -76,6 +79,28 @@ export function AttendancePage({
             {group.grade && <span>{group.grade}</span>}
           </p>
         </div>
+        {!loading && !error && (
+          isCanceled ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              startContent={<RotateCcw size={14} />}
+              onPress={uncancelDay}
+            >
+              {t("attendance.restoreDay")}
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              size="sm"
+              startContent={<CalendarX size={14} />}
+              onPress={() => cancelDay()}
+              isDisabled={periodsForDay.length === 0}
+            >
+              {t("attendance.cancelDay")}
+            </Button>
+          )
+        )}
       </div>
 
       <DateNavigator date={date} onChange={setDate} minDate={group.start_date} maxDate={group.end_date} />
@@ -92,7 +117,14 @@ export function AttendancePage({
         </div>
       )}
 
-      {!loading && !error && periodsForDay.length === 0 && (
+      {!loading && !error && isCanceled && (
+        <div className="flex items-center gap-3 rounded-lg bg-warning/10 text-warning px-4 py-3 text-sm mt-2">
+          <CalendarX size={16} className="shrink-0" />
+          <span>{t("attendance.canceledBanner")}</span>
+        </div>
+      )}
+
+      {!loading && !error && !isCanceled && periodsForDay.length === 0 && (
         <div className="flex flex-col items-center justify-center flex-1 text-center gap-3 mt-8">
           <CalendarDays size={40} className="text-foreground/20" />
           <p className="text-lg font-semibold text-muted">{t("attendance.noPeriodsForDay")}</p>
@@ -103,7 +135,7 @@ export function AttendancePage({
         </div>
       )}
 
-      {!loading && !error && allStudents.length === 0 && periodsForDay.length > 0 && (
+      {!loading && !error && !isCanceled && allStudents.length === 0 && periodsForDay.length > 0 && (
         <div className="flex flex-col items-center justify-center flex-1 text-center gap-2 mt-8">
           <p className="text-lg font-semibold text-muted">{t("attendance.noStudents")}</p>
           <p className="text-sm text-foreground/40">{t("attendance.noStudentsHint")}</p>
@@ -113,7 +145,7 @@ export function AttendancePage({
         </div>
       )}
 
-      {!loading && !error && periodsForDay.length > 0 && allStudents.length > 0 && (
+      {!loading && !error && !isCanceled && periodsForDay.length > 0 && allStudents.length > 0 && (
         <div className="mt-2">
           <AttendanceDaySection
             rows={dayStatuses}

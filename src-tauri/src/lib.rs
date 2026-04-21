@@ -186,6 +186,20 @@ pub fn run() {
             sql: "ALTER TABLE student_notes ADD COLUMN tags TEXT NOT NULL DEFAULT '';",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 16,
+            description: "create_canceled_days_table",
+            sql: "CREATE TABLE IF NOT EXISTS canceled_days (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                group_id   INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+                date       TEXT    NOT NULL,
+                reason     TEXT,
+                is_deleted INTEGER NOT NULL DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT uq_canceled_day UNIQUE (group_id, date)
+            );",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
