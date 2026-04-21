@@ -92,7 +92,7 @@ export function useStudentAttendance(studentId: number) {
   const summary = useMemo(
     (): StudentAttendanceSummary => ({
       totalDays: days.length,
-      present: days.filter((d) => d.dayStatus === "present").length,
+      present: days.filter((d) => d.dayStatus === "present" || d.dayStatus === "late").length,
       absent: days.filter((d) => d.dayStatus === "absent").length,
       late: days.filter((d) => d.dayStatus === "late").length,
       partial: days.filter((d) => d.dayStatus === "partial").length,
