@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import {
   Button,
   Checkbox,
+  EmptyState,
   Modal,
   Label,
   Input,
@@ -16,6 +17,7 @@ import {
   TableCell,
   useOverlayState,
 } from "@heroui/react";
+import { Inbox } from "lucide-react";
 import { useFamilyMembers } from "../hooks/useFamilyMembers";
 import { Breadcrumb } from "../components/Breadcrumb";
 import type { Group } from "../types/group";
@@ -131,47 +133,46 @@ export function FamilyMembersPage({
       )}
 
       <div className="flex-1 flex flex-col min-h-0">
-        {!loading && !error && familyMembers.length === 0 && (
-          <div className="flex flex-col items-center justify-center flex-1 text-center">
-            <p className="text-lg font-semibold text-muted">No family members yet</p>
-            <p className="text-sm text-foreground/40 mt-1">
-              Click "+ Add Family Member" to add one.
-            </p>
-          </div>
-        )}
-
-        {!loading && familyMembers.length > 0 && (
+        {!loading && !error && (
           <TableRoot variant="primary" className="flex-1 h-full">
             <TableScrollContainer className="h-full">
-            <TableContent aria-label="Family members" selectionMode="none">
-              <TableHeader>
-                <TableColumn isRowHeader>Name</TableColumn>
-                <TableColumn>Relationship</TableColumn>
-                <TableColumn>Phone</TableColumn>
-                <TableColumn>Email</TableColumn>
-                <TableColumn>Emergency Contact</TableColumn>
-              </TableHeader>
-              <TableBody>
-                {familyMembers.map((fm) => (
-                  <TableRow key={fm.id} id={fm.id}>
-                    <TableCell className="font-medium">{fm.name}</TableCell>
-                    <TableCell>{fm.relationship ?? <span className="text-foreground/30">—</span>}</TableCell>
-                    <TableCell>
-                      {fm.phone
-                        ? <span className="inline-flex items-center">{fm.phone}<CopyButton value={fm.phone} /></span>
-                        : <span className="text-foreground/30">—</span>}
-                    </TableCell>
-                    <TableCell>
-                      {fm.email
-                        ? <span className="inline-flex items-center">{fm.email}<CopyButton value={fm.email} /></span>
-                        : <span className="text-foreground/30">—</span>}
-                    </TableCell>
-                    <TableCell>{fm.is_emergency_contact ? "Yes" : <span className="text-foreground/30">—</span>}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </TableContent>
-          </TableScrollContainer>
+              <TableContent aria-label="Family members" selectionMode="none">
+                <TableHeader>
+                  <TableColumn isRowHeader>Name</TableColumn>
+                  <TableColumn>Relationship</TableColumn>
+                  <TableColumn>Phone</TableColumn>
+                  <TableColumn>Email</TableColumn>
+                  <TableColumn>Emergency Contact</TableColumn>
+                </TableHeader>
+                <TableBody
+                  renderEmptyState={() => (
+                    <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                      <Inbox className="size-6 text-muted" />
+                      <span className="text-sm font-medium text-muted">No family members yet</span>
+                      <span className="text-xs text-foreground/40">Click "+ Add Family Member" to add one.</span>
+                    </EmptyState>
+                  )}
+                >
+                  {familyMembers.map((fm) => (
+                    <TableRow key={fm.id} id={fm.id}>
+                      <TableCell className="font-medium">{fm.name}</TableCell>
+                      <TableCell>{fm.relationship ?? <span className="text-foreground/30">—</span>}</TableCell>
+                      <TableCell>
+                        {fm.phone
+                          ? <span className="inline-flex items-center">{fm.phone}<CopyButton value={fm.phone} /></span>
+                          : <span className="text-foreground/30">—</span>}
+                      </TableCell>
+                      <TableCell>
+                        {fm.email
+                          ? <span className="inline-flex items-center">{fm.email}<CopyButton value={fm.email} /></span>
+                          : <span className="text-foreground/30">—</span>}
+                      </TableCell>
+                      <TableCell>{fm.is_emergency_contact ? "Yes" : <span className="text-foreground/30">—</span>}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </TableContent>
+            </TableScrollContainer>
           </TableRoot>
         )}
       </div>

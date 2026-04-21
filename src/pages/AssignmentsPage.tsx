@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Button,
+  EmptyState,
   Input,
   Spinner,
   TableColumn,
@@ -12,7 +13,7 @@ import {
   TableScrollContainer,
   TableRoot,
 } from "@heroui/react";
-import { BookOpen, Trash2 } from "lucide-react";
+import { Inbox, Trash2 } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { AddAssignmentModal } from "../components/AddAssignmentModal";
@@ -95,80 +96,75 @@ export function AssignmentsPage({
       )}
 
       <div className="flex-1 flex flex-col min-h-0">
-        {!loading && !error && assignments.length === 0 && (
-          <div className="flex flex-col items-center justify-center flex-1 text-center gap-3">
-            <BookOpen size={40} className="text-foreground/20" />
-            <p className="text-lg font-semibold text-muted">{t("assignments.noAssignmentsYet")}</p>
-            <p className="text-sm text-foreground/40">{t("assignments.noAssignmentsHint")}</p>
-          </div>
-        )}
-
-        {!loading && assignments.length > 0 && (
-          <>
-            {filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center flex-1 text-center">
-                <p className="text-lg font-semibold text-muted">
-                  {t("students.noResultsTitle")}
-                </p>
-                <p className="text-sm text-foreground/40 mt-1">
-                  {t("students.noResultsHint", { search })}
-                </p>
-              </div>
-            ) : (
-              <TableRoot variant="primary" className="flex-1 h-full">
-                <TableScrollContainer className="h-full">
-                  <TableContent
-                    aria-label={t("assignments.title")}
-                    onRowAction={(key) => {
-                      const assignment = assignments.find((a) => a.id === key);
-                      if (assignment) onSelectAssignment(assignment);
-                    }}
-                  >
-                    <TableHeader>
-                      <TableColumn isRowHeader>
-                        {t("assignments.tableColumns.title")}
-                      </TableColumn>
-                      <TableColumn>
-                        {t("assignments.tableColumns.period")}
-                      </TableColumn>
-                      <TableColumn>
-                        {t("assignments.tableColumns.maxScore")}
-                      </TableColumn>
-                      <TableColumn>
-                        {t("assignments.tableColumns.date")}
-                      </TableColumn>
-                      <TableColumn>{" "}</TableColumn>
-                    </TableHeader>
-                    <TableBody>
-                      {filtered.map((a) => (
-                        <TableRow key={a.id} id={a.id} className="cursor-pointer">
-                          <TableCell className="font-medium">{a.title}</TableCell>
-                          <TableCell className="text-sm text-foreground/50">{a.period_name}</TableCell>
-                          <TableCell className="text-sm text-foreground/50">
-                            {a.max_score} {t("assignments.pts")}
-                          </TableCell>
-                          <TableCell className="text-sm text-foreground/50">
-                            {formatDate(a.created_at)}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onPress={() => setDeletingAssignment(a)}
-                              aria-label={t("assignments.deleteModal.title")}
-                              className="p-1.5 text-foreground/30 hover:text-danger"
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </TableContent>
-                </TableScrollContainer>
-              </TableRoot>
-            )}
-          </>
+        {!loading && !error && (
+          <TableRoot variant="primary" className="flex-1 h-full">
+            <TableScrollContainer className="h-full">
+              <TableContent
+                aria-label={t("assignments.title")}
+                onRowAction={(key) => {
+                  const assignment = assignments.find((a) => a.id === key);
+                  if (assignment) onSelectAssignment(assignment);
+                }}
+              >
+                <TableHeader>
+                  <TableColumn isRowHeader>
+                    {t("assignments.tableColumns.title")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("assignments.tableColumns.period")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("assignments.tableColumns.maxScore")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("assignments.tableColumns.date")}
+                  </TableColumn>
+                  <TableColumn>{" "}</TableColumn>
+                </TableHeader>
+                <TableBody
+                  renderEmptyState={() => (
+                    <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                      <Inbox className="size-6 text-muted" />
+                      <span className="text-sm font-medium text-muted">
+                        {assignments.length === 0
+                          ? t("assignments.noAssignmentsYet")
+                          : t("students.noResultsTitle")}
+                      </span>
+                      <span className="text-xs text-foreground/40">
+                        {assignments.length === 0
+                          ? t("assignments.noAssignmentsHint")
+                          : t("students.noResultsHint", { search })}
+                      </span>
+                    </EmptyState>
+                  )}
+                >
+                  {filtered.map((a) => (
+                    <TableRow key={a.id} id={a.id} className="cursor-pointer">
+                      <TableCell className="font-medium">{a.title}</TableCell>
+                      <TableCell className="text-sm text-foreground/50">{a.period_name}</TableCell>
+                      <TableCell className="text-sm text-foreground/50">
+                        {a.max_score} {t("assignments.pts")}
+                      </TableCell>
+                      <TableCell className="text-sm text-foreground/50">
+                        {formatDate(a.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onPress={() => setDeletingAssignment(a)}
+                          aria-label={t("assignments.deleteModal.title")}
+                          className="p-1.5 text-foreground/30 hover:text-danger"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </TableContent>
+            </TableScrollContainer>
+          </TableRoot>
         )}
       </div>
 

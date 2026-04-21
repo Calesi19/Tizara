@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import {
   Button,
   Checkbox,
+  EmptyState,
   Modal,
   Label,
   Input,
@@ -16,7 +17,7 @@ import {
   TableCell,
   useOverlayState,
 } from "@heroui/react";
-import { Pencil } from "lucide-react";
+import { Inbox, Pencil } from "lucide-react";
 import { useContacts } from "../hooks/useContacts";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useTranslation } from "../i18n/LanguageContext";
@@ -173,56 +174,57 @@ export function ContactsPage({
       )}
 
       <div className="flex-1 flex flex-col min-h-0">
-        {!loading && !error && contacts.length === 0 && (
-          <div className="flex flex-col items-center justify-center flex-1 text-center">
-            <p className="text-lg font-semibold text-muted">{t("contacts.noContactsYet")}</p>
-            <p className="text-sm text-foreground/40 mt-1">{t("contacts.noContactsHint")}</p>
-          </div>
-        )}
-
-        {!loading && contacts.length > 0 && (
+        {!loading && !error && (
           <TableRoot variant="primary" className="flex-1 h-full">
             <TableScrollContainer className="h-full">
-            <TableContent aria-label={t("contacts.title")} selectionMode="none">
-              <TableHeader>
-                <TableColumn isRowHeader>{t("contacts.columns.name")}</TableColumn>
-                <TableColumn>{t("contacts.columns.relationship")}</TableColumn>
-                <TableColumn>{t("contacts.columns.phone")}</TableColumn>
-                <TableColumn>{t("contacts.columns.email")}</TableColumn>
-                <TableColumn>{t("contacts.columns.emergencyContact")}</TableColumn>
-                <TableColumn> </TableColumn>
-              </TableHeader>
-              <TableBody>
-                {contacts.map((contact) => (
-                  <TableRow key={contact.id} id={contact.id}>
-                    <TableCell className="font-medium">{contact.name}</TableCell>
-                    <TableCell>{contact.relationship ?? <span className="text-foreground/30">—</span>}</TableCell>
-                    <TableCell>
-                      {contact.phone
-                        ? <span className="inline-flex items-center">{contact.phone}<CopyButton value={contact.phone} /></span>
-                        : <span className="text-foreground/30">—</span>}
-                    </TableCell>
-                    <TableCell>
-                      {contact.email
-                        ? <span className="inline-flex items-center">{contact.email}<CopyButton value={contact.email} /></span>
-                        : <span className="text-foreground/30">—</span>}
-                    </TableCell>
-                    <TableCell>{contact.is_emergency_contact ? t("contacts.yes") : <span className="text-foreground/30">—</span>}</TableCell>
-                    <TableCell>
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(contact)}
-                        className="inline-flex items-center text-foreground/30 hover:text-foreground/70 transition-colors"
-                        aria-label={t("contacts.editModal.title")}
-                      >
-                        <Pencil size={14} />
-                      </button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </TableContent>
-          </TableScrollContainer>
+              <TableContent aria-label={t("contacts.title")} selectionMode="none">
+                <TableHeader>
+                  <TableColumn isRowHeader>{t("contacts.columns.name")}</TableColumn>
+                  <TableColumn>{t("contacts.columns.relationship")}</TableColumn>
+                  <TableColumn>{t("contacts.columns.phone")}</TableColumn>
+                  <TableColumn>{t("contacts.columns.email")}</TableColumn>
+                  <TableColumn>{t("contacts.columns.emergencyContact")}</TableColumn>
+                  <TableColumn> </TableColumn>
+                </TableHeader>
+                <TableBody
+                  renderEmptyState={() => (
+                    <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                      <Inbox className="size-6 text-muted" />
+                      <span className="text-sm font-medium text-muted">{t("contacts.noContactsYet")}</span>
+                      <span className="text-xs text-foreground/40">{t("contacts.noContactsHint")}</span>
+                    </EmptyState>
+                  )}
+                >
+                  {contacts.map((contact) => (
+                    <TableRow key={contact.id} id={contact.id}>
+                      <TableCell className="font-medium">{contact.name}</TableCell>
+                      <TableCell>{contact.relationship ?? <span className="text-foreground/30">—</span>}</TableCell>
+                      <TableCell>
+                        {contact.phone
+                          ? <span className="inline-flex items-center">{contact.phone}<CopyButton value={contact.phone} /></span>
+                          : <span className="text-foreground/30">—</span>}
+                      </TableCell>
+                      <TableCell>
+                        {contact.email
+                          ? <span className="inline-flex items-center">{contact.email}<CopyButton value={contact.email} /></span>
+                          : <span className="text-foreground/30">—</span>}
+                      </TableCell>
+                      <TableCell>{contact.is_emergency_contact ? t("contacts.yes") : <span className="text-foreground/30">—</span>}</TableCell>
+                      <TableCell>
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(contact)}
+                          className="inline-flex items-center text-foreground/30 hover:text-foreground/70 transition-colors"
+                          aria-label={t("contacts.editModal.title")}
+                        >
+                          <Pencil size={14} />
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </TableContent>
+            </TableScrollContainer>
           </TableRoot>
         )}
       </div>

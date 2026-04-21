@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   Avatar,
   Chip,
+  EmptyState,
   Surface,
   ListBox,
   Spinner,
@@ -26,6 +27,7 @@ import {
 } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
+import { Inbox } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useContacts } from "../hooks/useContacts";
 import { useNotes } from "../hooks/useNotes";
@@ -406,131 +408,113 @@ export function StudentProfilePage({
             <div className="flex justify-center py-12">
               <Spinner size="lg" color="accent" />
             </div>
-          ) : assignments.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <p className="text-lg font-semibold text-muted">
-                {t("studentProfile.assignments.noAssignments")}
-              </p>
-            </div>
           ) : (
             <>
-              <div className="flex items-center gap-3 mb-4">
-                <Input
-                  placeholder={t(
-                    "studentProfile.assignments.searchPlaceholder",
-                  )}
-                  value={assignmentSearch}
-                  onChange={(e) => setAssignmentSearch(e.target.value)}
-                  className="max-w-xs"
-                />
-                <Select
-                  aria-label={t("studentProfile.assignments.allPeriods")}
-                  selectedKey={assignmentPeriodFilter}
-                  onSelectionChange={(key) =>
-                    setAssignmentPeriodFilter(String(key))
-                  }
-                  className="w-44"
-                >
-                  <Select.Trigger>
-                    <Select.Value>
-                      {({ selectedText, isPlaceholder }) =>
-                        isPlaceholder
-                          ? t("studentProfile.assignments.allPeriods")
-                          : selectedText
-                      }
-                    </Select.Value>
-                    <Select.Indicator />
-                  </Select.Trigger>
-                  <Select.Popover>
-                    <ListBox>
-                      <ListBox.Item
-                        id="all"
-                        textValue={t("studentProfile.assignments.allPeriods")}
-                      >
-                        {t("studentProfile.assignments.allPeriods")}
-                      </ListBox.Item>
-                      {assignmentPeriods.map((p) => (
-                        <ListBox.Item key={p} id={p} textValue={p}>
-                          {p}
+              {assignments.length > 0 && (
+                <div className="flex items-center gap-3 mb-4">
+                  <Input
+                    placeholder={t("studentProfile.assignments.searchPlaceholder")}
+                    value={assignmentSearch}
+                    onChange={(e) => setAssignmentSearch(e.target.value)}
+                    className="max-w-xs"
+                  />
+                  <Select
+                    aria-label={t("studentProfile.assignments.allPeriods")}
+                    selectedKey={assignmentPeriodFilter}
+                    onSelectionChange={(key) => setAssignmentPeriodFilter(String(key))}
+                    className="w-44"
+                  >
+                    <Select.Trigger>
+                      <Select.Value>
+                        {({ selectedText, isPlaceholder }) =>
+                          isPlaceholder
+                            ? t("studentProfile.assignments.allPeriods")
+                            : selectedText
+                        }
+                      </Select.Value>
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        <ListBox.Item
+                          id="all"
+                          textValue={t("studentProfile.assignments.allPeriods")}
+                        >
+                          {t("studentProfile.assignments.allPeriods")}
                         </ListBox.Item>
-                      ))}
-                    </ListBox>
-                  </Select.Popover>
-                </Select>
-              </div>
-              {filteredAssignments.length === 0 ? (
-                <div className="flex flex-col items-center justify-center flex-1 text-center">
-                  <p className="text-lg font-semibold text-muted">
-                    {t("studentProfile.assignments.noResults")}
-                  </p>
-                  <p className="text-sm text-foreground/40 mt-1">
-                    {t("studentProfile.assignments.noResultsHint")}
-                  </p>
-                </div>
-              ) : (
-                <TableRoot variant="primary" className="flex-1 min-h-0">
-                  <TableScrollContainer className="h-full">
-                    <TableContent
-                      aria-label={t("studentProfile.tabs.assignments")}
-                    >
-                      <TableHeader>
-                        <TableColumn isRowHeader>
-                          {t("studentProfile.assignments.columns.assignment")}
-                        </TableColumn>
-                        <TableColumn>
-                          {t("studentProfile.assignments.columns.period")}
-                        </TableColumn>
-                        <TableColumn>
-                          {t("studentProfile.assignments.columns.score")}
-                        </TableColumn>
-                        <TableColumn>
-                          {t("studentProfile.assignments.columns.date")}
-                        </TableColumn>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredAssignments.map((a) => (
-                          <TableRow key={a.assignment_id} id={a.assignment_id}>
-                            <TableCell className="font-medium">
-                              {a.title}
-                            </TableCell>
-                            <TableCell className="text-sm text-foreground/50">
-                              {a.period_name}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {a.score !== null ? (
-                                <span
-                                  className={
-                                    a.score > a.max_score
-                                      ? "text-warning"
-                                      : "text-foreground"
-                                  }
-                                >
-                                  {a.score}
-                                </span>
-                              ) : (
-                                <span className="text-foreground/30">—</span>
-                              )}
-                              <span className="text-xs text-muted ml-0.5">
-                                / {a.max_score}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm text-foreground/50 whitespace-nowrap">
-                              {new Date(a.created_at).toLocaleDateString(
-                                undefined,
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                },
-                              )}
-                            </TableCell>
-                          </TableRow>
+                        {assignmentPeriods.map((p) => (
+                          <ListBox.Item key={p} id={p} textValue={p}>
+                            {p}
+                          </ListBox.Item>
                         ))}
-                      </TableBody>
-                    </TableContent>
-                  </TableScrollContainer>
-                </TableRoot>
+                      </ListBox>
+                    </Select.Popover>
+                  </Select>
+                </div>
               )}
+              <TableRoot variant="primary" className="flex-1 min-h-0">
+                <TableScrollContainer className="h-full">
+                  <TableContent aria-label={t("studentProfile.tabs.assignments")}>
+                    <TableHeader>
+                      <TableColumn isRowHeader>
+                        {t("studentProfile.assignments.columns.assignment")}
+                      </TableColumn>
+                      <TableColumn>
+                        {t("studentProfile.assignments.columns.period")}
+                      </TableColumn>
+                      <TableColumn>
+                        {t("studentProfile.assignments.columns.score")}
+                      </TableColumn>
+                      <TableColumn>
+                        {t("studentProfile.assignments.columns.date")}
+                      </TableColumn>
+                    </TableHeader>
+                    <TableBody
+                      renderEmptyState={() => (
+                        <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                          <Inbox className="size-6 text-muted" />
+                          <span className="text-sm font-medium text-muted">
+                            {assignments.length === 0
+                              ? t("studentProfile.assignments.noAssignments")
+                              : t("studentProfile.assignments.noResults")}
+                          </span>
+                          {assignments.length > 0 && (
+                            <span className="text-xs text-foreground/40">
+                              {t("studentProfile.assignments.noResultsHint")}
+                            </span>
+                          )}
+                        </EmptyState>
+                      )}
+                    >
+                      {filteredAssignments.map((a) => (
+                        <TableRow key={a.assignment_id} id={a.assignment_id}>
+                          <TableCell className="font-medium">{a.title}</TableCell>
+                          <TableCell className="text-sm text-foreground/50">
+                            {a.period_name}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {a.score !== null ? (
+                              <span className={a.score > a.max_score ? "text-warning" : "text-foreground"}>
+                                {a.score}
+                              </span>
+                            ) : (
+                              <span className="text-foreground/30">—</span>
+                            )}
+                            <span className="text-xs text-muted ml-0.5">/ {a.max_score}</span>
+                          </TableCell>
+                          <TableCell className="text-sm text-foreground/50 whitespace-nowrap">
+                            {new Date(a.created_at).toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </TableContent>
+                </TableScrollContainer>
+              </TableRoot>
             </>
           )}
         </Tabs.Panel>
@@ -543,18 +527,9 @@ export function StudentProfilePage({
             <div className="flex justify-center py-12">
               <Spinner size="lg" color="accent" />
             </div>
-          ) : attendanceDays.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <p className="text-lg font-semibold text-muted">
-                {t("studentProfile.attendance.noAttendance")}
-              </p>
-              <p className="text-sm text-foreground/40 mt-1">
-                {t("studentProfile.attendance.noAttendanceHint")}
-              </p>
-            </div>
           ) : (
             <>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              {attendanceDays.length > 0 && <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                 {(
                   [
                     {
@@ -602,12 +577,10 @@ export function StudentProfilePage({
                     </span>
                   </Surface>
                 ))}
-              </div>
+              </div>}
               <TableRoot variant="primary" className="flex-1 min-h-0">
                 <TableScrollContainer className="h-full">
-                  <TableContent
-                    aria-label={t("studentProfile.tabs.attendance")}
-                  >
+                  <TableContent aria-label={t("studentProfile.tabs.attendance")}>
                     <TableHeader>
                       <TableColumn isRowHeader>
                         {t("studentProfile.attendance.columns.date")}
@@ -622,12 +595,21 @@ export function StudentProfilePage({
                         {t("studentProfile.attendance.columns.periods")}
                       </TableColumn>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody
+                      renderEmptyState={() => (
+                        <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                          <Inbox className="size-6 text-muted" />
+                          <span className="text-sm font-medium text-muted">
+                            {t("studentProfile.attendance.noAttendance")}
+                          </span>
+                          <span className="text-xs text-foreground/40">
+                            {t("studentProfile.attendance.noAttendanceHint")}
+                          </span>
+                        </EmptyState>
+                      )}
+                    >
                       {attendanceDays.map((day) => {
-                        const statusColors: Record<
-                          DayAttendanceStatus,
-                          string
-                        > = {
+                        const statusColors: Record<DayAttendanceStatus, string> = {
                           present: "text-success",
                           absent: "text-danger",
                           late: "text-warning",
@@ -637,21 +619,15 @@ export function StudentProfilePage({
                         return (
                           <TableRow key={day.date} id={day.date}>
                             <TableCell className="font-medium whitespace-nowrap">
-                              {new Date(
-                                day.date + "T12:00:00",
-                              ).toLocaleDateString(undefined, {
+                              {new Date(day.date + "T12:00:00").toLocaleDateString(undefined, {
                                 month: "short",
                                 day: "numeric",
                                 year: "numeric",
                               })}
                             </TableCell>
                             <TableCell>
-                              <span
-                                className={`text-sm font-medium ${statusColors[day.dayStatus]}`}
-                              >
-                                {t(
-                                  `studentProfile.attendance.status.${day.dayStatus}`,
-                                )}
+                              <span className={`text-sm font-medium ${statusColors[day.dayStatus]}`}>
+                                {t(`studentProfile.attendance.status.${day.dayStatus}`)}
                               </span>
                             </TableCell>
                             <TableCell className="text-sm text-foreground/50">
@@ -695,26 +671,6 @@ export function StudentProfilePage({
             <div className="flex justify-center py-12">
               <Spinner size="lg" color="accent" />
             </div>
-          ) : visitations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <p className="text-lg font-semibold text-muted">
-                {t("studentProfile.visitations.noVisitations")}
-              </p>
-              <p className="text-sm text-foreground/40 mt-1">
-                {t("studentProfile.visitations.noVisitationsHint")}
-              </p>
-            </div>
-          ) : filteredVisitations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <p className="text-lg font-semibold text-muted">
-                {t("studentProfile.visitations.noResults")}
-              </p>
-              <p className="text-sm text-foreground/40 mt-1">
-                {t("studentProfile.visitations.noResultsHint", {
-                  search: visitationSearch,
-                })}
-              </p>
-            </div>
           ) : (
             <TableRoot variant="primary" className="flex-1 min-h-0">
               <TableScrollContainer className="h-full">
@@ -733,7 +689,23 @@ export function StudentProfilePage({
                       {t("studentProfile.visitations.columns.date")}
                     </TableColumn>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody
+                    renderEmptyState={() => (
+                      <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                        <Inbox className="size-6 text-muted" />
+                        <span className="text-sm font-medium text-muted">
+                          {visitations.length === 0
+                            ? t("studentProfile.visitations.noVisitations")
+                            : t("studentProfile.visitations.noResults")}
+                        </span>
+                        <span className="text-xs text-foreground/40">
+                          {visitations.length === 0
+                            ? t("studentProfile.visitations.noVisitationsHint")
+                            : t("studentProfile.visitations.noResultsHint", { search: visitationSearch })}
+                        </span>
+                      </EmptyState>
+                    )}
+                  >
                     {filteredVisitations.map((v) => (
                       <TableRow key={v.id} id={v.id}>
                         <TableCell className="text-sm text-foreground/50">
@@ -777,26 +749,6 @@ export function StudentProfilePage({
             <div className="flex justify-center py-12">
               <Spinner size="lg" color="accent" />
             </div>
-          ) : notes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <p className="text-lg font-semibold text-muted">
-                {t("studentProfile.notes.noNotes")}
-              </p>
-              <p className="text-sm text-foreground/40 mt-1">
-                {t("studentProfile.notes.noNotesHint")}
-              </p>
-            </div>
-          ) : filteredNotes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-center">
-              <p className="text-lg font-semibold text-muted">
-                {t("studentProfile.notes.noResults")}
-              </p>
-              <p className="text-sm text-foreground/40 mt-1">
-                {t("studentProfile.notes.noResultsHint", {
-                  search: noteSearch,
-                })}
-              </p>
-            </div>
           ) : (
             <TableRoot variant="primary" className="flex-1 min-h-0">
               <TableScrollContainer className="h-full">
@@ -809,7 +761,23 @@ export function StudentProfilePage({
                       {t("studentProfile.notes.columns.date")}
                     </TableColumn>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody
+                    renderEmptyState={() => (
+                      <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                        <Inbox className="size-6 text-muted" />
+                        <span className="text-sm font-medium text-muted">
+                          {notes.length === 0
+                            ? t("studentProfile.notes.noNotes")
+                            : t("studentProfile.notes.noResults")}
+                        </span>
+                        <span className="text-xs text-foreground/40">
+                          {notes.length === 0
+                            ? t("studentProfile.notes.noNotesHint")
+                            : t("studentProfile.notes.noResultsHint", { search: noteSearch })}
+                        </span>
+                      </EmptyState>
+                    )}
+                  >
                     {filteredNotes.map((note) => (
                       <TableRow key={note.id} id={note.id}>
                         <TableCell className="text-sm text-foreground whitespace-pre-wrap max-w-md">

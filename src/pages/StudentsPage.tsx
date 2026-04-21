@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Button,
+  EmptyState,
   Modal,
   Label,
   Input,
@@ -22,6 +23,7 @@ import {
   Checkbox,
 } from "@heroui/react";
 import type { Selection } from "@heroui/react";
+import { Inbox } from "lucide-react";
 import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
 import Database from "@tauri-apps/plugin-sql";
@@ -207,115 +209,107 @@ export function StudentsPage({
       )}
 
       <div className="flex-1 flex flex-col min-h-0">
-        {!loading && !error && students.length === 0 && (
-          <div className="flex flex-col items-center justify-center flex-1 text-center">
-            <p className="text-lg font-semibold text-muted">
-              {t("students.noStudentsYet")}
-            </p>
-            <p className="text-sm text-foreground/40 mt-1">
-              {t("students.noStudentsHint")}
-            </p>
-          </div>
-        )}
-
-        {!loading && students.length > 0 && (
-          <>
-            {filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center flex-1 text-center">
-                <p className="text-lg font-semibold text-muted">
-                  {t("students.noResultsTitle")}
-                </p>
-                <p className="text-sm text-foreground/40 mt-1">
-                  {t("students.noResultsHint", { search })}
-                </p>
-              </div>
-            ) : (
-              <TableRoot variant="primary" className="flex-1 h-full">
-                <TableScrollContainer className="h-full">
-                  <TableContent
-                    aria-label={t("students.title")}
-                    selectionMode="multiple"
-                    selectedKeys={selectedKeys}
-                    onSelectionChange={setSelectedKeys}
-                    onRowAction={(key) => {
-                      const student = students.find((s) => s.id === key);
-                      if (student) onSelectStudent(student);
-                    }}
-                  >
-                    <TableHeader>
-                      <TableColumn className="pr-0 w-10">
-                        <Checkbox aria-label="Select all" slot="selection">
+        {!loading && !error && (
+          <TableRoot variant="primary" className="flex-1 h-full">
+            <TableScrollContainer className="h-full">
+              <TableContent
+                aria-label={t("students.title")}
+                selectionMode="multiple"
+                selectedKeys={selectedKeys}
+                onSelectionChange={setSelectedKeys}
+                onRowAction={(key) => {
+                  const student = students.find((s) => s.id === key);
+                  if (student) onSelectStudent(student);
+                }}
+              >
+                <TableHeader>
+                  <TableColumn className="pr-0 w-10">
+                    <Checkbox aria-label="Select all" slot="selection">
+                      <Checkbox.Control>
+                        <Checkbox.Indicator />
+                      </Checkbox.Control>
+                    </Checkbox>
+                  </TableColumn>
+                  <TableColumn isRowHeader>
+                    {t("students.tableColumns.name")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("students.tableColumns.gender")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("students.tableColumns.birthdate")}
+                  </TableColumn>
+                  <TableColumn>
+                    {t("students.tableColumns.studentId")}
+                  </TableColumn>
+                </TableHeader>
+                <TableBody
+                  renderEmptyState={() => (
+                    <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                      <Inbox className="size-6 text-muted" />
+                      <span className="text-sm font-medium text-muted">
+                        {students.length === 0
+                          ? t("students.noStudentsYet")
+                          : t("students.noResultsTitle")}
+                      </span>
+                      <span className="text-xs text-foreground/40">
+                        {students.length === 0
+                          ? t("students.noStudentsHint")
+                          : t("students.noResultsHint", { search })}
+                      </span>
+                    </EmptyState>
+                  )}
+                >
+                  {filtered.map((s) => (
+                    <TableRow
+                      key={s.id}
+                      id={s.id}
+                      className="cursor-pointer"
+                    >
+                      <TableCell className="pr-0">
+                        <Checkbox
+                          aria-label={`Select ${s.name}`}
+                          slot="selection"
+                          variant="secondary"
+                        >
                           <Checkbox.Control>
                             <Checkbox.Indicator />
                           </Checkbox.Control>
                         </Checkbox>
-                      </TableColumn>
-                      <TableColumn isRowHeader>
-                        {t("students.tableColumns.name")}
-                      </TableColumn>
-                      <TableColumn>
-                        {t("students.tableColumns.gender")}
-                      </TableColumn>
-                      <TableColumn>
-                        {t("students.tableColumns.birthdate")}
-                      </TableColumn>
-                      <TableColumn>
-                        {t("students.tableColumns.studentId")}
-                      </TableColumn>
-                    </TableHeader>
-                    <TableBody>
-                      {filtered.map((s) => (
-                        <TableRow
-                          key={s.id}
-                          id={s.id}
-                          className="cursor-pointer"
-                        >
-                          <TableCell className="pr-0">
-                            <Checkbox
-                              aria-label={`Select ${s.name}`}
-                              slot="selection"
-                              variant="secondary"
-                            >
-                              <Checkbox.Control>
-                                <Checkbox.Indicator />
-                              </Checkbox.Control>
-                            </Checkbox>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {s.name}
-                          </TableCell>
-                          <TableCell className="text-sm text-foreground/50">
-                            {s.gender || "—"}
-                          </TableCell>
-                          <TableCell className="text-sm text-foreground/50">
-                            {s.birthdate
-                              ? (() => {
-                                  const birth = new Date(s.birthdate);
-                                  const today = new Date();
-                                  let age =
-                                    today.getFullYear() - birth.getFullYear();
-                                  const m = today.getMonth() - birth.getMonth();
-                                  if (
-                                    m < 0 ||
-                                    (m === 0 &&
-                                      today.getDate() < birth.getDate())
-                                  )
-                                    age--;
-                                  return `${birth.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} (${age})`;
-                                })()
-                              : "—"}
-                          </TableCell>
-                          <TableCell className="text-sm text-foreground/40">
-                            {s.student_number || "—"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </TableContent>
-                </TableScrollContainer>
-              </TableRoot>
-            )}
-          </>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {s.name}
+                      </TableCell>
+                      <TableCell className="text-sm text-foreground/50">
+                        {s.gender || "—"}
+                      </TableCell>
+                      <TableCell className="text-sm text-foreground/50">
+                        {s.birthdate
+                          ? (() => {
+                              const birth = new Date(s.birthdate);
+                              const today = new Date();
+                              let age =
+                                today.getFullYear() - birth.getFullYear();
+                              const m = today.getMonth() - birth.getMonth();
+                              if (
+                                m < 0 ||
+                                (m === 0 &&
+                                  today.getDate() < birth.getDate())
+                              )
+                                age--;
+                              return `${birth.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} (${age})`;
+                            })()
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-sm text-foreground/40">
+                        {s.student_number || "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </TableContent>
+            </TableScrollContainer>
+          </TableRoot>
         )}
       </div>
 
