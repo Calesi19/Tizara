@@ -38,9 +38,21 @@ export function useNotes(studentId: number) {
     [studentId, fetchNotes]
   );
 
+  const updateNote = useCallback(
+    async (noteId: number, input: NewNoteInput) => {
+      const db = await Database.load(DB_URL);
+      await db.execute(
+        "UPDATE student_notes SET content = ?, tags = ? WHERE id = ? AND is_deleted = 0",
+        [input.content, input.tags, noteId]
+      );
+      await fetchNotes();
+    },
+    [fetchNotes]
+  );
+
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
 
-  return { notes, loading, error, addNote };
+  return { notes, loading, error, addNote, updateNote };
 }

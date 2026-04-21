@@ -26,7 +26,7 @@ import {
 } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
-import { Inbox } from "lucide-react";
+import { Inbox, Pencil } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useContacts } from "../hooks/useContacts";
 import { useNotes } from "../hooks/useNotes";
@@ -34,7 +34,7 @@ import { useVisitations } from "../hooks/useVisitations";
 import { useStudentAssignmentPreviews } from "../hooks/useStudentAssignmentPreviews";
 import { useStudentAttendance } from "../hooks/useStudentAttendance";
 import type { DayAttendanceStatus } from "../types/attendance";
-import { NOTE_TAG_KEYS, NOTE_TAG_COLORS, type NoteTagKey, parseTags, serializeTags } from "../types/note";
+import { NOTE_TAG_KEYS, NOTE_TAG_COLORS, type NoteTagKey, type Note, parseTags, serializeTags } from "../types/note";
 import { useTranslation } from "../i18n/LanguageContext";
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
@@ -120,6 +120,14 @@ export function StudentProfilePage({
   const [noteSubmitting, setNoteSubmitting] = useState(false);
   const [noteError, setNoteError] = useState<string | null>(null);
 
+  const viewNoteModalState = useOverlayState();
+  const [viewingNote, setViewingNote] = useState<Note | null>(null);
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [editNoteContent, setEditNoteContent] = useState("");
+  const [editNoteTags, setEditNoteTags] = useState<NoteTagKey[]>([]);
+  const [editNoteSubmitting, setEditNoteSubmitting] = useState(false);
+  const [editNoteError, setEditNoteError] = useState<string | null>(null);
+
   const visitationModalState = useOverlayState();
   const [selectedVisitorKey, setSelectedVisitorKey] = useState<string | null>(
     null,
@@ -139,7 +147,7 @@ export function StudentProfilePage({
   const [visitationSearch, setVisitationSearch] = useState("");
 
   const { contacts, loading: loadingContacts } = useContacts(student.id);
-  const { notes, loading: loadingNotes, addNote } = useNotes(student.id);
+  const { notes, loading: loadingNotes, addNote, updateNote } = useNotes(student.id);
   const {
     visitations,
     loading: loadingVisitations,
@@ -228,6 +236,43 @@ export function StudentProfilePage({
     setNoteTags([]);
     setNoteError(null);
     noteModalState.close();
+  };
+
+  const openViewNoteModal = (note: Note) => {
+    setViewingNote(note);
+    setIsEditingNote(false);
+    setEditNoteError(null);
+    viewNoteModalState.open();
+  };
+
+  const closeViewNoteModal = () => {
+    setIsEditingNote(false);
+    setEditNoteError(null);
+    viewNoteModalState.close();
+  };
+
+  const startEditingNote = () => {
+    if (!viewingNote) return;
+    setEditNoteContent(viewingNote.content);
+    setEditNoteTags(parseTags(viewingNote.tags));
+    setEditNoteError(null);
+    setIsEditingNote(true);
+  };
+
+  const handleEditNoteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!viewingNote || !editNoteContent.trim()) return;
+    setEditNoteSubmitting(true);
+    setEditNoteError(null);
+    try {
+      await updateNote(viewingNote.id, { content: editNoteContent.trim(), tags: serializeTags(editNoteTags) });
+      setViewingNote((prev) => prev ? { ...prev, content: editNoteContent.trim(), tags: serializeTags(editNoteTags) } : prev);
+      setIsEditingNote(false);
+    } catch (err) {
+      setEditNoteError(String(err));
+    } finally {
+      setEditNoteSubmitting(false);
+    }
   };
 
   const handleAddNote = async (e: React.FormEvent) => {
@@ -773,7 +818,13 @@ export function StudentProfilePage({
           ) : (
             <TableRoot variant="primary" className="flex-1 min-h-0">
               <TableScrollContainer className="h-full">
-                <TableContent aria-label={t("studentProfile.tabs.notes")}>
+                <TableContent
+                  aria-label={t("studentProfile.tabs.notes")}
+                  onRowAction={(key) => {
+                    const note = notes.find((n) => n.id === key);
+                    if (note) openViewNoteModal(note);
+                  }}
+                >
                   <TableHeader>
                     <TableColumn isRowHeader>
                       {t("studentProfile.notes.columns.note")}
@@ -802,7 +853,7 @@ export function StudentProfilePage({
                     {filteredNotes.map((note) => {
                       const tags = parseTags(note.tags);
                       return (
-                        <TableRow key={note.id} id={note.id}>
+                        <TableRow key={note.id} id={note.id} className="cursor-pointer">
                           <TableCell className="text-sm text-foreground whitespace-pre-wrap max-w-md">
                             {tags.length > 0 && (
                               <div className="flex flex-wrap gap-1 mb-1.5">
@@ -831,6 +882,95 @@ export function StudentProfilePage({
           )}
         </Tabs.Panel>
       </Tabs>
+
+      <Modal state={viewNoteModalState}>
+        <Modal.Backdrop isDismissable={!editNoteSubmitting}>
+          <Modal.Container>
+            <Modal.Dialog>
+              {isEditingNote ? (
+                <form onSubmit={handleEditNoteSubmit}>
+                  <Modal.Header>{t("notes.viewModal.editTitle")}</Modal.Header>
+                  <Modal.Body className="flex flex-col gap-4 pb-px overflow-visible">
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="edit-note-content">{t("studentProfile.addNoteModal.noteLabel")}</Label>
+                      <textarea
+                        id="edit-note-content"
+                        value={editNoteContent}
+                        onChange={(e) => setEditNoteContent(e.target.value)}
+                        rows={5}
+                        required
+                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-sm font-medium">{t("studentProfile.addNoteModal.tagsLabel")}</span>
+                      <div className="flex flex-wrap gap-2">
+                        {NOTE_TAG_KEYS.map((tag) => {
+                          const isActive = editNoteTags.includes(tag);
+                          return (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() =>
+                                setEditNoteTags((prev) =>
+                                  isActive ? prev.filter((k) => k !== tag) : [...prev, tag]
+                                )
+                              }
+                              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                                isActive ? NOTE_TAG_COLORS[tag].active : NOTE_TAG_COLORS[tag].inactive
+                              }`}
+                            >
+                              {t(`studentProfile.notes.tags.${tag}`)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    {editNoteError && <p className="text-danger text-sm">{editNoteError}</p>}
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button type="button" variant="ghost" onPress={() => setIsEditingNote(false)} isDisabled={editNoteSubmitting}>
+                      {t("common.cancel")}
+                    </Button>
+                    <Button type="submit" variant="primary" isDisabled={editNoteSubmitting || !editNoteContent.trim()}>
+                      {editNoteSubmitting ? <Spinner size="sm" /> : t("common.save")}
+                    </Button>
+                  </Modal.Footer>
+                </form>
+              ) : (
+                <>
+                  <Modal.Header>{t("notes.viewModal.title")}</Modal.Header>
+                  <Modal.Body className="flex flex-col gap-4 pb-px overflow-visible">
+                    {viewingNote && parseTags(viewingNote.tags).length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {parseTags(viewingNote.tags).map((tag) => (
+                          <span
+                            key={tag}
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${NOTE_TAG_COLORS[tag].chip}`}
+                          >
+                            {t(`studentProfile.notes.tags.${tag}`)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-sm text-foreground whitespace-pre-wrap">{viewingNote?.content}</p>
+                    <p className="text-xs text-muted">{viewingNote ? formatNoteTimestamp(viewingNote.created_at) : ""}</p>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button type="button" variant="ghost" onPress={closeViewNoteModal}>
+                      {t("common.cancel")}
+                    </Button>
+                    <Button type="button" variant="secondary" onPress={startEditingNote}>
+                      <Pencil size={14} />
+                      {t("notes.viewModal.edit")}
+                    </Button>
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
 
       <Modal state={noteModalState}>
         <Modal.Backdrop isDismissable={!noteSubmitting}>

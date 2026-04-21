@@ -268,6 +268,11 @@ const en = {
       notePlaceholder: "Write your note here...",
       tagsLabel: "Tags",
     },
+    viewModal: {
+      title: "Note",
+      editTitle: "Edit Note",
+      edit: "Edit",
+    },
   },
   schedule: {
     title: "Schedule",
@@ -685,6 +690,11 @@ const es: typeof en = {
       noteLabel: "Nota *",
       notePlaceholder: "Escribe tu nota aquí...",
       tagsLabel: "Etiquetas",
+    },
+    viewModal: {
+      title: "Nota",
+      editTitle: "Editar nota",
+      edit: "Editar",
     },
   },
   schedule: {
