@@ -180,6 +180,12 @@ pub fn run() {
             sql: "ALTER TABLE groups DROP COLUMN subject;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 15,
+            description: "add_tags_to_student_notes",
+            sql: "ALTER TABLE student_notes ADD COLUMN tags TEXT NOT NULL DEFAULT '';",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
