@@ -7,6 +7,7 @@ export interface Address {
   state: string | null;
   zip_code: string | null;
   country: string | null;
+  is_student_home: number;
   created_at: string;
 }
 
@@ -17,4 +18,5 @@ export interface NewAddressInput {
   state: string;
   zip_code: string;
   country: string;
+  is_student_home: boolean;
 }

@@ -16,7 +16,7 @@ import {
   TableCell,
   useOverlayState,
 } from "@heroui/react";
-import { Inbox, Pencil, Trash2 } from "lucide-react";
+import { Inbox, Pencil, Star, Trash2 } from "lucide-react";
 import { useAddresses } from "../hooks/useAddresses";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { Breadcrumb } from "../components/Breadcrumb";
@@ -40,6 +40,7 @@ const emptyForm: NewAddressInput = {
   state: "",
   zip_code: "",
   country: "",
+  is_student_home: false,
 };
 
 function formatAddress(address: Address): string {
@@ -84,6 +85,7 @@ export function AddressesPage({
         state: address.state ?? "",
         zip_code: address.zip_code ?? "",
         country: address.country ?? "",
+        is_student_home: address.is_student_home === 1,
       });
       setEditError(null);
       editModalState.open();
@@ -180,6 +182,7 @@ export function AddressesPage({
                   <TableColumn>{t("addresses.columns.zip")}</TableColumn>
                   <TableColumn>{t("addresses.columns.country")}</TableColumn>
                   <TableColumn> </TableColumn>
+                  <TableColumn> </TableColumn>
                 </TableHeader>
                 <TableBody
                   renderEmptyState={() => (
@@ -200,6 +203,16 @@ export function AddressesPage({
                       <TableCell>{address.state ?? <span className="text-foreground/30">—</span>}</TableCell>
                       <TableCell>{address.zip_code ?? <span className="text-foreground/30">—</span>}</TableCell>
                       <TableCell>{address.country ?? <span className="text-foreground/30">—</span>}</TableCell>
+                      <TableCell>
+                        {address.is_student_home ? (
+                          <span
+                            className="inline-flex items-center justify-center size-6 rounded-full bg-success/10 text-success"
+                            title={t("addresses.studentLivesHere")}
+                          >
+                            <Star size={11} fill="currentColor" />
+                          </span>
+                        ) : null}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <button
@@ -319,6 +332,16 @@ function AddressFormFields({
           onChange={(e) => onChange({ ...form, label: e.target.value })}
           placeholder={t("addresses.fields.labelPlaceholder")}
         />
+      </div>
+      <div>
+        <button
+          type="button"
+          onClick={() => onChange({ ...form, is_student_home: !form.is_student_home })}
+          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${form.is_student_home ? "bg-success/20 text-success" : "bg-foreground/8 text-foreground/40 hover:bg-foreground/12"}`}
+        >
+          <Star size={11} fill="currentColor" className="mr-1.5" />
+          {t("addresses.studentLivesHere")}
+        </button>
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={`${prefix}-street`}>{t("addresses.fields.street")} *</Label>

@@ -223,6 +223,12 @@ pub fn run() {
             sql: "ALTER TABLE contacts ADD COLUMN is_primary_guardian INTEGER NOT NULL DEFAULT 0;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 19,
+            description: "add_is_student_home_to_addresses",
+            sql: "ALTER TABLE student_addresses ADD COLUMN is_student_home INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

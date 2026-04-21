@@ -455,6 +455,7 @@ const en = {
       country: "Country",
       countryPlaceholder: "e.g. USA",
     },
+    studentLivesHere: "Student lives here",
     addModal: {
       title: "Add Address",
     },
@@ -930,6 +931,7 @@ const es: typeof en = {
       country: "País",
       countryPlaceholder: "ej. México",
     },
+    studentLivesHere: "El estudiante vive aquí",
     addModal: {
       title: "Agregar dirección",
     },

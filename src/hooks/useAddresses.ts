@@ -14,7 +14,7 @@ export function useAddresses(studentId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<Address[]>(
-        "SELECT id, student_id, label, street, city, state, zip_code, country, created_at FROM student_addresses WHERE student_id = ? AND is_deleted = 0 ORDER BY created_at ASC",
+        "SELECT id, student_id, label, street, city, state, zip_code, country, is_student_home, created_at FROM student_addresses WHERE student_id = ? AND is_deleted = 0 ORDER BY is_student_home DESC, created_at ASC",
         [studentId],
       );
       setAddresses(rows);
@@ -30,7 +30,7 @@ export function useAddresses(studentId: number) {
     async (input: NewAddressInput) => {
       const db = await Database.load(DB_URL);
       await db.execute(
-        "INSERT INTO student_addresses (student_id, label, street, city, state, zip_code, country) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO student_addresses (student_id, label, street, city, state, zip_code, country, is_student_home) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         [
           studentId,
           input.label || null,
@@ -39,6 +39,7 @@ export function useAddresses(studentId: number) {
           input.state || null,
           input.zip_code || null,
           input.country || null,
+          input.is_student_home ? 1 : 0,
         ],
       );
       await fetchAddresses();
@@ -50,7 +51,7 @@ export function useAddresses(studentId: number) {
     async (id: number, input: NewAddressInput) => {
       const db = await Database.load(DB_URL);
       await db.execute(
-        "UPDATE student_addresses SET label=?, street=?, city=?, state=?, zip_code=?, country=? WHERE id=?",
+        "UPDATE student_addresses SET label=?, street=?, city=?, state=?, zip_code=?, country=?, is_student_home=? WHERE id=?",
         [
           input.label || null,
           input.street,
@@ -58,6 +59,7 @@ export function useAddresses(studentId: number) {
           input.state || null,
           input.zip_code || null,
           input.country || null,
+          input.is_student_home ? 1 : 0,
           id,
         ],
       );
