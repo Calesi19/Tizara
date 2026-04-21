@@ -6,6 +6,7 @@ import { useAttendance } from "../hooks/useAttendance";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { DateNavigator } from "../components/DateNavigator";
 import { AttendanceDaySection } from "../components/AttendanceDaySection";
+import { ConfirmModal } from "../components/ConfirmModal";
 import { useTranslation } from "../i18n/LanguageContext";
 import type { Group } from "../types/group";
 
@@ -35,6 +36,7 @@ export function AttendancePage({
   const [date, setDate] = useState(() =>
     clampDate(todayStr(), group.start_date, group.end_date)
   );
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const { t } = useTranslation();
   const {
     periodsForDay,
@@ -49,6 +51,14 @@ export function AttendancePage({
     markLateArrival,
     markDayStatusBulk,
   } = useAttendance(group.id, date);
+
+  const withPastDateConfirm = (action: () => void) => {
+    if (date < todayStr()) {
+      setPendingAction(() => action);
+    } else {
+      action();
+    }
+  };
 
   return (
     <div className="p-6 flex flex-col h-full">
@@ -108,15 +118,24 @@ export function AttendancePage({
         <div className="mt-2">
           <AttendanceDaySection
             rows={dayStatuses}
-            onMarkPresent={markPresent}
-            onMarkAbsent={markAbsent}
-            onMarkLate={markLate}
-            onMarkEarlyPickup={markEarlyPickup}
-            onMarkLateArrival={markLateArrival}
-            onMarkBulk={markDayStatusBulk}
+            onMarkPresent={(id) => withPastDateConfirm(() => markPresent(id))}
+            onMarkAbsent={(id) => withPastDateConfirm(() => markAbsent(id))}
+            onMarkLate={(id) => withPastDateConfirm(() => markLate(id))}
+            onMarkEarlyPickup={(id, time) => withPastDateConfirm(() => markEarlyPickup(id, time))}
+            onMarkLateArrival={(id, time) => withPastDateConfirm(() => markLateArrival(id, time))}
+            onMarkBulk={(ids, status) => withPastDateConfirm(() => markDayStatusBulk(ids, status))}
           />
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={pendingAction !== null}
+        onClose={() => setPendingAction(null)}
+        onConfirm={() => { pendingAction?.(); }}
+        title={t("attendance.pastDateConfirm.title")}
+        description={t("attendance.pastDateConfirm.description")}
+        confirmLabel={t("attendance.pastDateConfirm.confirmLabel")}
+      />
     </div>
   );
 }

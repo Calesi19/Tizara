@@ -337,6 +337,11 @@ const en = {
       arrivalTime: "Arrival time",
       confirm: "Confirm",
     },
+    pastDateConfirm: {
+      title: "Update past attendance?",
+      description: "You're editing attendance for a previous date. Are you sure you want to make this change?",
+      confirmLabel: "Update",
+    },
   },
   assignments: {
     title: "Assignments",
@@ -740,6 +745,11 @@ const es: typeof en = {
       pickupTime: "Hora de salida",
       arrivalTime: "Hora de llegada",
       confirm: "Confirmar",
+    },
+    pastDateConfirm: {
+      title: "¿Actualizar asistencia anterior?",
+      description: "Estás editando la asistencia de una fecha pasada. ¿Seguro que deseas realizar este cambio?",
+      confirmLabel: "Actualizar",
     },
   },
   assignments: {
