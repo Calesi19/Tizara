@@ -194,3 +194,25 @@
 .close-btn:hover {
   background: #e81123 !important; /* Standard Windows close red */
 }
+
+/* Ensure the OS window background is invisible */
+html,
+body,
+#root {
+  background-color: transparent !important;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* This is your "Actual" app window */
+.app-container {
+  background-color: var(--background-color); /* Use your theme color */
+  border-radius: 12px; /* Standard macOS radius */
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  /* Add a shadow because the OS shadow was removed with decorations */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
