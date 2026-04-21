@@ -1,5 +1,19 @@
 import { useState, useEffect } from "react";
-import { Chip, Spinner, Surface } from "@heroui/react";
+import {
+  Chip,
+  Spinner,
+  Surface,
+  TableColumn,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContent,
+  TableScrollContainer,
+  TableRoot,
+  EmptyState,
+} from "@heroui/react";
+import { Inbox } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useAssignmentDetail } from "../hooks/useAssignmentDetail";
 import { useTranslation } from "../i18n/LanguageContext";
@@ -148,39 +162,59 @@ export function AssignmentDetailPage({
             </Surface>
           )}
 
-          <div className="flex flex-col gap-2">
-            {scores.map((row) => {
-              const displayVal = getDisplayValue(row.student_id, row.score);
-              const isExtraCredit =
-                row.score !== null && row.score > assignment.max_score;
-
-              return (
-                <div
-                  key={row.student_id}
-                  className="rounded-xl bg-background px-4 py-3 flex items-center justify-between gap-4 border border-border/60"
-                >
-                  <span className="text-sm font-medium flex-1 truncate">{row.student_name}</span>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {isExtraCredit && (
-                      <Chip size="sm" color="warning" variant="secondary">
-                        EC
-                      </Chip>
+          <div className="flex-1 flex flex-col min-h-0">
+            <TableRoot variant="primary" className="flex-1 h-full">
+              <TableScrollContainer className="h-full">
+                <TableContent aria-label={t("assignmentDetail.studentsTableLabel")}>
+                  <TableHeader>
+                    <TableColumn isRowHeader>{t("students.tableColumns.name")}</TableColumn>
+                    <TableColumn className="text-right">{t("assignmentDetail.scoreColumn")}</TableColumn>
+                  </TableHeader>
+                  <TableBody
+                    renderEmptyState={() => (
+                      <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-2 py-12 text-center">
+                        <Inbox className="size-6 text-muted" />
+                        <span className="text-sm font-medium text-muted">
+                          {t("assignmentDetail.noStudents")}
+                        </span>
+                      </EmptyState>
                     )}
-                    <input
-                      type="number"
-                      min="0"
-                      step="any"
-                      placeholder="—"
-                      value={displayVal}
-                      onChange={(e) => handleChange(row.student_id, e.target.value)}
-                      onBlur={(e) => handleBlur(row.student_id, e.target.value)}
-                      className="w-20 flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    />
-                    <span className="text-xs text-muted">/ {assignment.max_score}</span>
-                  </div>
-                </div>
-              );
-            })}
+                  >
+                    {scores.map((row) => {
+                      const displayVal = getDisplayValue(row.student_id, row.score);
+                      const isExtraCredit =
+                        row.score !== null && row.score > assignment.max_score;
+
+                      return (
+                        <TableRow key={row.student_id} id={row.student_id}>
+                          <TableCell className="font-medium">{row.student_name}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end gap-2">
+                              {isExtraCredit && (
+                                <Chip size="sm" color="warning" variant="secondary">
+                                  EC
+                                </Chip>
+                              )}
+                              <input
+                                type="number"
+                                min="0"
+                                step="any"
+                                placeholder="—"
+                                value={displayVal}
+                                onChange={(e) => handleChange(row.student_id, e.target.value)}
+                                onBlur={(e) => handleBlur(row.student_id, e.target.value)}
+                                className="w-20 flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                              />
+                              <span className="text-xs text-muted w-12 shrink-0">/ {assignment.max_score}</span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </TableContent>
+              </TableScrollContainer>
+            </TableRoot>
           </div>
         </>
       )}

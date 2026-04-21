@@ -387,6 +387,9 @@ const en = {
     graded: "Graded",
     studentSuffix: "student",
     studentsSuffix: "students",
+    studentsTableLabel: "Students",
+    scoreColumn: "Score",
+    noStudents: "No students",
   },
   settings: {
     title: "Settings",
@@ -800,6 +803,9 @@ const es: typeof en = {
     graded: "Calificados",
     studentSuffix: "estudiante",
     studentsSuffix: "estudiantes",
+    studentsTableLabel: "Estudiantes",
+    scoreColumn: "Puntaje",
+    noStudents: "Sin estudiantes",
   },
   settings: {
     title: "Configuración",
