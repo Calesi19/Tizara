@@ -29,6 +29,7 @@ import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
 import { Ambulance, Inbox, Pencil, ShieldUser, Star } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
+import { useStudentInfo } from "../hooks/useStudentInfo";
 import { useContacts } from "../hooks/useContacts";
 import { useAddresses } from "../hooks/useAddresses";
 import { useStudentServices } from "../hooks/useStudentServices";
@@ -50,6 +51,7 @@ interface StudentProfilePageProps {
   onGoToGroups: () => void;
   onGoToDashboard: () => void;
   onGoToStudents: () => void;
+  onGoToStudentInfo: () => void;
   onGoToContacts: () => void;
   onGoToAddresses: () => void;
   onGoToServices: () => void;
@@ -140,6 +142,7 @@ export function StudentProfilePage({
   onGoToGroups,
   onGoToDashboard,
   onGoToStudents,
+  onGoToStudentInfo,
   onGoToContacts,
   onGoToAddresses,
   onGoToServices,
@@ -189,6 +192,8 @@ export function StudentProfilePage({
   const [noteTagFilter, setNoteTagFilter] = useState<"all" | NoteTagKey>("all");
   const [visitationSearch, setVisitationSearch] = useState("");
 
+  const { student: freshStudent } = useStudentInfo(student.id);
+  const s = freshStudent ?? student;
   const { contacts, loading: loadingContacts } = useContacts(student.id);
   const { addresses, loading: loadingAddresses } = useAddresses(student.id);
   const { data: services, loading: loadingServices } = useStudentServices(student.id);
@@ -399,23 +404,41 @@ export function StudentProfilePage({
         <Tabs.Panel className="pt-4 flex-1 overflow-y-auto" id="overview">
           <div className="flex flex-col gap-4">
             <Surface variant="default" className="rounded-2xl p-5">
-              <h3 className="text-sm font-semibold text-muted uppercase tracking-wide mb-4">
-                {t("studentProfile.overview.studentInfo")}
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-muted uppercase tracking-wide">
+                  {t("studentProfile.overview.studentInfo")}
+                </h3>
+                <button
+                  type="button"
+                  onClick={onGoToStudentInfo}
+                  className="inline-flex items-center gap-1 text-xs text-foreground/40 hover:text-foreground/70 transition-colors"
+                  aria-label="Edit student info"
+                >
+                  <Pencil size={12} />
+                  Edit
+                </button>
+              </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                 <InfoField
                   label={t("studentProfile.overview.studentId")}
-                  value={student.student_number}
+                  value={
+                    s.student_number ? (
+                      <span className="inline-flex items-center leading-none">
+                        {s.student_number}
+                        <CopyButton value={s.student_number} />
+                      </span>
+                    ) : null
+                  }
                 />
                 <InfoField
                   label={t("studentProfile.overview.gender")}
-                  value={student.gender}
+                  value={s.gender}
                 />
                 <InfoField
                   label={t("studentProfile.overview.birthdate")}
                   value={
-                    student.birthdate
-                      ? new Date(student.birthdate).toLocaleDateString(
+                    s.birthdate
+                      ? new Date(s.birthdate).toLocaleDateString(
                           undefined,
                           { month: "short", day: "numeric", year: "numeric" },
                         )
@@ -425,9 +448,9 @@ export function StudentProfilePage({
                 <InfoField
                   label={t("studentProfile.overview.age")}
                   value={
-                    student.birthdate
+                    s.birthdate
                       ? t("studentProfile.overview.ageYears", {
-                          age: getAge(student.birthdate),
+                          age: getAge(s.birthdate),
                         })
                       : null
                   }
@@ -435,12 +458,25 @@ export function StudentProfilePage({
                 <InfoField
                   label={t("studentProfile.overview.enrollmentDate")}
                   value={
-                    student.enrollment_date
-                      ? new Date(student.enrollment_date).toLocaleDateString(
+                    s.enrollment_date
+                      ? new Date(s.enrollment_date).toLocaleDateString(
                           undefined,
                           { month: "short", day: "numeric", year: "numeric" },
                         )
                       : null
+                  }
+                />
+                <InfoField
+                  label="Enrollment End Date"
+                  value={
+                    s.enrollment_end_date
+                      ? new Date(s.enrollment_end_date + "T12:00:00").toLocaleDateString(
+                          undefined,
+                          { month: "short", day: "numeric", year: "numeric" },
+                        )
+                      : group.end_date
+                        ? <span className="text-foreground/40">{new Date(group.end_date + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} <span className="text-xs">(group default)</span></span>
+                        : null
                   }
                 />
               </div>

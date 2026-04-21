@@ -89,6 +89,7 @@ import { StudentsPage } from "./pages/StudentsPage";
 import { StudentProfilePage } from "./pages/StudentProfilePage";
 import { ContactsPage } from "./pages/ContactsPage";
 import { AddressesPage } from "./pages/AddressesPage";
+import { StudentInfoPage } from "./pages/StudentInfoPage";
 import { ServicesPage } from "./pages/ServicesPage";
 import { AccommodationsPage } from "./pages/AccommodationsPage";
 import { ObservationsPage } from "./pages/ObservationsPage";
@@ -109,6 +110,7 @@ type Route =
   | { page: "dashboard"; group: Group }
   | { page: "students"; group: Group }
   | { page: "student-profile"; group: Group; student: Student }
+  | { page: "student-info"; group: Group; student: Student }
   | { page: "contacts"; group: Group; student: Student }
   | { page: "addresses"; group: Group; student: Student }
   | { page: "student-services"; group: Group; student: Student }
@@ -134,6 +136,8 @@ function App() {
   const goToStudents = (group: Group) => setRoute({ page: "students", group });
   const goToStudentProfile = (group: Group, student: Student) =>
     setRoute({ page: "student-profile", group, student });
+  const goToStudentInfoPage = (group: Group, student: Student) =>
+    setRoute({ page: "student-info", group, student });
   const goToContacts = (group: Group, student: Student) =>
     setRoute({ page: "contacts", group, student });
   const goToAddresses = (group: Group, student: Student) =>
@@ -226,6 +230,7 @@ function App() {
             onGoToStudents={() => goToStudents(route.group)}
             onGoToContacts={() => goToContacts(route.group, route.student)}
             onGoToAddresses={() => goToAddresses(route.group, route.student)}
+            onGoToStudentInfo={() => goToStudentInfoPage(route.group, route.student)}
             onGoToServices={() => goToStudentServices(route.group, route.student)}
             onGoToAccommodations={() => goToStudentAccommodations(route.group, route.student)}
             onGoToObservations={() => goToStudentObservations(route.group, route.student)}
@@ -258,6 +263,18 @@ function App() {
       case "addresses":
         return (
           <AddressesPage
+            student={route.student}
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToStudents={() => goToStudents(route.group)}
+            onGoToStudentProfile={() =>
+              goToStudentProfile(route.group, route.student)
+            }
+          />
+        );
+      case "student-info":
+        return (
+          <StudentInfoPage
             student={route.student}
             group={route.group}
             onGoToGroups={goToGroups}
