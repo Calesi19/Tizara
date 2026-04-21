@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Button,
   EmptyState,
@@ -12,6 +12,8 @@ import {
   TableContent,
   TableScrollContainer,
   TableRoot,
+  Select,
+  ListBox,
 } from "@heroui/react";
 import { Inbox, Trash2 } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
@@ -46,11 +48,19 @@ export function AssignmentsPage({
   const { assignments, loading, error, addAssignment, deleteAssignment } = useAssignments(group.id);
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
   const [deletingAssignment, setDeletingAssignment] = useState<Assignment | null>(null);
 
-  const filtered = assignments.filter((a) =>
-    a.title.toLowerCase().includes(search.toLowerCase()),
+  const periods = useMemo(
+    () => Array.from(new Set(assignments.map((a) => a.period_name).filter(Boolean))).sort(),
+    [assignments],
   );
+
+  const filtered = assignments.filter((a) => {
+    const matchesSearch = a.title.toLowerCase().includes(search.toLowerCase());
+    const matchesPeriod = selectedPeriod === "all" || a.period_name === selectedPeriod;
+    return matchesSearch && matchesPeriod;
+  });
 
   return (
     <div className="p-6 flex flex-col h-full">
@@ -71,12 +81,43 @@ export function AssignmentsPage({
 
       <div className="flex items-center justify-between mt-6 mb-4">
         {!loading && assignments.length > 0 && (
-          <Input
-            placeholder={t("assignments.searchPlaceholder")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs"
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder={t("assignments.searchPlaceholder")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="max-w-xs"
+            />
+            {periods.length > 0 && (
+              <Select
+                aria-label={t("assignments.filterByPeriod")}
+                selectedKey={selectedPeriod}
+                onSelectionChange={(key) => setSelectedPeriod(String(key ?? "all"))}
+                className="w-44"
+              >
+                <Select.Trigger>
+                  <Select.Value>
+                    {({ selectedText, isPlaceholder }) =>
+                      isPlaceholder ? t("assignments.allPeriods") : selectedText
+                    }
+                  </Select.Value>
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    <ListBox.Item id="all" textValue={t("assignments.allPeriods")}>
+                      {t("assignments.allPeriods")}
+                    </ListBox.Item>
+                    {periods.map((p) => (
+                      <ListBox.Item key={p} id={p} textValue={p}>
+                        {p}
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            )}
+          </div>
         )}
         <div className="ml-auto">
           <AddAssignmentModal groupId={group.id} onAdd={addAssignment} />

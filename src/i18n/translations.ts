@@ -134,7 +134,7 @@ const en = {
     },
     assignments: {
       searchPlaceholder: "Search assignments...",
-      allPeriods: "All periods",
+      allPeriods: "All",
       noAssignments: "No assignments yet",
       noResults: "No results",
       noResultsHint: "No assignments match your filters.",
@@ -353,6 +353,8 @@ const en = {
     addAssignment: "+ Add Assignment",
     pts: "pts",
     searchPlaceholder: "Search assignments...",
+    allPeriods: "All",
+    filterByPeriod: "Filter by period",
     noAssignmentsYet: "No assignments yet",
     noAssignmentsHint: 'Click "+ Add Assignment" to get started.',
     tableColumns: {
@@ -549,7 +551,7 @@ const es: typeof en = {
     },
     assignments: {
       searchPlaceholder: "Buscar tareas...",
-      allPeriods: "Todos los períodos",
+      allPeriods: "Todos",
       noAssignments: "Sin tareas aún",
       noResults: "Sin resultados",
       noResultsHint: "Ninguna tarea coincide con tus filtros.",
@@ -771,6 +773,8 @@ const es: typeof en = {
     addAssignment: "+ Agregar tarea",
     pts: "pts",
     searchPlaceholder: "Buscar tareas...",
+    allPeriods: "Todos",
+    filterByPeriod: "Filtrar por período",
     noAssignmentsYet: "Sin tareas aún",
     noAssignmentsHint: 'Haz clic en "+ Agregar tarea" para comenzar.',
     tableColumns: {
