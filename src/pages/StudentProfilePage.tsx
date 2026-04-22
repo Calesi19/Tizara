@@ -649,6 +649,7 @@ export function StudentProfilePage({
                   services.therapy_occupational  ? t("servicesPage.occupationalTherapy") : "",
                   services.therapy_psychological ? t("servicesPage.psychologicalTherapy") : "",
                   services.therapy_physical      ? t("servicesPage.physicalTherapy") : "",
+                  services.therapy_educational   ? t("servicesPage.educationalTherapy") : "",
                 ].filter(Boolean);
                 const hasAnything = services.has_special_education || therapyLabels.length > 0 || services.medical_plan !== "none" || services.has_treatment || services.allergies || services.conditions;
                 if (!hasAnything) return <p className="text-sm text-foreground/40">{t("studentProfile.overview.noHealth")}</p>;

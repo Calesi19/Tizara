@@ -21,6 +21,7 @@ const defaultForm: StudentServicesInput = {
   therapy_occupational: false,
   therapy_psychological: false,
   therapy_physical: false,
+  therapy_educational: false,
   medical_plan: "none",
   has_treatment: false,
   allergies: "",
@@ -72,6 +73,7 @@ export function ServicesPage({
         therapy_occupational: data.therapy_occupational === 1,
         therapy_psychological: data.therapy_psychological === 1,
         therapy_physical: data.therapy_physical === 1,
+        therapy_educational: data.therapy_educational === 1,
         medical_plan: data.medical_plan,
         has_treatment: data.has_treatment === 1,
         allergies: data.allergies ?? "",
@@ -158,6 +160,11 @@ export function ServicesPage({
                 label={t("servicesPage.physicalTherapy")}
                 selected={form.therapy_physical}
                 onToggle={() => setForm((f) => ({ ...f, therapy_physical: !f.therapy_physical }))}
+              />
+              <SelectCard
+                label={t("servicesPage.educationalTherapy")}
+                selected={form.therapy_educational}
+                onToggle={() => setForm((f) => ({ ...f, therapy_educational: !f.therapy_educational }))}
               />
             </div>
           </section>

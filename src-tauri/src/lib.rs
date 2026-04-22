@@ -335,6 +335,12 @@ pub fn run() {
             sql: "ALTER TABLE student_services ADD COLUMN conditions TEXT;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 27,
+            description: "add_educational_therapy_to_student_services",
+            sql: "ALTER TABLE student_services ADD COLUMN therapy_educational INTEGER NOT NULL DEFAULT 0;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

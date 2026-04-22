@@ -1,7 +1,7 @@
 import { Select, ListBox, Surface } from "@heroui/react";
 import { Sun, Moon, Monitor } from "lucide-react";
 import { useTranslation } from "../i18n/LanguageContext";
-import type { Language } from "../i18n/translations";
+import type { LanguagePreference } from "../i18n/LanguageContext";
 
 type ThemePreference = "light" | "dark" | "system";
 type ColorTheme = "default" | "ocean" | "forest" | "sunset" | "rose";
@@ -22,7 +22,7 @@ const COLOR_THEMES: { id: ColorTheme; label: string; swatch: string }[] = [
 ];
 
 export function SettingsPage({ theme, onThemeChange, colorTheme, onColorThemeChange }: SettingsPageProps) {
-  const { t, language, setLanguage } = useTranslation();
+  const { t, languagePreference, setLanguage } = useTranslation();
 
   return (
     <div className="p-6 flex flex-col h-full">
@@ -96,8 +96,8 @@ export function SettingsPage({ theme, onThemeChange, colorTheme, onColorThemeCha
               </div>
               <Select
                 aria-label="Language"
-                selectedKey={language}
-                onSelectionChange={(key) => setLanguage(String(key) as Language)}
+                selectedKey={languagePreference}
+                onSelectionChange={(key) => setLanguage(String(key) as LanguagePreference)}
                 className="w-36 shrink-0"
               >
                 <Select.Trigger>
@@ -106,6 +106,7 @@ export function SettingsPage({ theme, onThemeChange, colorTheme, onColorThemeCha
                 </Select.Trigger>
                 <Select.Popover>
                   <ListBox>
+                    <ListBox.Item id="system" textValue={t("settings.languageSystem")}><span className="flex items-center gap-2"><Monitor size={14} />{t("settings.languageSystem")}</span></ListBox.Item>
                     <ListBox.Item id="en" textValue="English">English</ListBox.Item>
                     <ListBox.Item id="es" textValue="Español">Español</ListBox.Item>
                   </ListBox>

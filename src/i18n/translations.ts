@@ -533,6 +533,7 @@ const en = {
     colorThemeDescription: "Pick an accent color for the app.",
     language: "Language",
     languageDescription: "Choose your preferred language.",
+    languageSystem: "System",
   },
   addresses: {
     title: "Addresses",
@@ -615,6 +616,7 @@ const en = {
     occupationalTherapy: "Occupational (OCUP)",
     psychologicalTherapy: "Psychological (PSIC)",
     physicalTherapy: "Physical (FIS)",
+    educationalTherapy: "Educational (ED)",
     medicalNone: "None",
     medicalPrivate: "Private",
     medicalGovernment: "Government",
@@ -1180,6 +1182,7 @@ const es: typeof en = {
     colorThemeDescription: "Elige un color de acento para la app.",
     language: "Idioma",
     languageDescription: "Elige tu idioma preferido.",
+    languageSystem: "Sistema",
   },
   addresses: {
     title: "Direcciones",
@@ -1262,6 +1265,7 @@ const es: typeof en = {
     occupationalTherapy: "Ocupacional (OCUP)",
     psychologicalTherapy: "Psicológica (PSIC)",
     physicalTherapy: "Física (FIS)",
+    educationalTherapy: "Educativa (ED)",
     medicalNone: "Ninguno",
     medicalPrivate: "Privado",
     medicalGovernment: "Gubernamental",

@@ -6,6 +6,7 @@ export interface StudentServices {
   therapy_occupational: number;
   therapy_psychological: number;
   therapy_physical: number;
+  therapy_educational: number;
   medical_plan: "private" | "government" | "none";
   has_treatment: number;
   allergies: string | null;
@@ -18,6 +19,7 @@ export interface StudentServicesInput {
   therapy_occupational: boolean;
   therapy_psychological: boolean;
   therapy_physical: boolean;
+  therapy_educational: boolean;
   medical_plan: "private" | "government" | "none";
   has_treatment: boolean;
   allergies: string;

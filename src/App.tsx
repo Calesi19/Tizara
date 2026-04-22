@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import "./App.css";
 import { Button, Drawer, useOverlayState } from "@heroui/react";
 
@@ -82,6 +82,7 @@ function useAppTheme() {
 
   return { theme, setTheme };
 }
+import { useGroups } from "./hooks/useGroups";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import { Sidebar } from "./components/Sidebar";
 import { GroupsPage } from "./pages/GroupsPage";
@@ -126,13 +127,21 @@ type Route =
   | { page: "group-edit"; group: Group }
   | { page: "settings" };
 
+const LAST_GROUP_KEY = "tizara-last-group-id";
+
 function App() {
   const drawerState = useOverlayState();
   const { theme, setTheme } = useAppTheme();
   const { colorTheme, setColorTheme } = useAppColorTheme();
   const [route, setRoute] = useState<Route>({ page: "groups" });
+  const { groups, loading: groupsLoading } = useGroups();
 
   const goToGroups = () => setRoute({ page: "groups" });
+  const changeGroup = () => {
+    localStorage.removeItem(LAST_GROUP_KEY);
+    setCurrentGroup(null);
+    setRoute({ page: "groups" });
+  };
   const goToDashboard = (group: Group) =>
     setRoute({ page: "dashboard", group });
   const goToStudents = (group: Group) => setRoute({ page: "students", group });
@@ -161,8 +170,22 @@ function App() {
   const goToSettings = () => setRoute({ page: "settings" });
 
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
+  const restoredRef = useRef(false);
+
+  useEffect(() => {
+    if (groupsLoading || restoredRef.current) return;
+    restoredRef.current = true;
+    const savedId = localStorage.getItem(LAST_GROUP_KEY);
+    if (!savedId) return;
+    const group = groups.find((g) => g.id === Number(savedId));
+    if (group) {
+      setCurrentGroup(group);
+      setRoute({ page: "dashboard", group });
+    }
+  }, [groupsLoading, groups]);
 
   const handleSelectGroup = (group: Group) => {
+    localStorage.setItem(LAST_GROUP_KEY, String(group.id));
     setCurrentGroup(group);
     switch (route.page) {
       case "dashboard":
@@ -189,7 +212,7 @@ function App() {
     onGoToAttendance: () => currentGroup && goToAttendance(currentGroup),
     onGoToAssignments: () => currentGroup && goToAssignments(currentGroup),
     onGoToSettings: goToSettings,
-    onGoToGroups: goToGroups,
+    onGoToGroups: changeGroup,
   };
 
   function renderPage() {
@@ -386,7 +409,7 @@ function App() {
         return (
           <EditGroupPage
             group={route.group}
-            onGoToGroups={goToGroups}
+            onGoToGroups={changeGroup}
             onGoToDashboard={() => goToDashboard(route.group)}
           />
         );
