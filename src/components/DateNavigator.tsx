@@ -3,6 +3,7 @@ import { Button, DatePicker, Calendar } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "../i18n/LanguageContext";
 
 interface DateNavigatorProps {
   date: string;
@@ -11,9 +12,9 @@ interface DateNavigatorProps {
   maxDate?: string | null;
 }
 
-function formatDisplay(dateStr: string) {
+function formatDisplay(dateStr: string, locale: string) {
   const d = new Date(dateStr + "T12:00:00");
-  return d.toLocaleDateString(undefined, {
+  return d.toLocaleDateString(locale, {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -32,6 +33,7 @@ function today() {
 }
 
 export function DateNavigator({ date, onChange, minDate, maxDate }: DateNavigatorProps) {
+  const { t, language } = useTranslation();
   const isToday = date === today();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const canGoPrev = !minDate || addDays(date, -1) >= minDate;
@@ -58,7 +60,7 @@ export function DateNavigator({ date, onChange, minDate, maxDate }: DateNavigato
       >
         <DatePicker.Trigger>
           <button ref={triggerRef} className="w-full font-semibold text-sm px-2 py-1 rounded-lg hover:bg-foreground/5 transition-colors select-none cursor-pointer">
-            {formatDisplay(date)}
+            {formatDisplay(date, language)}
           </button>
         </DatePicker.Trigger>
         <DatePicker.Popover placement="bottom" triggerRef={triggerRef}>
@@ -90,7 +92,7 @@ export function DateNavigator({ date, onChange, minDate, maxDate }: DateNavigato
 
       {!isToday && isTodayInRange && (
         <Button variant="ghost" size="sm" onPress={() => onChange(today())}>
-          Today
+          {t("attendance.today")}
         </Button>
       )}
 

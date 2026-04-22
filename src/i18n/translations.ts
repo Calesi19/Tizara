@@ -469,6 +469,7 @@ const en = {
     cancelDay: "Cancel Day",
     restoreDay: "Restore Day",
     canceledBanner: "This day is canceled — attendance is not required.",
+    today: "Today",
   },
   assignments: {
     title: "Assignments",
@@ -1118,6 +1119,7 @@ const es: typeof en = {
     cancelDay: "Cancelar día",
     restoreDay: "Restaurar día",
     canceledBanner: "Este día está cancelado — no se requiere asistencia.",
+    today: "Hoy",
   },
   assignments: {
     title: "Tareas",

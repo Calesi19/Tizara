@@ -15,8 +15,8 @@ interface AttendanceDaySectionProps {
 }
 
 type PartialModalState = {
-  studentId: number;
-  studentName: string;
+  studentIds: number[];
+  studentName: string; // single name or "{n} students"
   periodStatuses: { periodId: number; periodName: string; status: "present" | "absent" }[];
   note: string;
 } | null;
@@ -147,10 +147,22 @@ export function AttendanceDaySection({
     setSelected(new Set());
   };
 
+  const handleBulkPartial = () => {
+    if (selected.size === 0) return;
+    const firstRow = rows.find((r) => selected.has(r.student_id));
+    if (!firstRow) return;
+    setPartialModal({
+      studentIds: Array.from(selected),
+      studentName: `${selected.size} ${t("attendance.studentsHeader").toLowerCase()}`,
+      periodStatuses: firstRow.periodStatuses.map((ps) => ({ ...ps })),
+      note: "",
+    });
+  };
+
   const handleStatusClick = (row: StudentDayStatus, status: DayAttendanceStatus) => {
     if (status === "partial") {
       setPartialModal({
-        studentId: row.student_id,
+        studentIds: [row.student_id],
         studentName: row.student_name,
         periodStatuses: row.periodStatuses.map((ps) => ({ ...ps })),
         note: "",
