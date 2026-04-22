@@ -19,6 +19,7 @@ const en = {
     schedule: "Schedule",
     attendance: "Attendance",
     assignments: "Assignments",
+    changeGroup: "Change Group",
     settings: "Settings",
   },
   dashboard: {
@@ -68,6 +69,8 @@ const en = {
       student: "student",
       students: "students",
       grade: "Grade",
+      active: "Active",
+      inactive: "Inactive",
     },
     editGroup: {
       breadcrumb: "Edit Group",
@@ -659,6 +662,7 @@ const es: typeof en = {
     schedule: "Horario",
     attendance: "Asistencia",
     assignments: "Tareas",
+    changeGroup: "Cambiar grupo",
     settings: "Configuración",
   },
   dashboard: {
@@ -708,6 +712,8 @@ const es: typeof en = {
       student: "estudiante",
       students: "estudiantes",
       grade: "Grado",
+      active: "Activo",
+      inactive: "Inactivo",
     },
     editGroup: {
       breadcrumb: "Editar grupo",

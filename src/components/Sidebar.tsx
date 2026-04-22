@@ -7,6 +7,7 @@ import {
   BookOpen,
   Settings,
   LayoutDashboard,
+  ArrowLeftRight,
 } from "lucide-react";
 import { type } from "@tauri-apps/plugin-os";
 import { useGroups } from "../hooks/useGroups";
@@ -23,6 +24,7 @@ interface SidebarProps {
   onGoToAttendance: () => void;
   onGoToAssignments: () => void;
   onGoToSettings: () => void;
+  onGoToGroups: () => void;
   onClose?: () => void;
 }
 
@@ -54,6 +56,7 @@ export function Sidebar({
   onGoToAttendance,
   onGoToAssignments,
   onGoToSettings,
+  onGoToGroups,
   onClose,
 }: SidebarProps) {
   const { groups, loading } = useGroups();
@@ -167,7 +170,16 @@ export function Sidebar({
         </ul>
       </nav>
 
-      <div className="px-2 pb-3 border-t border-border/40 pt-2">
+      <div className="px-2 pb-3 border-t border-border/40 pt-2 flex flex-col gap-0.5">
+        <Button
+          variant="ghost"
+          fullWidth
+          className="justify-start gap-2"
+          onPress={nav(onGoToGroups)}
+        >
+          <ArrowLeftRight size={16} />
+          {t("sidebar.changeGroup")}
+        </Button>
         <Button
           variant={currentPage === "settings" ? "secondary" : "ghost"}
           fullWidth

@@ -189,6 +189,7 @@ function App() {
     onGoToAttendance: () => currentGroup && goToAttendance(currentGroup),
     onGoToAssignments: () => currentGroup && goToAssignments(currentGroup),
     onGoToSettings: goToSettings,
+    onGoToGroups: goToGroups,
   };
 
   function renderPage() {
