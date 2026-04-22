@@ -9,6 +9,7 @@ export interface StudentServices {
   medical_plan: "private" | "government" | "none";
   has_treatment: number;
   allergies: string | null;
+  conditions: string | null;
 }
 
 export interface StudentServicesInput {
@@ -20,4 +21,5 @@ export interface StudentServicesInput {
   medical_plan: "private" | "government" | "none";
   has_treatment: boolean;
   allergies: string;
+  conditions: string;
 }

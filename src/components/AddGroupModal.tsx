@@ -40,6 +40,7 @@ const GRADE_OPTIONS = [
 const emptyForm: NewGroupInput = {
   name: "",
   grade: "",
+  school_name: "",
   start_date: "",
   end_date: "",
 };

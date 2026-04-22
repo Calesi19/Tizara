@@ -14,7 +14,7 @@ export function useStudentServices(studentId: number) {
       setLoading(true);
       const db = await Database.load(DB_URL);
       const rows = await db.select<StudentServices[]>(
-        "SELECT id, student_id, has_special_education, therapy_speech, therapy_occupational, therapy_psychological, therapy_physical, medical_plan, has_treatment, allergies FROM student_services WHERE student_id = ? AND is_deleted = 0 LIMIT 1",
+        "SELECT id, student_id, has_special_education, therapy_speech, therapy_occupational, therapy_psychological, therapy_physical, medical_plan, has_treatment, allergies, conditions FROM student_services WHERE student_id = ? AND is_deleted = 0 LIMIT 1",
         [studentId],
       );
       setData(rows[0] ?? null);
@@ -30,8 +30,8 @@ export function useStudentServices(studentId: number) {
     async (input: StudentServicesInput) => {
       const db = await Database.load(DB_URL);
       await db.execute(
-        `INSERT INTO student_services (student_id, has_special_education, therapy_speech, therapy_occupational, therapy_psychological, therapy_physical, medical_plan, has_treatment, allergies)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO student_services (student_id, has_special_education, therapy_speech, therapy_occupational, therapy_psychological, therapy_physical, medical_plan, has_treatment, allergies, conditions)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT(student_id) DO UPDATE SET
            has_special_education = excluded.has_special_education,
            therapy_speech        = excluded.therapy_speech,
@@ -41,6 +41,7 @@ export function useStudentServices(studentId: number) {
            medical_plan          = excluded.medical_plan,
            has_treatment         = excluded.has_treatment,
            allergies             = excluded.allergies,
+           conditions            = excluded.conditions,
            is_deleted            = 0`,
         [
           studentId,
@@ -52,6 +53,7 @@ export function useStudentServices(studentId: number) {
           input.medical_plan,
           input.has_treatment ? 1 : 0,
           input.allergies.trim() || null,
+          input.conditions.trim() || null,
         ],
       );
       await fetchData();

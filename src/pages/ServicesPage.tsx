@@ -24,6 +24,7 @@ const defaultForm: StudentServicesInput = {
   medical_plan: "none",
   has_treatment: false,
   allergies: "",
+  conditions: "",
 };
 
 function SelectCard({
@@ -74,6 +75,7 @@ export function ServicesPage({
         medical_plan: data.medical_plan,
         has_treatment: data.has_treatment === 1,
         allergies: data.allergies ?? "",
+        conditions: data.conditions ?? "",
       });
     }
   }, [data]);
@@ -200,6 +202,17 @@ export function ServicesPage({
                 value={form.allergies}
                 onChange={(e) => setForm((f) => ({ ...f, allergies: e.target.value }))}
                 placeholder={t("servicesPage.allergiesPlaceholder")}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="conditions">{t("servicesPage.conditionsLabel")}</Label>
+              <textarea
+                id="conditions"
+                value={form.conditions}
+                onChange={(e) => setForm((f) => ({ ...f, conditions: e.target.value }))}
+                placeholder={t("servicesPage.conditionsPlaceholder")}
+                rows={3}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent resize-none"
               />
             </div>
           </section>

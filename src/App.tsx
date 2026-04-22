@@ -100,6 +100,7 @@ import { SchedulePage } from "./pages/SchedulePage";
 import { AttendancePage } from "./pages/AttendancePage";
 import { AssignmentsPage } from "./pages/AssignmentsPage";
 import { AssignmentDetailPage } from "./pages/AssignmentDetailPage";
+import { EditGroupPage } from "./pages/EditGroupPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import type { Group } from "./types/group";
 import type { Student } from "./types/student";
@@ -122,6 +123,7 @@ type Route =
   | { page: "attendance"; group: Group }
   | { page: "assignments"; group: Group }
   | { page: "assignment-detail"; group: Group; assignment: Assignment }
+  | { page: "group-edit"; group: Group }
   | { page: "settings" };
 
 function App() {
@@ -155,6 +157,7 @@ function App() {
     setRoute({ page: "assignments", group });
   const goToAssignmentDetail = (group: Group, assignment: Assignment) =>
     setRoute({ page: "assignment-detail", group, assignment });
+  const goToEditGroup = (group: Group) => setRoute({ page: "group-edit", group });
   const goToSettings = () => setRoute({ page: "settings" });
 
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
@@ -177,7 +180,7 @@ function App() {
   };
 
   const sidebarProps = {
-    currentPage: route.page,
+    currentPage: route.page === "group-edit" ? "dashboard" : route.page,
     currentGroup,
     onSelectGroup: handleSelectGroup,
     onGoToDashboard: () => currentGroup && goToDashboard(currentGroup),
@@ -198,6 +201,7 @@ function App() {
               setCurrentGroup(c);
               goToDashboard(c);
             }}
+            onGoToSettings={goToSettings}
           />
         );
       case "dashboard":
@@ -209,6 +213,7 @@ function App() {
             onGoToSchedule={() => goToSchedule(route.group)}
             onGoToAttendance={() => goToAttendance(route.group)}
             onGoToAssignments={() => goToAssignments(route.group)}
+            onGoToEditGroup={() => goToEditGroup(route.group)}
           />
         );
       case "students":
@@ -376,6 +381,14 @@ function App() {
             onGoToAssignments={() => goToAssignments(route.group)}
           />
         );
+      case "group-edit":
+        return (
+          <EditGroupPage
+            group={route.group}
+            onGoToGroups={goToGroups}
+            onGoToDashboard={() => goToDashboard(route.group)}
+          />
+        );
       case "settings":
         return (
           <SettingsPage
@@ -388,6 +401,8 @@ function App() {
     }
   }
 
+  const showSidebar = route.page !== "groups";
+
   return (
     <LanguageProvider>
       <div className="app-container">
@@ -397,35 +412,41 @@ function App() {
         />
 
         <div className="flex h-screen overflow-hidden">
-          <Drawer state={drawerState}>
-            <Drawer.Backdrop isDismissable>
-              <Drawer.Content placement="left">
-                <Drawer.Dialog aria-label="Navigation">
-                  <Drawer.Body className="p-0">
-                    <Sidebar {...sidebarProps} onClose={drawerState.close} />
-                  </Drawer.Body>
-                </Drawer.Dialog>
-              </Drawer.Content>
-            </Drawer.Backdrop>
-          </Drawer>
+          {showSidebar && (
+            <Drawer state={drawerState}>
+              <Drawer.Backdrop isDismissable>
+                <Drawer.Content placement="left">
+                  <Drawer.Dialog aria-label="Navigation">
+                    <Drawer.Body className="p-0">
+                      <Sidebar {...sidebarProps} onClose={drawerState.close} />
+                    </Drawer.Body>
+                  </Drawer.Dialog>
+                </Drawer.Content>
+              </Drawer.Backdrop>
+            </Drawer>
+          )}
 
-          <div className="hidden lg:flex">
-            <Sidebar {...sidebarProps} />
-          </div>
+          {showSidebar && (
+            <div className="hidden lg:flex">
+              <Sidebar {...sidebarProps} />
+            </div>
+          )}
 
           <div className="flex flex-col flex-1 min-h-0">
-            <div className="lg:hidden flex items-center gap-2 px-4 py-3 bg-background border-b border-border shadow-sm">
-              <Button
-                variant="ghost"
-                isIconOnly
-                size="sm"
-                onPress={drawerState.open}
-                aria-label="Open menu"
-              >
-                ☰
-              </Button>
-              <span className="text-lg font-bold">Tizara</span>
-            </div>
+            {showSidebar && (
+              <div className="lg:hidden flex items-center gap-2 px-4 py-3 bg-background border-b border-border shadow-sm">
+                <Button
+                  variant="ghost"
+                  isIconOnly
+                  size="sm"
+                  onPress={drawerState.open}
+                  aria-label="Open menu"
+                >
+                  ☰
+                </Button>
+                <span className="text-lg font-bold">Tizara</span>
+              </div>
+            )}
             <main className="flex-1 bg-background-secondary flex flex-col overflow-y-auto">
               {renderPage()}
             </main>

@@ -9,8 +9,16 @@ interface GroupCardProps {
   onClick: () => void;
 }
 
+function formatMonthYear(dateStr: string | null | undefined): string {
+  if (!dateStr) return "";
+  return new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(new Date(dateStr + "T12:00:00"));
+}
+
 export function GroupCard({ group, isSelected, onClick }: GroupCardProps) {
   const { t } = useTranslation();
+  const start = formatMonthYear(group.start_date);
+  const end = formatMonthYear(group.end_date);
+  const dateRange = start && end ? `${start} – ${end}` : start || end || null;
 
   return (
     <Card
@@ -23,21 +31,24 @@ export function GroupCard({ group, isSelected, onClick }: GroupCardProps) {
     >
       <Card.Header>
         <Card.Title>{group.name}</Card.Title>
+        {group.school_name && (
+          <p className="text-xs text-muted mt-0.5">{group.school_name}</p>
+        )}
       </Card.Header>
       <Card.Content>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mb-3">
           {group.grade && (
-            <Chip variant="tertiary">{t(`groups.addGroupModal.grades.${group.grade}`) || group.grade}</Chip>
+            <Chip variant="tertiary">{group.grade}</Chip>
           )}
         </div>
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-xs text-foreground/50">
             <Users size={12} />
             {group.student_count} {group.student_count !== 1 ? t("groups.card.students") : t("groups.card.student")}
           </span>
-          <p className="text-xs text-foreground/40">
-            {t("groups.card.added")} {new Date(group.created_at).toLocaleDateString()}
-          </p>
+          {dateRange && (
+            <p className="text-xs text-foreground/40">{dateRange}</p>
+          )}
         </div>
       </Card.Content>
     </Card>

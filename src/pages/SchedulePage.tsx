@@ -132,9 +132,6 @@ export function SchedulePage({
       <div className="flex items-start justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold">{t("schedule.title")}</h2>
-          <p className="text-sm text-muted">
-            {group.grade && <span>{t(`groups.addGroupModal.grades.${group.grade}`) || group.grade}</span>}
-          </p>
         </div>
         <div className="flex items-center gap-2">
           <AddPeriodModal onAdd={addPeriod} />

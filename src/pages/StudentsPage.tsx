@@ -152,9 +152,6 @@ export function StudentsPage({
 
       <div className="mb-1">
         <h2 className="text-2xl font-bold">{t("students.title")}</h2>
-        <p className="text-sm text-muted">
-          {group.grade && <span>{t(`groups.addGroupModal.grades.${group.grade}`) || group.grade}</span>}
-        </p>
       </div>
 
       <div className="flex items-center justify-between mt-6 mb-4">

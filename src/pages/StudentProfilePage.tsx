@@ -650,7 +650,7 @@ export function StudentProfilePage({
                   services.therapy_psychological ? t("servicesPage.psychologicalTherapy") : "",
                   services.therapy_physical      ? t("servicesPage.physicalTherapy") : "",
                 ].filter(Boolean);
-                const hasAnything = services.has_special_education || therapyLabels.length > 0 || services.medical_plan !== "none" || services.has_treatment || services.allergies;
+                const hasAnything = services.has_special_education || therapyLabels.length > 0 || services.medical_plan !== "none" || services.has_treatment || services.allergies || services.conditions;
                 if (!hasAnything) return <p className="text-sm text-foreground/40">{t("studentProfile.overview.noHealth")}</p>;
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
@@ -688,6 +688,12 @@ export function StudentProfilePage({
                       <div className="flex flex-col gap-0.5 sm:col-span-2">
                         <span className="text-xs text-muted uppercase tracking-wide">{t("studentProfile.health.allergies")}</span>
                         <span className="text-sm font-medium text-foreground">{services.allergies}</span>
+                      </div>
+                    ) : null}
+                    {services.conditions ? (
+                      <div className="flex flex-col gap-0.5 sm:col-span-2">
+                        <span className="text-xs text-muted uppercase tracking-wide">{t("servicesPage.conditionsLabel")}</span>
+                        <span className="text-sm font-medium text-foreground">{services.conditions}</span>
                       </div>
                     ) : null}
                   </div>

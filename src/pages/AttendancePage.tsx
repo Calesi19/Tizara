@@ -75,9 +75,6 @@ export function AttendancePage({
       <div className="flex items-start justify-between mb-2">
         <div>
           <h2 className="text-2xl font-bold">{t("attendance.title")}</h2>
-          <p className="text-sm text-muted">
-            {group.grade && <span>{t(`groups.addGroupModal.grades.${group.grade}`) || group.grade}</span>}
-          </p>
         </div>
         {!loading && !error && (
           isCanceled ? (

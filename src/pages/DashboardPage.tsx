@@ -1,4 +1,4 @@
-import { Users, CalendarDays, ClipboardCheck, BookOpen } from "lucide-react";
+import { Users, CalendarDays, ClipboardCheck, BookOpen, Pencil } from "lucide-react";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useTranslation } from "../i18n/LanguageContext";
 import type { Group } from "../types/group";
@@ -10,6 +10,7 @@ interface DashboardPageProps {
   onGoToSchedule: () => void;
   onGoToAttendance: () => void;
   onGoToAssignments: () => void;
+  onGoToEditGroup: () => void;
 }
 
 interface DashboardCardProps {
@@ -43,6 +44,7 @@ export function DashboardPage({
   onGoToSchedule,
   onGoToAttendance,
   onGoToAssignments,
+  onGoToEditGroup,
 }: DashboardPageProps) {
   const { t } = useTranslation();
 
@@ -75,6 +77,13 @@ export function DashboardPage({
       description: t("dashboard.assignmentsDescription"),
       onPress: onGoToAssignments,
     },
+    {
+      id: "edit-group",
+      icon: <Pencil size={20} />,
+      label: t("dashboard.editGroup"),
+      description: t("dashboard.editGroupDescription"),
+      onPress: onGoToEditGroup,
+    },
   ];
 
   return (
@@ -88,7 +97,6 @@ export function DashboardPage({
 
       <div className="mb-6">
         <h2 className="text-2xl font-bold">{group.name}</h2>
-        {group.grade && <p className="text-sm text-muted">{t(`groups.addGroupModal.grades.${group.grade}`) || group.grade}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4 max-w-lg">

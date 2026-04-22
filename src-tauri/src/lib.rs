@@ -323,6 +323,18 @@ pub fn run() {
             sql: "ALTER TABLE students ADD COLUMN enrollment_end_date TEXT;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 25,
+            description: "add_school_name_to_groups",
+            sql: "ALTER TABLE groups ADD COLUMN school_name TEXT;",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 26,
+            description: "add_conditions_to_student_services",
+            sql: "ALTER TABLE student_services ADD COLUMN conditions TEXT;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

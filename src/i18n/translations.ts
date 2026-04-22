@@ -26,6 +26,8 @@ const en = {
     scheduleDescription: "Set up weekly class periods",
     attendanceDescription: "Track daily student attendance",
     assignmentsDescription: "Create and grade assignments",
+    editGroupDescription: "Update group name, grade, and dates",
+    editGroup: "Edit Group",
   },
   groups: {
     title: "Groups",
@@ -39,6 +41,8 @@ const en = {
       namePlaceholder: "e.g. Class A",
       gradeLabel: "Grade",
       gradePlaceholder: "e.g. 10th",
+      schoolNameLabel: "School Name",
+      schoolNamePlaceholder: "e.g. Lincoln Elementary",
       startDateLabel: "Start Date (first day of school)",
       endDateLabel: "End Date (last day of school)",
       grades: {
@@ -63,6 +67,17 @@ const en = {
       added: "Added",
       student: "student",
       students: "students",
+    },
+    editGroup: {
+      breadcrumb: "Edit Group",
+      title: "Edit Group",
+      dangerZoneTitle: "Danger Zone",
+      dangerZoneDescription: "Deleting this group will permanently remove it along with all its associated data. This action cannot be undone.",
+      deleteButton: "Delete Group",
+      deleteTitle: "Delete Group",
+      deleteDescription: "This will permanently delete the group and remove it from your list. This action cannot be undone.",
+      deleteConfirmLabel: 'Type "{phrase}" to confirm',
+      confirmPhrase: "confirm deletion",
     },
   },
   students: {
@@ -267,6 +282,7 @@ const en = {
         negative: "Negative",
         health: "Health",
         attendance: "Attendance",
+        referral: "Referral",
       },
     },
     addNoteModal: {
@@ -601,6 +617,8 @@ const en = {
     hasTreatment: "Currently Receiving Medical Treatment",
     allergiesLabel: "Known allergies",
     allergiesPlaceholder: "e.g. Peanuts, Penicillin, Latex",
+    conditionsLabel: "Conditions",
+    conditionsPlaceholder: "e.g. Asthma, Diabetes, ADHD",
   },
   accommodationsPage: {
     breadcrumb: "Accommodations",
@@ -647,6 +665,8 @@ const es: typeof en = {
     scheduleDescription: "Configurar períodos semanales de clase",
     attendanceDescription: "Registrar asistencia diaria",
     assignmentsDescription: "Crear y calificar tareas",
+    editGroupDescription: "Actualizar nombre, grado y fechas del grupo",
+    editGroup: "Editar grupo",
   },
   groups: {
     title: "Grupos",
@@ -660,6 +680,8 @@ const es: typeof en = {
       namePlaceholder: "ej. Clase A",
       gradeLabel: "Grado",
       gradePlaceholder: "ej. 10°",
+      schoolNameLabel: "Nombre de la escuela",
+      schoolNamePlaceholder: "ej. Escuela Lincoln",
       startDateLabel: "Fecha de inicio (primer día de clases)",
       endDateLabel: "Fecha de fin (último día de clases)",
       grades: {
@@ -684,6 +706,17 @@ const es: typeof en = {
       added: "Agregado",
       student: "estudiante",
       students: "estudiantes",
+    },
+    editGroup: {
+      breadcrumb: "Editar grupo",
+      title: "Editar grupo",
+      dangerZoneTitle: "Zona de peligro",
+      dangerZoneDescription: "Eliminar este grupo lo borrará permanentemente junto con todos sus datos asociados. Esta acción no se puede deshacer.",
+      deleteButton: "Eliminar grupo",
+      deleteTitle: "Eliminar grupo",
+      deleteDescription: "Esto eliminará el grupo permanentemente y lo quitará de tu lista. Esta acción no se puede deshacer.",
+      deleteConfirmLabel: 'Escribe "{phrase}" para confirmar',
+      confirmPhrase: "confirmar eliminación",
     },
   },
   students: {
@@ -890,6 +923,7 @@ const es: typeof en = {
         negative: "Negativo",
         health: "Salud",
         attendance: "Asistencia",
+        referral: "Referido",
       },
     },
     addNoteModal: {
@@ -1226,6 +1260,8 @@ const es: typeof en = {
     hasTreatment: "Actualmente recibe tratamiento médico",
     allergiesLabel: "Alergias conocidas",
     allergiesPlaceholder: "ej. Maní, Penicilina, Látex",
+    conditionsLabel: "Condiciones",
+    conditionsPlaceholder: "ej. Asma, Diabetes, TDAH",
   },
   accommodationsPage: {
     breadcrumb: "Adaptaciones",
