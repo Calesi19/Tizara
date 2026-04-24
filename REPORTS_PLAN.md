@@ -40,6 +40,12 @@ ReportsPage UI (group scope):
 - Per-section filter controls (date range, period)
 - Generate button → saves PDF to configured folder
 
+- [x] `src/reports/fetchGroupReportData.ts` — standalone fetch functions (students, attendance summary, grade summary, distinct periods)
+- [x] `src/reports/sections/StudentRosterSection.tsx`
+- [x] `src/reports/sections/AttendanceSummarySection.tsx` — color-coded attendance %, optional date range
+- [x] `src/reports/sections/GradeSummarySection.tsx` — grade letters A–F, class average, optional period filter
+- [x] ReportsPage rebuilt: checkbox section cards + per-section filter controls + Generate button
+
 **Verify:** Generate a group report with all three sections; data matches what's visible in the app; headers/footers present on all pages.
 
 ---
