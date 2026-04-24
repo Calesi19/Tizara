@@ -17,7 +17,7 @@ export function GroupsPage({ onSelectGroup, currentGroup, onGoToSettings }: Grou
   const { t } = useTranslation();
 
   return (
-    <div className="relative min-h-full p-6">
+    <div className="relative min-h-full p-6 pt-10">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">{t("groups.title")}</h2>
