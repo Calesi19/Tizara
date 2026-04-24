@@ -104,6 +104,7 @@ import { AssignmentsPage } from "./pages/AssignmentsPage";
 import { AssignmentDetailPage } from "./pages/AssignmentDetailPage";
 import { EditGroupPage } from "./pages/EditGroupPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { ReportsPage } from "./pages/ReportsPage";
 import type { Group } from "./types/group";
 import type { Student } from "./types/student";
 import type { Assignment } from "./types/assignment";
@@ -126,6 +127,7 @@ type Route =
   | { page: "assignments"; group: Group }
   | { page: "assignment-detail"; group: Group; assignment: Assignment }
   | { page: "group-edit"; group: Group }
+  | { page: "reports"; group: Group }
   | { page: "settings" };
 
 const LAST_GROUP_KEY = "tizara-last-group-id";
@@ -168,6 +170,7 @@ function App() {
   const goToAssignmentDetail = (group: Group, assignment: Assignment) =>
     setRoute({ page: "assignment-detail", group, assignment });
   const goToEditGroup = (group: Group) => setRoute({ page: "group-edit", group });
+  const goToReports = (group: Group) => setRoute({ page: "reports", group });
   const goToSettings = () => setRoute({ page: "settings" });
 
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
@@ -212,6 +215,7 @@ function App() {
     onGoToSchedule: () => currentGroup && goToSchedule(currentGroup),
     onGoToAttendance: () => currentGroup && goToAttendance(currentGroup),
     onGoToAssignments: () => currentGroup && goToAssignments(currentGroup),
+    onGoToReports: () => currentGroup && goToReports(currentGroup),
     onGoToSettings: goToSettings,
     onGoToGroups: changeGroup,
   };
@@ -414,6 +418,8 @@ function App() {
             onGoToDashboard={() => goToDashboard(route.group)}
           />
         );
+      case "reports":
+        return <ReportsPage group={route.group} />;
       case "settings":
         return (
           <SettingsPage

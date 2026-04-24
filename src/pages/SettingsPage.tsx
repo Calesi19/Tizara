@@ -1,7 +1,11 @@
-import { Select, ListBox, Surface } from "@heroui/react";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { useState } from "react";
+import { Select, ListBox, Surface, Button } from "@heroui/react";
+import { Sun, Moon, Monitor, FolderOpen } from "lucide-react";
+import { open } from "@tauri-apps/plugin-dialog";
 import { useTranslation } from "../i18n/LanguageContext";
 import type { LanguagePreference } from "../i18n/LanguageContext";
+
+const REPORTS_FOLDER_KEY = "tizara-reports-folder";
 
 type ThemePreference = "light" | "dark" | "system";
 type ColorTheme = "default" | "ocean" | "forest" | "sunset" | "rose";
@@ -23,6 +27,17 @@ const COLOR_THEMES: { id: ColorTheme; label: string; swatch: string }[] = [
 
 export function SettingsPage({ theme, onThemeChange, colorTheme, onColorThemeChange }: SettingsPageProps) {
   const { t, languagePreference, setLanguage } = useTranslation();
+  const [reportsFolder, setReportsFolder] = useState<string>(
+    () => localStorage.getItem(REPORTS_FOLDER_KEY) ?? ""
+  );
+
+  async function handleBrowseFolder() {
+    const selected = await open({ directory: true });
+    if (selected && typeof selected === "string") {
+      localStorage.setItem(REPORTS_FOLDER_KEY, selected);
+      setReportsFolder(selected);
+    }
+  }
 
   return (
     <div className="p-6 flex flex-col h-full">
@@ -112,6 +127,34 @@ export function SettingsPage({ theme, onThemeChange, colorTheme, onColorThemeCha
                   </ListBox>
                 </Select.Popover>
               </Select>
+            </Surface>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <p className="text-xs font-semibold text-foreground/40 uppercase tracking-wide">{t("settings.sectionFiles")}</p>
+          <div className="flex flex-col gap-2">
+            <Surface className="flex items-center justify-between gap-4 px-4 py-3 rounded-lg">
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-sm font-medium">{t("settings.outputFolder")}</span>
+                <span className="text-xs text-foreground/50">{t("settings.outputFolderDescription")}</span>
+                {reportsFolder ? (
+                  <span className="text-xs text-foreground/60 font-mono mt-1 truncate" title={reportsFolder}>
+                    {reportsFolder}
+                  </span>
+                ) : (
+                  <span className="text-xs text-foreground/30 mt-1">{t("settings.outputFolderNotSet")}</span>
+                )}
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="shrink-0 gap-1.5"
+                onPress={handleBrowseFolder}
+              >
+                <FolderOpen size={13} />
+                {t("settings.browse")}
+              </Button>
             </Surface>
           </div>
         </div>

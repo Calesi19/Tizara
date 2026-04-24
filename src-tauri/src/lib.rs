@@ -1,4 +1,16 @@
+use base64::Engine;
 use tauri_plugin_sql::{Migration, MigrationKind};
+
+#[tauri::command]
+fn write_pdf(path: String, data_base64: String) -> Result<(), String> {
+    let data = base64::engine::general_purpose::STANDARD
+        .decode(&data_base64)
+        .map_err(|e| e.to_string())?;
+    if let Some(parent) = std::path::Path::new(&path).parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    std::fs::write(&path, &data).map_err(|e| e.to_string())
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -345,12 +357,13 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:tizara.db", migrations)
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![])
+        .invoke_handler(tauri::generate_handler![write_pdf])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

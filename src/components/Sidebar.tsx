@@ -4,6 +4,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   BookOpen,
+  FileText,
   Settings,
   LayoutDashboard,
   ArrowLeftRight,
@@ -20,6 +21,7 @@ interface SidebarProps {
   onGoToSchedule: () => void;
   onGoToAttendance: () => void;
   onGoToAssignments: () => void;
+  onGoToReports: () => void;
   onGoToSettings: () => void;
   onGoToGroups: () => void;
   onClose?: () => void;
@@ -51,6 +53,7 @@ export function Sidebar({
   onGoToSchedule,
   onGoToAttendance,
   onGoToAssignments,
+  onGoToReports,
   onGoToSettings,
   onGoToGroups,
   onClose,
@@ -98,6 +101,13 @@ export function Sidebar({
       active:
         currentPage === "assignments" || currentPage === "assignment-detail",
       onPress: nav(onGoToAssignments),
+    },
+    {
+      id: "reports",
+      label: t("sidebar.reports"),
+      icon: <FileText size={16} />,
+      active: currentPage === "reports",
+      onPress: nav(onGoToReports),
     },
   ];
 
