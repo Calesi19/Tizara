@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Button, Surface, Select, ListBox } from "@heroui/react";
+import { Button, Surface, Select, ListBox, DatePicker, DateField, Calendar, Label } from "@heroui/react";
+import { parseDate } from "@internationalized/date";
+import type { DateValue } from "@internationalized/date";
 import { FileText, FolderOpen, CheckCircle, AlertCircle } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { invoke } from "@tauri-apps/api/core";
@@ -62,6 +64,66 @@ type SectionId = GroupSectionId | StudentSectionId;
 
 interface ReportsPageProps {
   group: Group;
+}
+
+function ReportDatePicker({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const parsed = value ? parseDate(value) : null;
+
+  return (
+    <div className="min-w-0 flex-1 flex flex-col gap-1">
+      <Label className="text-[11px] text-foreground/50">{label}</Label>
+      <DatePicker
+        className="w-full"
+        aria-label={label}
+        value={parsed}
+        onChange={(date: DateValue | null) => onChange(date ? date.toString() : "")}
+      >
+        <DateField.Group fullWidth>
+          <DateField.Input>
+            {(segment) => <DateField.Segment segment={segment} />}
+          </DateField.Input>
+          <DateField.Suffix>
+            <DatePicker.Trigger>
+              <DatePicker.TriggerIndicator />
+            </DatePicker.Trigger>
+          </DateField.Suffix>
+        </DateField.Group>
+        <DatePicker.Popover>
+          <Calendar aria-label={label}>
+            <Calendar.Header>
+              <Calendar.YearPickerTrigger>
+                <Calendar.YearPickerTriggerHeading />
+                <Calendar.YearPickerTriggerIndicator />
+              </Calendar.YearPickerTrigger>
+              <Calendar.NavButton slot="previous" />
+              <Calendar.NavButton slot="next" />
+            </Calendar.Header>
+            <Calendar.Grid>
+              <Calendar.GridHeader>
+                {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
+              </Calendar.GridHeader>
+              <Calendar.GridBody>
+                {(date) => <Calendar.Cell date={date} />}
+              </Calendar.GridBody>
+            </Calendar.Grid>
+            <Calendar.YearPickerGrid>
+              <Calendar.YearPickerGridBody>
+                {({ year }) => <Calendar.YearPickerCell year={year} />}
+              </Calendar.YearPickerGridBody>
+            </Calendar.YearPickerGrid>
+          </Calendar>
+        </DatePicker.Popover>
+      </DatePicker>
+    </div>
+  );
 }
 
 export function ReportsPage({ group }: ReportsPageProps) {
@@ -446,20 +508,9 @@ export function ReportsPage({ group }: ReportsPageProps) {
                   {sections.has("attendance") && (
                     <div className="mt-2 flex flex-col gap-1.5">
                       <span className="text-xs text-foreground/50">Date range (optional)</span>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="date"
-                          value={dateFrom}
-                          onChange={(e) => setDateFrom(e.target.value)}
-                          className="flex-1 text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
-                        />
-                        <span className="text-xs text-foreground/40">–</span>
-                        <input
-                          type="date"
-                          value={dateTo}
-                          onChange={(e) => setDateTo(e.target.value)}
-                          className="flex-1 text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
-                        />
+                      <div className="flex flex-col gap-2">
+                        <ReportDatePicker label="From" value={dateFrom} onChange={setDateFrom} />
+                        <ReportDatePicker label="To" value={dateTo} onChange={setDateTo} />
                       </div>
                     </div>
                   )}
@@ -633,19 +684,16 @@ export function ReportsPage({ group }: ReportsPageProps) {
                       {sections.has("student-attendance") && (
                         <div className="mt-2 flex flex-col gap-1.5">
                           <span className="text-xs text-foreground/50">Date range (optional)</span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="date"
+                          <div className="flex flex-col gap-2">
+                            <ReportDatePicker
+                              label="From"
                               value={studentDateFrom}
-                              onChange={(e) => setStudentDateFrom(e.target.value)}
-                              className="flex-1 text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
+                              onChange={setStudentDateFrom}
                             />
-                            <span className="text-xs text-foreground/40">–</span>
-                            <input
-                              type="date"
+                            <ReportDatePicker
+                              label="To"
                               value={studentDateTo}
-                              onChange={(e) => setStudentDateTo(e.target.value)}
-                              className="flex-1 text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
+                              onChange={setStudentDateTo}
                             />
                           </div>
                         </div>
@@ -799,20 +847,22 @@ function SectionToggle({ id, label, description, checked, onChange, children }: 
         checked ? "ring-1 ring-accent/40" : "opacity-80"
       }`}
     >
-      <label htmlFor={id} className="flex items-start gap-3 cursor-pointer">
-        <input
-          id={id}
-          type="checkbox"
-          className="mt-0.5 accent-[var(--color-accent)]"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-        />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">{label}</p>
-          <p className="text-xs text-foreground/50 mt-0.5">{description}</p>
-          {children}
-        </div>
-      </label>
+      <div className="flex items-start gap-3">
+        <label htmlFor={id} className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer">
+          <input
+            id={id}
+            type="checkbox"
+            className="mt-0.5 accent-[var(--color-accent)]"
+            checked={checked}
+            onChange={(e) => onChange(e.target.checked)}
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">{label}</p>
+            <p className="text-xs text-foreground/50 mt-0.5">{description}</p>
+          </div>
+        </label>
+      </div>
+      {children ? <div className="mt-2 ml-6">{children}</div> : null}
     </Surface>
   );
 }
