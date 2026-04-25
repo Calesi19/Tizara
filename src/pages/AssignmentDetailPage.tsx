@@ -28,6 +28,7 @@ interface AssignmentDetailPageProps {
   onGoToAssignments: () => void;
 }
 
+
 const BAND_COLORS: Record<GradeBand, { bar: string; text: string }> = {
   A: { bar: "bg-success", text: "text-success" },
   B: { bar: "bg-accent", text: "text-accent" },
@@ -193,6 +194,11 @@ export function AssignmentDetailPage({
                                 <Chip size="sm" color="warning" variant="secondary">
                                   {t("assignmentDetail.extraCredit")}
                                 </Chip>
+                              )}
+                              {row.score !== null && (
+                                <span className="text-sm text-muted">
+                                  {Math.round((row.score / assignment.max_score) * 100)}%
+                                </span>
                               )}
                               <input
                                 type="number"
