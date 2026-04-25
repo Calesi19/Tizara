@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { StudentServices } from "../../types/studentServices";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -33,21 +35,8 @@ const S = StyleSheet.create({
 
 interface Props {
   services: StudentServices | null;
+  language: Language;
 }
-
-const THERAPIES: { key: keyof StudentServices; label: string }[] = [
-  { key: "therapy_speech", label: "Speech Therapy" },
-  { key: "therapy_occupational", label: "Occupational Therapy" },
-  { key: "therapy_psychological", label: "Psychological Therapy" },
-  { key: "therapy_physical", label: "Physical Therapy" },
-  { key: "therapy_educational", label: "Educational Therapy" },
-];
-
-const PLAN_LABELS: Record<string, string> = {
-  private: "Private",
-  government: "Government",
-  none: "None",
-};
 
 function CheckRow({ on, label }: { on: boolean; label: string }) {
   return (
@@ -58,44 +47,60 @@ function CheckRow({ on, label }: { on: boolean; label: string }) {
   );
 }
 
-export function ServicesSection({ services }: Props) {
+export function ServicesSection({ services, language }: Props) {
+  const L = translations[language].reports.pdf;
+
+  const THERAPIES: { key: keyof StudentServices; label: string }[] = [
+    { key: "therapy_speech", label: L.therapySpeech },
+    { key: "therapy_occupational", label: L.therapyOccupational },
+    { key: "therapy_psychological", label: L.therapyPsychological },
+    { key: "therapy_physical", label: L.therapyPhysical },
+    { key: "therapy_educational", label: L.therapyEducational },
+  ];
+
+  const PLAN_LABELS: Record<string, string> = {
+    private: L.planPrivate,
+    government: L.planGovernment,
+    none: L.planNone,
+  };
+
   if (!services) {
     return (
       <View style={S.section}>
-        <Text style={S.title}>Services & Support</Text>
-        <Text style={S.noData}>No services information recorded.</Text>
+        <Text style={S.title}>{L.services}</Text>
+        <Text style={S.noData}>{L.noServices}</Text>
       </View>
     );
   }
 
   return (
     <View style={S.section}>
-      <Text style={S.title}>Services & Support</Text>
+      <Text style={S.title}>{L.services}</Text>
 
       <View style={S.twoCol}>
         <View style={S.col}>
-          <Text style={S.subTitle}>Education</Text>
-          <CheckRow on={!!services.has_special_education} label="Special Education" />
+          <Text style={S.subTitle}>{L.subEducation}</Text>
+          <CheckRow on={!!services.has_special_education} label={L.specialEducation} />
 
-          <Text style={S.subTitle}>Therapies</Text>
+          <Text style={S.subTitle}>{L.subTherapies}</Text>
           {THERAPIES.map((t) => (
             <CheckRow key={t.key} on={!!services[t.key]} label={t.label} />
           ))}
         </View>
 
         <View style={S.col}>
-          <Text style={S.subTitle}>Medical</Text>
+          <Text style={S.subTitle}>{L.subMedical}</Text>
           <View style={S.fieldRow}>
-            <Text style={S.fieldLabel}>Medical Plan</Text>
+            <Text style={S.fieldLabel}>{L.medicalPlan}</Text>
             <Text style={S.fieldValue}>{PLAN_LABELS[services.medical_plan] ?? services.medical_plan}</Text>
           </View>
-          <CheckRow on={!!services.has_treatment} label="Has active treatment" />
+          <CheckRow on={!!services.has_treatment} label={L.hasTreatment} />
 
-          <Text style={S.subTitle}>Allergies</Text>
-          <Text style={[S.label, { marginBottom: 6 }]}>{services.allergies || "None"}</Text>
+          <Text style={S.subTitle}>{L.subAllergies}</Text>
+          <Text style={[S.label, { marginBottom: 6 }]}>{services.allergies || L.noneValue}</Text>
 
-          <Text style={S.subTitle}>Medical Conditions</Text>
-          <Text style={S.label}>{services.conditions || "None"}</Text>
+          <Text style={S.subTitle}>{L.subConditions}</Text>
+          <Text style={S.label}>{services.conditions || L.noneValue}</Text>
         </View>
       </View>
     </View>

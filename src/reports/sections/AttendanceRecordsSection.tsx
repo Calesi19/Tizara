@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { AttendanceRecordRow } from "../fetchStudentReportData";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -43,13 +45,6 @@ const S = StyleSheet.create({
   empty: { fontSize: 8.5, color: "#94a3b8", paddingVertical: 8, paddingHorizontal: 6 },
 });
 
-const STATUS_LABELS: Record<string, string> = {
-  present: "Present",
-  absent: "Absent",
-  late: "Late",
-  early_pickup: "Early Pickup",
-};
-
 function fmt(d: string): string {
   const [y, m, day] = d.split("-");
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -67,25 +62,41 @@ interface Props {
   records: AttendanceRecordRow[];
   dateFrom?: string;
   dateTo?: string;
+  language: Language;
 }
 
-export function AttendanceRecordsSection({ records, dateFrom, dateTo }: Props) {
+export function AttendanceRecordsSection({ records, dateFrom, dateTo, language }: Props) {
+  const L = translations[language].reports.pdf;
+
+  const STATUS_LABELS: Record<string, string> = {
+    present: L.statusPresent,
+    absent: L.statusAbsent,
+    late: L.statusLate,
+    early_pickup: L.statusEarlyPickup,
+  };
+
   const rangeLabel =
     dateFrom || dateTo
-      ? ` (${dateFrom ? fmt(dateFrom) : "start"} – ${dateTo ? fmt(dateTo) : "today"})`
+      ? ` (${dateFrom ? fmt(dateFrom) : L.rangeStart} – ${dateTo ? fmt(dateTo) : L.rangeToday})`
       : "";
+
+  const countLabel = records.length === 1
+    ? L.recordCount.replace("{n}", String(records.length))
+    : L.recordCountPlural.replace("{n}", String(records.length));
 
   return (
     <View style={S.section}>
-      <Text style={S.title}>Attendance Records{rangeLabel}</Text>
+      <Text style={S.title}>{L.attendanceRecords}{rangeLabel}</Text>
       <View style={S.thead}>
-        <Text style={[S.hCell, S.colDate]}>Date</Text>
-        <Text style={[S.hCell, S.colPeriod]}>Period</Text>
-        <Text style={[S.hCell, S.colStatus]}>Status</Text>
-        <Text style={[S.hCell, S.colNotes]}>Notes</Text>
+        <Text style={[S.hCell, S.colDate]}>{L.colDate}</Text>
+        <Text style={[S.hCell, S.colPeriod]}>{L.colPeriod}</Text>
+        <Text style={[S.hCell, S.colStatus]}>{L.colStatus}</Text>
+        <Text style={[S.hCell, S.colNotes]}>{L.colNotes}</Text>
       </View>
       {records.length === 0 ? (
-        <Text style={S.empty}>No attendance records found{rangeLabel ? " for the selected range" : ""}.</Text>
+        <Text style={S.empty}>
+          {rangeLabel ? L.noAttendanceRecordsRange : L.noAttendanceRecords}
+        </Text>
       ) : (
         records.map((r, i) => (
           <View key={i} style={S.row}>
@@ -98,7 +109,7 @@ export function AttendanceRecordsSection({ records, dateFrom, dateTo }: Props) {
           </View>
         ))
       )}
-      <Text style={S.footer}>{records.length} record{records.length !== 1 ? "s" : ""}</Text>
+      <Text style={S.footer}>{countLabel}</Text>
     </View>
   );
 }

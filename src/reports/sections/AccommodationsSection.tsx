@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { StudentAccommodations } from "../../types/studentAccommodations";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -20,32 +22,35 @@ const S = StyleSheet.create({
   noData: { fontSize: 8.5, color: "#94a3b8" },
 });
 
-const ACCOMMODATIONS: { key: keyof StudentAccommodations; label: string }[] = [
-  { key: "desk_placement", label: "Preferential desk placement" },
-  { key: "extended_time", label: "Extended time on assignments" },
-  { key: "shorter_assignments", label: "Shorter assignments" },
-  { key: "use_abacus", label: "Use of abacus or manipulatives" },
-  { key: "simple_instructions", label: "Simple, clear instructions" },
-  { key: "visual_examples", label: "Visual examples and models" },
-];
-
 interface Props {
   accommodations: StudentAccommodations | null;
+  language: Language;
 }
 
-export function AccommodationsSection({ accommodations }: Props) {
+export function AccommodationsSection({ accommodations, language }: Props) {
+  const L = translations[language].reports.pdf;
+
+  const ACCOMMODATIONS: { key: keyof StudentAccommodations; label: string }[] = [
+    { key: "desk_placement", label: L.accomDeskPlacement },
+    { key: "extended_time", label: L.accomExtendedTime },
+    { key: "shorter_assignments", label: L.accomShorterAssignments },
+    { key: "use_abacus", label: L.accomAbacus },
+    { key: "simple_instructions", label: L.accomSimpleInstructions },
+    { key: "visual_examples", label: L.accomVisualExamples },
+  ];
+
   if (!accommodations) {
     return (
       <View style={S.section}>
-        <Text style={S.title}>Accommodations</Text>
-        <Text style={S.noData}>No accommodations information recorded.</Text>
+        <Text style={S.title}>{L.accommodations}</Text>
+        <Text style={S.noData}>{L.noAccommodations}</Text>
       </View>
     );
   }
 
   return (
     <View style={S.section}>
-      <Text style={S.title}>Accommodations</Text>
+      <Text style={S.title}>{L.accommodations}</Text>
       <View style={S.grid}>
         {ACCOMMODATIONS.map((a) => {
           const on = !!accommodations[a.key];

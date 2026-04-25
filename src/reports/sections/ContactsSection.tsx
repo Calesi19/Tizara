@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { Contact } from "../../types/contact";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -33,7 +35,6 @@ const S = StyleSheet.create({
   hCell: { fontFamily: "Helvetica-Bold", fontSize: 8.5, color: "#374151" },
   cell: { fontSize: 8.5, color: "#374151" },
   cellBold: { fontFamily: "Helvetica-Bold", fontSize: 8.5, color: "#1a202c" },
-  badge: { fontSize: 7.5, color: "#4a5568", backgroundColor: "#edf2f7", paddingHorizontal: 3, paddingVertical: 1, borderRadius: 2 },
   colName: { flex: 2.5 },
   colRel: { flex: 1.5 },
   colPhone: { flex: 2 },
@@ -43,26 +44,29 @@ const S = StyleSheet.create({
 
 interface Props {
   contacts: Contact[];
+  language: Language;
 }
 
-export function ContactsSection({ contacts }: Props) {
+export function ContactsSection({ contacts, language }: Props) {
+  const L = translations[language].reports.pdf;
+
   return (
     <View style={S.section}>
-      <Text style={S.title}>Family Contacts</Text>
+      <Text style={S.title}>{L.contacts}</Text>
       <View style={S.thead}>
-        <Text style={[S.hCell, S.colName]}>Name</Text>
-        <Text style={[S.hCell, S.colRel]}>Relationship</Text>
-        <Text style={[S.hCell, S.colPhone]}>Phone</Text>
-        <Text style={[S.hCell, S.colEmail]}>Email</Text>
-        <Text style={[S.hCell, S.colFlags]}>Roles</Text>
+        <Text style={[S.hCell, S.colName]}>{L.colName}</Text>
+        <Text style={[S.hCell, S.colRel]}>{L.colRelationship}</Text>
+        <Text style={[S.hCell, S.colPhone]}>{L.colPhone}</Text>
+        <Text style={[S.hCell, S.colEmail]}>{L.colEmail}</Text>
+        <Text style={[S.hCell, S.colFlags]}>{L.colRoles}</Text>
       </View>
       {contacts.length === 0 ? (
-        <Text style={S.empty}>No contacts recorded.</Text>
+        <Text style={S.empty}>{L.noContacts}</Text>
       ) : (
         contacts.map((c) => {
           const roles: string[] = [];
-          if (c.is_primary_guardian) roles.push("Guardian");
-          if (c.is_emergency_contact) roles.push("Emergency");
+          if (c.is_primary_guardian) roles.push(L.roleGuardian);
+          if (c.is_emergency_contact) roles.push(L.roleEmergency);
           return (
             <View key={c.id} style={S.row}>
               <Text style={[S.cellBold, S.colName]}>{c.name}</Text>

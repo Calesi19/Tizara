@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "../i18n/LanguageContext";
 import { Button, Surface, Select, ListBox, DatePicker, DateField, Calendar, Label } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import type { DateValue } from "@internationalized/date";
 import { FileText, FolderOpen, CheckCircle, AlertCircle } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { invoke } from "@tauri-apps/api/core";
-import { join } from "@tauri-apps/api/path";
+import { dirname } from "@tauri-apps/api/path";
+import { save } from "@tauri-apps/plugin-dialog";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { PdfDocument } from "../reports/PdfDocument";
 // Group sections
 import { StudentRosterSection } from "../reports/sections/StudentRosterSection";
@@ -44,7 +47,7 @@ import {
 import type { Group } from "../types/group";
 import type { Student } from "../types/student";
 import { NOTE_TAG_KEYS } from "../types/note";
-import { REPORTS_FOLDER_KEY } from "../appConfig";
+import { REPORTS_LAST_DIR_KEY } from "../appConfig";
 const PREVIEW_DEBOUNCE_MS = 700;
 
 type Scope = "group" | "individual";
@@ -126,7 +129,7 @@ function ReportDatePicker({
 }
 
 export function ReportsPage({ group }: ReportsPageProps) {
-  const folder = localStorage.getItem(REPORTS_FOLDER_KEY);
+  const { t, language } = useTranslation();
 
   // Scope & selection
   const [scope, setScope] = useState<Scope>("group");
@@ -151,7 +154,7 @@ export function ReportsPage({ group }: ReportsPageProps) {
 
   // UI state
   const [generating, setGenerating] = useState(false);
-  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; message: string; filePath?: string } | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [stagedPreviewUrl, setStagedPreviewUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -231,21 +234,23 @@ export function ReportsPage({ group }: ReportsPageProps) {
           if (cancelled) return;
           doc = (
             <PdfDocument
-              title="Group Report"
+              title={t("reports.pdf.groupReport")}
               groupName={group.name}
               schoolName={group.school_name}
               generatedDate={new Date().toLocaleDateString()}
+              language={language}
             >
-              {students ? <StudentRosterSection students={students} /> : null}
+              {students ? <StudentRosterSection students={students} language={language} /> : null}
               {attendanceRows ? (
                 <AttendanceSummarySection
                   rows={attendanceRows}
                   dateFrom={dateFrom || undefined}
                   dateTo={dateTo || undefined}
+                  language={language}
                 />
               ) : null}
               {gradeData ? (
-                <GradeSummarySection assignments={gradeData} periodFilter={gradesPeriod || undefined} />
+                <GradeSummarySection assignments={gradeData} periodFilter={gradesPeriod || undefined} language={language} />
               ) : null}
             </PdfDocument>
           );
@@ -272,30 +277,32 @@ export function ReportsPage({ group }: ReportsPageProps) {
           if (cancelled) return;
           doc = (
             <PdfDocument
-              title={`${student?.name ?? "Student"} — Student Report`}
+              title={`${student?.name ?? t("reports.pdf.studentFallback")} — ${t("reports.pdf.studentReport")}`}
               groupName={group.name}
               schoolName={group.school_name}
               generatedDate={new Date().toLocaleDateString()}
+              language={language}
             >
-              {sections.has("profile") && student ? <StudentProfileSection student={student} /> : null}
-              {contacts ? <ContactsSection contacts={contacts} /> : null}
-              {addresses ? <AddressesSection addresses={addresses} /> : null}
-              {services !== null && sections.has("services") ? <ServicesSection services={services} /> : null}
+              {sections.has("profile") && student ? <StudentProfileSection student={student} language={language} /> : null}
+              {contacts ? <ContactsSection contacts={contacts} language={language} /> : null}
+              {addresses ? <AddressesSection addresses={addresses} language={language} /> : null}
+              {services !== null && sections.has("services") ? <ServicesSection services={services} language={language} /> : null}
               {accommodations !== null && sections.has("accommodations") ? (
-                <AccommodationsSection accommodations={accommodations} />
+                <AccommodationsSection accommodations={accommodations} language={language} />
               ) : null}
               {observations !== null && sections.has("observations") ? (
-                <ObservationsSection observations={observations} />
+                <ObservationsSection observations={observations} language={language} />
               ) : null}
-              {notes ? <NotesSection notes={notes} tagFilter={noteTagFilter || undefined} /> : null}
+              {notes ? <NotesSection notes={notes} tagFilter={noteTagFilter || undefined} language={language} /> : null}
               {attendanceRecords ? (
                 <AttendanceRecordsSection
                   records={attendanceRecords}
                   dateFrom={studentDateFrom || undefined}
                   dateTo={studentDateTo || undefined}
+                  language={language}
                 />
               ) : null}
-              {grades ? <GradesSection grades={grades} periodFilter={studentGradesPeriod || undefined} /> : null}
+              {grades ? <GradesSection grades={grades} periodFilter={studentGradesPeriod || undefined} language={language} /> : null}
             </PdfDocument>
           );
         }
@@ -366,7 +373,7 @@ export function ReportsPage({ group }: ReportsPageProps) {
 
   async function handleGenerate() {
     const sid = selectedStudentId;
-    if (!folder || sections.size === 0) return;
+    if (sections.size === 0) return;
     if (scope === "individual" && !sid) return;
     setGenerating(true);
     setResult(null);
@@ -388,27 +395,29 @@ export function ReportsPage({ group }: ReportsPageProps) {
         ]);
         doc = (
           <PdfDocument
-            title="Group Report"
+            title={t("reports.pdf.groupReport")}
             groupName={group.name}
             schoolName={group.school_name}
             generatedDate={new Date().toLocaleDateString()}
+            language={language}
           >
-            {students ? <StudentRosterSection students={students} /> : null}
+            {students ? <StudentRosterSection students={students} language={language} /> : null}
             {attendanceRows ? (
               <AttendanceSummarySection
                 rows={attendanceRows}
                 dateFrom={dateFrom || undefined}
                 dateTo={dateTo || undefined}
+                language={language}
               />
             ) : null}
             {gradeData ? (
-              <GradeSummarySection assignments={gradeData} periodFilter={gradesPeriod || undefined} />
+              <GradeSummarySection assignments={gradeData} periodFilter={gradesPeriod || undefined} language={language} />
             ) : null}
           </PdfDocument>
         );
         const safeName = group.name.replace(/[^a-z0-9]/gi, "-").toLowerCase();
-        const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-        filename = `teacherly-group-${safeName}-${ts}.pdf`;
+        const ts = new Date().toISOString().slice(0, 10);
+        filename = `group-${safeName}-${ts}.pdf`;
       } else {
         const [student, contacts, addresses, services, accommodations, observations, notes, attendanceRecords, grades] =
           await Promise.all([
@@ -430,43 +439,61 @@ export function ReportsPage({ group }: ReportsPageProps) {
           ]);
         doc = (
           <PdfDocument
-            title={`${student?.name ?? "Student"} — Student Report`}
+            title={`${student?.name ?? t("reports.pdf.studentFallback")} — ${t("reports.pdf.studentReport")}`}
             groupName={group.name}
             schoolName={group.school_name}
             generatedDate={new Date().toLocaleDateString()}
+            language={language}
           >
-            {sections.has("profile") && student ? <StudentProfileSection student={student} /> : null}
-            {contacts ? <ContactsSection contacts={contacts} /> : null}
-            {addresses ? <AddressesSection addresses={addresses} /> : null}
-            {services !== null && sections.has("services") ? <ServicesSection services={services} /> : null}
+            {sections.has("profile") && student ? <StudentProfileSection student={student} language={language} /> : null}
+            {contacts ? <ContactsSection contacts={contacts} language={language} /> : null}
+            {addresses ? <AddressesSection addresses={addresses} language={language} /> : null}
+            {services !== null && sections.has("services") ? <ServicesSection services={services} language={language} /> : null}
             {accommodations !== null && sections.has("accommodations") ? (
-              <AccommodationsSection accommodations={accommodations} />
+              <AccommodationsSection accommodations={accommodations} language={language} />
             ) : null}
             {observations !== null && sections.has("observations") ? (
-              <ObservationsSection observations={observations} />
+              <ObservationsSection observations={observations} language={language} />
             ) : null}
-            {notes ? <NotesSection notes={notes} tagFilter={noteTagFilter || undefined} /> : null}
+            {notes ? <NotesSection notes={notes} tagFilter={noteTagFilter || undefined} language={language} /> : null}
             {attendanceRecords ? (
               <AttendanceRecordsSection
                 records={attendanceRecords}
                 dateFrom={studentDateFrom || undefined}
                 dateTo={studentDateTo || undefined}
+                language={language}
               />
             ) : null}
-            {grades ? <GradesSection grades={grades} periodFilter={studentGradesPeriod || undefined} /> : null}
+            {grades ? <GradesSection grades={grades} periodFilter={studentGradesPeriod || undefined} language={language} /> : null}
           </PdfDocument>
         );
         const safeName = (student?.name ?? "student").replace(/[^a-z0-9]/gi, "-").toLowerCase();
-        const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-        filename = `teacherly-student-${safeName}-${ts}.pdf`;
+        const ts = new Date().toISOString().slice(0, 10);
+        filename = `student-${safeName}-${ts}.pdf`;
       }
 
       const blob = await pdf(doc).toBlob();
       const bytes = new Uint8Array(await blob.arrayBuffer());
       const base64 = btoa(Array.from(bytes).map((b) => String.fromCharCode(b)).join(""));
-      const filePath = await join(folder, filename);
+
+      const lastDir = localStorage.getItem(REPORTS_LAST_DIR_KEY) ?? undefined;
+      const defaultPath = lastDir ? `${lastDir}/${filename}` : filename;
+      const filePath = await save({
+        defaultPath,
+        filters: [{ name: "PDF", extensions: ["pdf"] }],
+      });
+
+      if (!filePath) {
+        setGenerating(false);
+        return;
+      }
+
       await invoke("write_pdf", { path: filePath, dataBase64: base64 });
-      setResult({ ok: true, message: `Saved to ${filePath}` });
+
+      const savedDir = await dirname(filePath);
+      localStorage.setItem(REPORTS_LAST_DIR_KEY, savedDir);
+
+      setResult({ ok: true, message: filePath, filePath });
     } catch (err) {
       setResult({ ok: false, message: String(err) });
     } finally {
@@ -475,7 +502,6 @@ export function ReportsPage({ group }: ReportsPageProps) {
   }
 
   const canGenerate =
-    !!folder &&
     sections.size > 0 &&
     !generating &&
     (scope === "group" || selectedStudentId !== null);
@@ -486,19 +512,11 @@ export function ReportsPage({ group }: ReportsPageProps) {
       <div className="px-6 pt-6 pb-4 border-b border-border shrink-0">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <FileText size={22} />
-          Reports
+          {t("reports.ui.title")}
         </h2>
         <p className="text-sm text-muted mt-0.5">
-          Generate PDF reports for your group or individual students.
+          {t("reports.ui.description")}
         </p>
-        {!folder && (
-          <div className="flex items-start gap-2 mt-3 text-sm text-foreground/60">
-            <FolderOpen size={14} className="text-warning mt-0.5 shrink-0" />
-            <span>
-              No output folder set. Go to <strong>Settings → Files</strong> to configure one before saving.
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Split layout */}
@@ -519,7 +537,7 @@ export function ReportsPage({ group }: ReportsPageProps) {
                       : "text-foreground/50 hover:text-foreground/70"
                   }`}
                 >
-                  {s === "group" ? "Group Report" : "Student Report"}
+                  {s === "group" ? t("reports.ui.scopeGroup") : t("reports.ui.scopeStudent")}
                 </button>
               ))}
             </div>
@@ -528,30 +546,30 @@ export function ReportsPage({ group }: ReportsPageProps) {
             {scope === "group" && (
               <>
                 <p className="text-xs font-semibold text-foreground/40 uppercase tracking-wide">
-                  Sections
+                  {t("reports.ui.sections")}
                 </p>
 
                 <SectionToggle
                   id="roster"
-                  label="Student Roster"
-                  description="All enrolled students with basic information."
+                  label={t("reports.ui.rosterLabel")}
+                  description={t("reports.ui.rosterDescription")}
                   checked={sections.has("roster")}
                   onChange={(v) => toggleSection("roster", v)}
                 />
 
                 <SectionToggle
                   id="attendance"
-                  label="Attendance Summary"
-                  description="Per-student attendance counts across the group."
+                  label={t("reports.ui.attendanceSummaryLabel")}
+                  description={t("reports.ui.attendanceSummaryDescription")}
                   checked={sections.has("attendance")}
                   onChange={(v) => toggleSection("attendance", v)}
                 >
                   {sections.has("attendance") && (
                     <div className="mt-2 flex flex-col gap-1.5">
-                      <span className="text-xs text-foreground/50">Date range (optional)</span>
+                      <span className="text-xs text-foreground/50">{t("reports.ui.dateRange")}</span>
                       <div className="flex flex-col gap-2">
-                        <ReportDatePicker label="From" value={dateFrom} onChange={setDateFrom} />
-                        <ReportDatePicker label="To" value={dateTo} onChange={setDateTo} />
+                        <ReportDatePicker label={t("reports.ui.dateFrom")} value={dateFrom} onChange={setDateFrom} />
+                        <ReportDatePicker label={t("reports.ui.dateTo")} value={dateTo} onChange={setDateTo} />
                       </div>
                     </div>
                   )}
@@ -559,14 +577,14 @@ export function ReportsPage({ group }: ReportsPageProps) {
 
                 <SectionToggle
                   id="grades"
-                  label="Grade Summary"
-                  description="Assignment scores for every student."
+                  label={t("reports.ui.gradeSummaryLabel")}
+                  description={t("reports.ui.gradeSummaryDescription")}
                   checked={sections.has("grades")}
                   onChange={(v) => toggleSection("grades", v)}
                 >
                   {sections.has("grades") && availablePeriods.length > 0 && (
                     <div className="mt-2 flex flex-col gap-1.5">
-                      <span className="text-xs text-foreground/50">Period (optional)</span>
+                      <span className="text-xs text-foreground/50">{t("reports.ui.period")}</span>
                       <Select
                         aria-label="Period filter"
                         selectedKey={gradesPeriod || "__all__"}
@@ -579,7 +597,7 @@ export function ReportsPage({ group }: ReportsPageProps) {
                         </Select.Trigger>
                         <Select.Popover>
                           <ListBox>
-                            <ListBox.Item id="__all__" textValue="All periods">All periods</ListBox.Item>
+                            <ListBox.Item id="__all__" textValue={t("reports.ui.allPeriods")}>{t("reports.ui.allPeriods")}</ListBox.Item>
                             {availablePeriods.map((p) => (
                               <ListBox.Item key={p} id={p} textValue={p}>{p}</ListBox.Item>
                             ))}
@@ -597,7 +615,7 @@ export function ReportsPage({ group }: ReportsPageProps) {
               <>
                 <div className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wide">
-                    Student
+                    {t("reports.ui.student")}
                   </span>
                   <Select
                     aria-label="Select student"
@@ -629,67 +647,67 @@ export function ReportsPage({ group }: ReportsPageProps) {
                 {selectedStudentId !== null && (
                   <>
                     <p className="text-xs font-semibold text-foreground/40 uppercase tracking-wide">
-                      Sections
+                      {t("reports.ui.sections")}
                     </p>
 
                     <SectionToggle
                       id="profile"
-                      label="Student Profile"
-                      description="Name, gender, date of birth, and enrollment dates."
+                      label={t("reports.ui.profileLabel")}
+                      description={t("reports.ui.profileDescription")}
                       checked={sections.has("profile")}
                       onChange={(v) => toggleSection("profile", v)}
                     />
 
                     <SectionToggle
                       id="contacts"
-                      label="Family Contacts"
-                      description="Contacts with relationship, phone, email, and roles."
+                      label={t("reports.ui.contactsLabel")}
+                      description={t("reports.ui.contactsDescription")}
                       checked={sections.has("contacts")}
                       onChange={(v) => toggleSection("contacts", v)}
                     />
 
                     <SectionToggle
                       id="addresses"
-                      label="Addresses"
-                      description="All recorded addresses, home address highlighted."
+                      label={t("reports.ui.addressesLabel")}
+                      description={t("reports.ui.addressesDescription")}
                       checked={sections.has("addresses")}
                       onChange={(v) => toggleSection("addresses", v)}
                     />
 
                     <SectionToggle
                       id="services"
-                      label="Services & Support"
-                      description="Special ed, therapies, medical plan, allergies, and conditions."
+                      label={t("reports.ui.servicesLabel")}
+                      description={t("reports.ui.servicesDescription")}
                       checked={sections.has("services")}
                       onChange={(v) => toggleSection("services", v)}
                     />
 
                     <SectionToggle
                       id="accommodations"
-                      label="Accommodations"
-                      description="Checklist of classroom accommodations."
+                      label={t("reports.ui.accommodationsLabel")}
+                      description={t("reports.ui.accommodationsDescription")}
                       checked={sections.has("accommodations")}
                       onChange={(v) => toggleSection("accommodations", v)}
                     />
 
                     <SectionToggle
                       id="observations"
-                      label="Behavioral Observations"
-                      description="Three grouped checklists: learning, attention, and social."
+                      label={t("reports.ui.observationsLabel")}
+                      description={t("reports.ui.observationsDescription")}
                       checked={sections.has("observations")}
                       onChange={(v) => toggleSection("observations", v)}
                     />
 
                     <SectionToggle
                       id="notes"
-                      label="Notes"
-                      description="Chronological student notes with tags."
+                      label={t("reports.ui.notesLabel")}
+                      description={t("reports.ui.notesDescription")}
                       checked={sections.has("notes")}
                       onChange={(v) => toggleSection("notes", v)}
                     >
                       {sections.has("notes") && (
                         <div className="mt-2 flex flex-col gap-1.5">
-                          <span className="text-xs text-foreground/50">Tag filter (optional)</span>
+                          <span className="text-xs text-foreground/50">{t("reports.ui.tagFilter")}</span>
                           <Select
                             aria-label="Tag filter"
                             selectedKey={noteTagFilter || "__all__"}
@@ -702,10 +720,10 @@ export function ReportsPage({ group }: ReportsPageProps) {
                             </Select.Trigger>
                             <Select.Popover>
                               <ListBox>
-                                <ListBox.Item id="__all__" textValue="All tags">All tags</ListBox.Item>
-                                {NOTE_TAG_KEYS.map((t) => (
-                                  <ListBox.Item key={t} id={t} textValue={t}>
-                                    {t.charAt(0).toUpperCase() + t.slice(1)}
+                                <ListBox.Item id="__all__" textValue={t("reports.ui.allTags")}>{t("reports.ui.allTags")}</ListBox.Item>
+                                {NOTE_TAG_KEYS.map((tagKey) => (
+                                  <ListBox.Item key={tagKey} id={tagKey} textValue={tagKey}>
+                                    {tagKey.charAt(0).toUpperCase() + tagKey.slice(1)}
                                   </ListBox.Item>
                                 ))}
                               </ListBox>
@@ -717,22 +735,22 @@ export function ReportsPage({ group }: ReportsPageProps) {
 
                     <SectionToggle
                       id="student-attendance"
-                      label="Attendance Records"
-                      description="Per-period attendance log with status and notes."
+                      label={t("reports.ui.attendanceRecordsLabel")}
+                      description={t("reports.ui.attendanceRecordsDescription")}
                       checked={sections.has("student-attendance")}
                       onChange={(v) => toggleSection("student-attendance", v)}
                     >
                       {sections.has("student-attendance") && (
                         <div className="mt-2 flex flex-col gap-1.5">
-                          <span className="text-xs text-foreground/50">Date range (optional)</span>
+                          <span className="text-xs text-foreground/50">{t("reports.ui.dateRange")}</span>
                           <div className="flex flex-col gap-2">
                             <ReportDatePicker
-                              label="From"
+                              label={t("reports.ui.dateFrom")}
                               value={studentDateFrom}
                               onChange={setStudentDateFrom}
                             />
                             <ReportDatePicker
-                              label="To"
+                              label={t("reports.ui.dateTo")}
                               value={studentDateTo}
                               onChange={setStudentDateTo}
                             />
@@ -743,14 +761,14 @@ export function ReportsPage({ group }: ReportsPageProps) {
 
                     <SectionToggle
                       id="student-grades"
-                      label="Grades"
-                      description="Assignment scores with grade letters."
+                      label={t("reports.ui.gradesLabel")}
+                      description={t("reports.ui.gradesDescription")}
                       checked={sections.has("student-grades")}
                       onChange={(v) => toggleSection("student-grades", v)}
                     >
                       {sections.has("student-grades") && studentAvailablePeriods.length > 0 && (
                         <div className="mt-2 flex flex-col gap-1.5">
-                          <span className="text-xs text-foreground/50">Period (optional)</span>
+                          <span className="text-xs text-foreground/50">{t("reports.ui.period")}</span>
                           <Select
                             aria-label="Period filter"
                             selectedKey={studentGradesPeriod || "__all__"}
@@ -765,7 +783,7 @@ export function ReportsPage({ group }: ReportsPageProps) {
                             </Select.Trigger>
                             <Select.Popover>
                               <ListBox>
-                                <ListBox.Item id="__all__" textValue="All periods">All periods</ListBox.Item>
+                                <ListBox.Item id="__all__" textValue={t("reports.ui.allPeriods")}>{t("reports.ui.allPeriods")}</ListBox.Item>
                                 {studentAvailablePeriods.map((p) => (
                                   <ListBox.Item key={p} id={p} textValue={p}>{p}</ListBox.Item>
                                 ))}
@@ -788,21 +806,16 @@ export function ReportsPage({ group }: ReportsPageProps) {
                 isDisabled={!canGenerate}
                 onPress={handleGenerate}
               >
-                {generating ? "Saving…" : "Save to Folder"}
+                {generating ? t("reports.ui.saving") : t("reports.ui.saveToFolder")}
               </Button>
               {sections.size === 0 && (scope === "group" || selectedStudentId !== null) && (
                 <p className="text-xs text-center text-foreground/30">
-                  Select at least one section.
+                  {t("reports.ui.selectAtLeastOne")}
                 </p>
               )}
               {scope === "individual" && selectedStudentId === null && (
                 <p className="text-xs text-center text-foreground/30">
-                  Select a student to continue.
-                </p>
-              )}
-              {!folder && sections.size > 0 && (
-                <p className="text-xs text-center text-foreground/30">
-                  Configure output folder in Settings.
+                  {t("reports.ui.selectStudentFirst")}
                 </p>
               )}
             </div>
@@ -818,7 +831,18 @@ export function ReportsPage({ group }: ReportsPageProps) {
                 ) : (
                   <AlertCircle size={14} className="text-danger mt-0.5 shrink-0" />
                 )}
-                <p className="break-all text-xs leading-relaxed">{result.message}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="break-all text-xs leading-relaxed">{result.message}</p>
+                  {result.ok && result.filePath && (
+                    <button
+                      className="flex items-center gap-1 mt-1.5 text-xs text-foreground/50 hover:text-foreground/80 transition-colors"
+                      onClick={() => revealItemInDir(result.filePath!)}
+                    >
+                      <FolderOpen size={11} />
+                      {t("reports.ui.showInFinder")}
+                    </button>
+                  )}
+                </div>
               </Surface>
             )}
           </div>
@@ -828,12 +852,12 @@ export function ReportsPage({ group }: ReportsPageProps) {
         <div className="flex-1 flex flex-col min-w-0 bg-foreground/[0.03]">
           <div className="flex items-center gap-2 px-4 py-2 border-b border-border bg-background shrink-0">
             <span className="text-xs font-medium text-foreground/40 uppercase tracking-wide">
-              Preview
+              {t("reports.ui.preview")}
             </span>
             {previewLoading && (
               <span className="flex items-center gap-1.5 text-xs text-foreground/40">
                 <span className="w-3 h-3 border border-foreground/20 border-t-foreground/60 rounded-full animate-spin" />
-                Updating…
+                {t("reports.ui.previewUpdating")}
               </span>
             )}
           </div>
@@ -861,8 +885,8 @@ export function ReportsPage({ group }: ReportsPageProps) {
                 <FileText size={48} strokeWidth={1} />
                 <p className="text-sm">
                   {scope === "individual" && !selectedStudentId
-                    ? "Select a student to get started"
-                    : "Select sections to see a preview"}
+                    ? t("reports.ui.previewSelectStudent")
+                    : t("reports.ui.previewEmpty")}
                 </p>
               </div>
             )}
@@ -870,7 +894,7 @@ export function ReportsPage({ group }: ReportsPageProps) {
             {previewLoading && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/35 text-foreground/30 backdrop-blur-[1px]">
                 <span className="w-8 h-8 border-2 border-foreground/10 border-t-foreground/40 rounded-full animate-spin" />
-                <p className="text-sm">{previewUrl ? "Updating preview…" : "Building preview…"}</p>
+                <p className="text-sm">{previewUrl ? t("reports.ui.previewRefreshing") : t("reports.ui.previewBuilding")}</p>
               </div>
             )}
           </div>

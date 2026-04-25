@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { Address } from "../../types/address";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -31,23 +33,26 @@ const S = StyleSheet.create({
 
 interface Props {
   addresses: Address[];
+  language: Language;
 }
 
-export function AddressesSection({ addresses }: Props) {
+export function AddressesSection({ addresses, language }: Props) {
+  const L = translations[language].reports.pdf;
+
   return (
     <View style={S.section}>
-      <Text style={S.title}>Addresses</Text>
+      <Text style={S.title}>{L.addresses}</Text>
       {addresses.length === 0 ? (
-        <Text style={S.empty}>No addresses recorded.</Text>
+        <Text style={S.empty}>{L.noAddresses}</Text>
       ) : (
         <View style={S.addresses}>
           {addresses.map((a) => {
             const cityLine = [a.city, a.state, a.zip_code].filter(Boolean).join(", ");
-            const displayLabel = a.label || (a.is_student_home ? "Home Address" : "Address");
+            const displayLabel = a.label || (a.is_student_home ? L.homeAddressLabel : L.addresses);
             return (
               <View key={a.id} style={[S.card, a.is_student_home ? S.cardHome : {}]}>
                 {a.is_student_home ? (
-                  <Text style={S.homeBadge}>HOME ADDRESS</Text>
+                  <Text style={S.homeBadge}>{L.homeAddressBadge}</Text>
                 ) : null}
                 <Text style={[S.cardLabel, a.is_student_home ? S.cardHome_label : {}]}>
                   {displayLabel}

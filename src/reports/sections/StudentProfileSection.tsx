@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { Student } from "../../types/student";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -27,21 +29,24 @@ function fmt(d: string | null): string {
 
 interface Props {
   student: Student;
+  language: Language;
 }
 
-export function StudentProfileSection({ student }: Props) {
+export function StudentProfileSection({ student, language }: Props) {
+  const L = translations[language].reports.pdf;
+
   const fields: { label: string; value: string }[] = [
-    { label: "Full Name", value: student.name },
-    { label: "Gender", value: student.gender ?? "—" },
-    { label: "Date of Birth", value: fmt(student.birthdate) },
-    { label: "Student ID", value: student.student_number ?? "—" },
-    { label: "Enrollment Date", value: fmt(student.enrollment_date) },
-    { label: "Enrollment End Date", value: fmt(student.enrollment_end_date) },
+    { label: L.fieldFullName, value: student.name },
+    { label: L.fieldGender, value: student.gender ?? "—" },
+    { label: L.fieldDob, value: fmt(student.birthdate) },
+    { label: L.fieldStudentId, value: student.student_number ?? "—" },
+    { label: L.fieldEnrollmentDate, value: fmt(student.enrollment_date) },
+    { label: L.fieldEnrollmentEndDate, value: fmt(student.enrollment_end_date) },
   ];
 
   return (
     <View style={S.section}>
-      <Text style={S.title}>Student Profile</Text>
+      <Text style={S.title}>{L.profile}</Text>
       <View style={S.grid}>
         {fields.map((f) => (
           <View key={f.label} style={S.field}>

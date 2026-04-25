@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { Student } from "../../types/student";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -54,18 +56,24 @@ function fmt(d: string | null): string {
 
 interface Props {
   students: Student[];
+  language: Language;
 }
 
-export function StudentRosterSection({ students }: Props) {
+export function StudentRosterSection({ students, language }: Props) {
+  const L = translations[language].reports.pdf;
+  const countLabel = students.length === 1
+    ? L.studentCount.replace("{n}", String(students.length))
+    : L.studentCountPlural.replace("{n}", String(students.length));
+
   return (
     <View style={S.section}>
-      <Text style={S.title}>Student Roster</Text>
+      <Text style={S.title}>{L.roster}</Text>
       <View style={S.thead}>
-        <Text style={[S.hCell, S.colName]}>Name</Text>
-        <Text style={[S.hCell, S.colGender]}>Gender</Text>
-        <Text style={[S.hCell, S.colBirthdate]}>Birthdate</Text>
-        <Text style={[S.hCell, S.colId]}>Student ID</Text>
-        <Text style={[S.hCell, S.colEnrolled]}>Enrolled</Text>
+        <Text style={[S.hCell, S.colName]}>{L.colName}</Text>
+        <Text style={[S.hCell, S.colGender]}>{L.colGender}</Text>
+        <Text style={[S.hCell, S.colBirthdate]}>{L.colBirthdate}</Text>
+        <Text style={[S.hCell, S.colId]}>{L.colStudentId}</Text>
+        <Text style={[S.hCell, S.colEnrolled]}>{L.colEnrolled}</Text>
       </View>
       {students.map((s) => (
         <View key={s.id} style={S.row}>
@@ -76,9 +84,7 @@ export function StudentRosterSection({ students }: Props) {
           <Text style={[S.cell, S.colEnrolled]}>{fmt(s.enrollment_date)}</Text>
         </View>
       ))}
-      <Text style={S.footer}>
-        {students.length} student{students.length !== 1 ? "s" : ""}
-      </Text>
+      <Text style={S.footer}>{countLabel}</Text>
     </View>
   );
 }

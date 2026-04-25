@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { AttendanceSummaryRow } from "../fetchGroupReportData";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -54,35 +56,41 @@ interface Props {
   rows: AttendanceSummaryRow[];
   dateFrom?: string;
   dateTo?: string;
+  language: Language;
 }
 
-export function AttendanceSummarySection({ rows, dateFrom, dateTo }: Props) {
+export function AttendanceSummarySection({ rows, dateFrom, dateTo, language }: Props) {
+  const L = translations[language].reports.pdf;
   const hasData = rows.some((r) => r.total > 0);
 
   let dateLabel = "";
   if (dateFrom && dateTo) dateLabel = `${dateFrom} – ${dateTo}`;
-  else if (dateFrom) dateLabel = `From ${dateFrom}`;
-  else if (dateTo) dateLabel = `Through ${dateTo}`;
+  else if (dateFrom) dateLabel = L.dateFrom.replace("{date}", dateFrom);
+  else if (dateTo) dateLabel = L.dateTo.replace("{date}", dateTo);
+
+  const countLabel = rows.length === 1
+    ? L.studentCount.replace("{n}", String(rows.length))
+    : L.studentCountPlural.replace("{n}", String(rows.length));
 
   return (
     <View style={S.section}>
       <View style={S.titleRow}>
-        <Text style={S.title}>Attendance Summary</Text>
+        <Text style={S.title}>{L.attendanceSummary}</Text>
         {dateLabel ? <Text style={S.dateRange}>{dateLabel}</Text> : null}
       </View>
 
       {!hasData ? (
-        <Text style={S.noData}>No attendance records found for the selected period.</Text>
+        <Text style={S.noData}>{L.noAttendanceData}</Text>
       ) : (
         <>
           <View style={S.thead}>
-            <Text style={[S.hCellLeft, S.colName]}>Student</Text>
-            <Text style={[S.hCell, S.colNum]}>Present</Text>
-            <Text style={[S.hCell, S.colNum]}>Absent</Text>
-            <Text style={[S.hCell, S.colNum]}>Late</Text>
-            <Text style={[S.hCell, S.colNum]}>Partial</Text>
-            <Text style={[S.hCell, S.colNum]}>Total</Text>
-            <Text style={[S.hCell, S.colPct]}>Attendance</Text>
+            <Text style={[S.hCellLeft, S.colName]}>{L.colStudent}</Text>
+            <Text style={[S.hCell, S.colNum]}>{L.colPresent}</Text>
+            <Text style={[S.hCell, S.colNum]}>{L.colAbsent}</Text>
+            <Text style={[S.hCell, S.colNum]}>{L.colLate}</Text>
+            <Text style={[S.hCell, S.colNum]}>{L.colPartial}</Text>
+            <Text style={[S.hCell, S.colNum]}>{L.colTotal}</Text>
+            <Text style={[S.hCell, S.colPct]}>{L.colAttendancePct}</Text>
           </View>
           {rows.map((r) => {
             const attendedDays = r.present + r.late + r.partial;
@@ -102,7 +110,7 @@ export function AttendanceSummarySection({ rows, dateFrom, dateTo }: Props) {
               </View>
             );
           })}
-          <Text style={S.footer}>{rows.length} student{rows.length !== 1 ? "s" : ""}</Text>
+          <Text style={S.footer}>{countLabel}</Text>
         </>
       )}
     </View>

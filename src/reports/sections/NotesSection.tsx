@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { Note, NoteTagKey } from "../../types/note";
 import { parseTags } from "../../types/note";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -35,15 +37,6 @@ const S = StyleSheet.create({
   footer: { paddingTop: 4, fontSize: 8, color: "#94a3b8" },
 });
 
-const TAG_LABELS: Record<NoteTagKey, string> = {
-  incident: "Incident",
-  positive: "Positive",
-  negative: "Negative",
-  health: "Health",
-  attendance: "Attendance",
-  referral: "Referral",
-};
-
 function fmtDate(iso: string): string {
   const d = new Date(iso);
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -53,19 +46,37 @@ function fmtDate(iso: string): string {
 interface Props {
   notes: Note[];
   tagFilter?: string;
+  language: Language;
 }
 
-export function NotesSection({ notes, tagFilter }: Props) {
+export function NotesSection({ notes, tagFilter, language }: Props) {
+  const L = translations[language].reports.pdf;
+
+  const TAG_LABELS: Record<NoteTagKey, string> = {
+    incident: L.tagIncident,
+    positive: L.tagPositive,
+    negative: L.tagNegative,
+    health: L.tagHealth,
+    attendance: L.tagAttendance,
+    referral: L.tagReferral,
+  };
+
   const filterLabel = tagFilter ? TAG_LABELS[tagFilter as NoteTagKey] ?? tagFilter : null;
+
+  const countLabel = notes.length === 1
+    ? L.noteCount.replace("{n}", String(notes.length))
+    : L.noteCountPlural.replace("{n}", String(notes.length));
 
   return (
     <View style={S.section}>
       <Text style={S.title}>
-        Notes{filterLabel ? ` — ${filterLabel}` : ""}
+        {L.notes}{filterLabel ? ` — ${filterLabel}` : ""}
       </Text>
       {notes.length === 0 ? (
         <Text style={S.empty}>
-          {filterLabel ? `No notes tagged "${filterLabel}".` : "No notes recorded."}
+          {filterLabel
+            ? L.noNotesTagged.replace("{tag}", filterLabel)
+            : L.noNotes}
         </Text>
       ) : (
         notes.map((note) => {
@@ -84,8 +95,8 @@ export function NotesSection({ notes, tagFilter }: Props) {
         })
       )}
       <Text style={S.footer}>
-        {notes.length} note{notes.length !== 1 ? "s" : ""}
-        {filterLabel ? ` matching "${filterLabel}"` : ""}
+        {countLabel}
+        {filterLabel ? L.noteMatchingTag.replace("{tag}", filterLabel) : ""}
       </Text>
     </View>
   );

@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { AssignmentReportData } from "../fetchGroupReportData";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -87,23 +89,29 @@ function gradeStyle(letter: string) {
 interface Props {
   assignments: AssignmentReportData[];
   periodFilter?: string;
+  language: Language;
 }
 
-export function GradeSummarySection({ assignments, periodFilter }: Props) {
+export function GradeSummarySection({ assignments, periodFilter, language }: Props) {
+  const L = translations[language].reports.pdf;
+
   if (assignments.length === 0) {
+    const emptyMsg = periodFilter
+      ? L.noAssignmentsForPeriod.replace("{period}", periodFilter)
+      : L.noAssignments;
     return (
       <View style={S.section}>
-        <Text style={S.title}>Grade Summary</Text>
-        <Text style={S.noData}>No assignments found{periodFilter ? ` for period "${periodFilter}"` : ""}.</Text>
+        <Text style={S.title}>{L.gradeSummary}</Text>
+        <Text style={S.noData}>{emptyMsg}</Text>
       </View>
     );
   }
 
   return (
     <View style={S.section}>
-      <Text style={S.title}>Grade Summary</Text>
+      <Text style={S.title}>{L.gradeSummary}</Text>
       {periodFilter ? (
-        <Text style={S.subtitle}>Period: {periodFilter}</Text>
+        <Text style={S.subtitle}>{L.periodLabel.replace("{period}", periodFilter)}</Text>
       ) : null}
 
       {assignments.map((a) => {
@@ -112,14 +120,14 @@ export function GradeSummarySection({ assignments, periodFilter }: Props) {
             <View style={S.assignmentHeader}>
               <Text style={S.assignmentTitle}>{a.title}</Text>
               <Text style={S.assignmentMeta}>
-                {a.periodName} · Max: {a.maxScore} pts
+                {a.periodName} · {L.maxPts.replace("{n}", String(a.maxScore))}
               </Text>
             </View>
 
             <View style={S.thead}>
-              <Text style={[S.hCellLeft, { flex: 5 }]}>Student</Text>
-              <Text style={[S.hCell, { flex: 2 }]}>Score</Text>
-              <Text style={[S.hCell, { flex: 1 }]}>Grade</Text>
+              <Text style={[S.hCellLeft, { flex: 5 }]}>{L.colStudent}</Text>
+              <Text style={[S.hCell, { flex: 2 }]}>{L.colScore}</Text>
+              <Text style={[S.hCell, { flex: 1 }]}>{L.colGrade}</Text>
             </View>
 
             {a.scores.map((s) => {
@@ -136,11 +144,11 @@ export function GradeSummarySection({ assignments, periodFilter }: Props) {
             })}
 
             <View style={S.avgRow}>
-              <Text style={S.avgLabel}>Class average:</Text>
+              <Text style={S.avgLabel}>{L.classAverage}</Text>
               <Text style={S.avgValue}>
                 {a.average !== null
                   ? `${a.average.toFixed(1)} / ${a.maxScore} (${((a.average / a.maxScore) * 100).toFixed(1)}%)`
-                  : "No scores yet"}
+                  : L.noScores}
               </Text>
             </View>
           </View>

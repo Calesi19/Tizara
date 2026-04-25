@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { StudentGradeRow } from "../fetchStudentReportData";
+import { translations } from "../../i18n/translations";
+import type { Language } from "../../i18n/translations";
 
 const S = StyleSheet.create({
   section: { marginBottom: 28 },
@@ -68,9 +70,12 @@ function gradeStyle(grade: string) {
 interface Props {
   grades: StudentGradeRow[];
   periodFilter?: string;
+  language: Language;
 }
 
-export function GradesSection({ grades, periodFilter }: Props) {
+export function GradesSection({ grades, periodFilter, language }: Props) {
+  const L = translations[language].reports.pdf;
+
   const totalGraded = grades.filter((g) => g.score !== null).length;
   const avg =
     totalGraded > 0
@@ -79,21 +84,27 @@ export function GradesSection({ grades, periodFilter }: Props) {
           .reduce((acc, g) => acc + (g.score! / g.maxScore) * 100, 0) / totalGraded
       : null;
 
+  const countLabel = grades.length === 1
+    ? L.assignmentCount.replace("{n}", String(grades.length))
+    : L.assignmentCountPlural.replace("{n}", String(grades.length));
+
   return (
     <View style={S.section}>
       <Text style={S.title}>
-        Grades{periodFilter ? ` — ${periodFilter}` : ""}
+        {L.grades}{periodFilter ? ` — ${periodFilter}` : ""}
       </Text>
       <View style={S.thead}>
-        <Text style={[S.hCell, S.colTitle]}>Assignment</Text>
-        <Text style={[S.hCell, S.colPeriod]}>Period</Text>
-        <Text style={[S.hCell, S.colScore]}>Score</Text>
-        <Text style={[S.hCell, S.colMax]}>Max</Text>
-        <Text style={[S.hCell, S.colGrade]}>Grade</Text>
+        <Text style={[S.hCell, S.colTitle]}>{L.colAssignment}</Text>
+        <Text style={[S.hCell, S.colPeriod]}>{L.colPeriod}</Text>
+        <Text style={[S.hCell, S.colScore]}>{L.colScore}</Text>
+        <Text style={[S.hCell, S.colMax]}>{L.colMax}</Text>
+        <Text style={[S.hCell, S.colGrade]}>{L.colGrade}</Text>
       </View>
       {grades.length === 0 ? (
         <Text style={S.empty}>
-          {periodFilter ? `No grades for period "${periodFilter}".` : "No grades recorded."}
+          {periodFilter
+            ? L.noGradesForPeriod.replace("{period}", periodFilter)
+            : L.noGrades}
         </Text>
       ) : (
         grades.map((g, i) => {
@@ -110,8 +121,8 @@ export function GradesSection({ grades, periodFilter }: Props) {
         })
       )}
       <Text style={S.footer}>
-        {grades.length} assignment{grades.length !== 1 ? "s" : ""}
-        {avg !== null ? ` · Class avg: ${avg.toFixed(1)}%` : ""}
+        {countLabel}
+        {avg !== null ? ` · ${L.classAvgLine.replace("{pct}", avg.toFixed(1))}` : ""}
       </Text>
     </View>
   );

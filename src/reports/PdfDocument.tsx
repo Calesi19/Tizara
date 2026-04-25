@@ -1,6 +1,8 @@
 import { Document, Page, View, Text, StyleSheet } from "@react-pdf/renderer";
 import type { ReactNode } from "react";
 import { APP_NAME } from "../appConfig";
+import { translations } from "../i18n/translations";
+import type { Language } from "../i18n/translations";
 
 const styles = StyleSheet.create({
   page: {
@@ -64,6 +66,7 @@ interface PdfDocumentProps {
   groupName: string;
   schoolName?: string | null;
   generatedDate: string;
+  language: Language;
   children: ReactNode;
 }
 
@@ -72,8 +75,10 @@ export function PdfDocument({
   groupName,
   schoolName,
   generatedDate,
+  language,
   children,
 }: PdfDocumentProps) {
+  const L = translations[language].reports.pdf;
   const subtitle = [schoolName, groupName].filter(Boolean).join(" · ");
 
   return (
@@ -92,10 +97,12 @@ export function PdfDocument({
         <View style={styles.content}>{children}</View>
 
         <View style={styles.footer} fixed>
-          <Text>Generated {generatedDate}</Text>
+          <Text>{L.generatedOn.replace("{date}", generatedDate)}</Text>
           <Text
             render={({ pageNumber, totalPages }) =>
-              `Page ${pageNumber} of ${totalPages}`
+              L.pageOf
+                .replace("{page}", String(pageNumber))
+                .replace("{total}", String(totalPages))
             }
           />
         </View>
